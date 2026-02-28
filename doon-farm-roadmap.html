@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doon Gooseberry Farm — Build Roadmap</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0f0a;
+    --bg2: #111408;
+    --surface: #161a0f;
+    --surface2: #1e2414;
+    --border: #2a3318;
+    --border2: #3a4825;
+    --green: #7ec850;
+    --green2: #a8e070;
+    --green-dim: #4a7a28;
+    --amber: #e8b84b;
+    --amber-dim: #8a6a1a;
+    --blue: #5b9bd5;
+    --pink: #d07ab8;
+    --red: #e05a5a;
+    --text: #d8e8c8;
+    --text-dim: #8a9e78;
+    --text-muted: #506040;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+    --serif: 'Lora', serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(126,200,80,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(126,200,80,0.04) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 40px 0 32px;
+    margin-bottom: 0;
+  }
+  .header-inner { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .brand-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--green);
+    background: rgba(126,200,80,0.08);
+    border: 1px solid var(--border2);
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    display: inline-block;
+  }
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 800;
+    line-height: 1.1;
+    color: #fff;
+    letter-spacing: -.02em;
+  }
+  h1 span { color: var(--green); }
+  .subtitle {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 15px;
+    color: var(--text-dim);
+    margin-top: 8px;
+  }
+  .header-meta {
+    display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+    font-family: var(--mono); font-size: 11px; color: var(--text-muted);
+  }
+  .status-dot {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--green);
+  }
+  .status-dot::before {
+    content: '';
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* ── TECH STACK BAR ── */
+  .stack-bar {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 0;
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .tech-chip {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid;
+    font-weight: 500;
+    letter-spacing: .05em;
+    cursor: default;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .tech-chip:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,.3); }
+  .tc-green { color: var(--green); border-color: var(--green-dim); background: rgba(126,200,80,.07); }
+  .tc-amber { color: var(--amber); border-color: var(--amber-dim); background: rgba(232,184,75,.07); }
+  .tc-blue  { color: var(--blue);  border-color: #2a4a70;          background: rgba(91,155,213,.07); }
+  .tc-pink  { color: var(--pink);  border-color: #5a3060;          background: rgba(208,122,184,.07); }
+  .tc-red   { color: var(--red);   border-color: #602020;          background: rgba(224,90,90,.07); }
+  .chip-label {
+    font-family: var(--display);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 5px 0 2px;
+    width: 100%;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    padding: 40px 0 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  /* ── AGENT GRID ── */
+  .agent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 2px;
+  }
+  .agent-card {
+    background: var(--surface);
+    padding: 20px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    transition: background .2s;
+    cursor: default;
+  }
+  .agent-card:hover { background: var(--surface2); }
+  .agent-icon {
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+  .agent-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+    letter-spacing: .02em;
+  }
+  .agent-tool {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--green);
+    margin-bottom: 10px;
+    letter-spacing: .05em;
+  }
+  .agent-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    font-family: var(--serif);
+    font-style: italic;
+  }
+
+  /* ── PHASES ── */
+  .phases { display: flex; flex-direction: column; gap: 0; }
+  .phase-block {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .phase-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 20px;
+    background: var(--surface);
+    cursor: pointer;
+    user-select: none;
+    transition: background .15s;
+    border-bottom: 1px solid transparent;
+  }
+  .phase-header:hover { background: var(--surface2); }
+  .phase-header.open { border-bottom-color: var(--border); background: var(--surface2); }
+  .phase-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--bg);
+    background: var(--green);
+    padding: 2px 8px;
+    border-radius: 3px;
+    min-width: 52px;
+    text-align: center;
+    letter-spacing: .05em;
+  }
+  .phase-num.amber { background: var(--amber); }
+  .phase-num.blue  { background: var(--blue); }
+  .phase-num.pink  { background: var(--pink); }
+  .phase-title-group { flex: 1; }
+  .phase-title { font-size: 14px; font-weight: 700; color: #fff; letter-spacing: .01em; }
+  .phase-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    letter-spacing: .05em;
+  }
+  .phase-toggle {
+    font-family: var(--mono);
+    font-size: 16px;
+    color: var(--text-muted);
+    transition: transform .2s;
+    line-height: 1;
+  }
+  .phase-header.open .phase-toggle { transform: rotate(180deg); color: var(--green); }
+
+  .phase-body { display: none; padding: 0; }
+  .phase-body.open { display: block; }
+
+  .step-list { list-style: none; }
+  .step-item {
+    display: flex; gap: 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    transition: background .15s;
+  }
+  .step-item:last-child { border-bottom: none; }
+  .step-item:hover { background: rgba(126,200,80,0.03); }
+
+  .step-num-col {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    min-width: 28px;
+    padding-top: 2px;
+  }
+  .step-content { flex: 1; }
+  .step-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .step-desc {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .step-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .step-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .tag-green { color: var(--green); background: rgba(126,200,80,.08); border: 1px solid var(--green-dim); }
+  .tag-amber { color: var(--amber); background: rgba(232,184,75,.08); border: 1px solid var(--amber-dim); }
+  .tag-blue  { color: var(--blue);  background: rgba(91,155,213,.08);  border: 1px solid #2a4a70; }
+  .tag-pink  { color: var(--pink);  background: rgba(208,122,184,.08); border: 1px solid #5a3060; }
+  .tag-red   { color: var(--red);   background: rgba(224,90,90,.08);   border: 1px solid #602020; }
+  .step-agent-badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: 4px;
+    margin-top: 6px;
+  }
+  .step-agent-badge::before { content: '⚡'; font-size: 10px; }
+
+  /* ── FILE STRUCTURE ── */
+  .file-tree {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .file-tree-header {
+    padding: 12px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .file-tree-body {
+    padding: 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 2;
+    overflow-x: auto;
+  }
+  .ft-dir { color: var(--amber); font-weight: 600; }
+  .ft-file { color: var(--text-dim); }
+  .ft-file.green { color: var(--green); }
+  .ft-file.blue { color: var(--blue); }
+  .ft-file.pink { color: var(--pink); }
+  .ft-comment { color: var(--text-muted); font-style: italic; }
+  .indent-1 { padding-left: 20px; }
+  .indent-2 { padding-left: 40px; }
+  .indent-3 { padding-left: 60px; }
+
+  /* ── PROMPT EXAMPLES ── */
+  .prompt-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .prompt-header {
+    padding: 10px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: 8px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .prompt-header span { color: var(--green); }
+  .prompt-body {
+    padding: 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--green2);
+    line-height: 1.8;
+    white-space: pre-wrap;
+  }
+  .prompt-body em { color: var(--text-dim); font-style: italic; }
+
+  /* ── DO/DON'T ── */
+  .rules-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 600px) { .rules-grid { grid-template-columns: 1fr; } }
+  .rules-col {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .rules-col-header {
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  .rules-col-header.do { background: rgba(126,200,80,.1); color: var(--green); border-bottom: 1px solid var(--green-dim); }
+  .rules-col-header.dont { background: rgba(224,90,90,.1); color: var(--red); border-bottom: 1px solid #602020; }
+  .rule-item {
+    padding: 10px 16px;
+    font-size: 12px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 8px;
+    line-height: 1.5;
+    font-family: var(--serif);
+    font-style: italic;
+  }
+  .rule-item:last-child { border-bottom: none; }
+  .rule-icon { font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── CHECKLIST ── */
+  .checklist { display: flex; flex-direction: column; gap: 1px; }
+  .check-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background .15s;
+    user-select: none;
+  }
+  .check-item:hover { background: var(--surface2); }
+  .check-item.checked { opacity: .5; }
+  .check-box {
+    width: 16px; height: 16px;
+    border: 1.5px solid var(--border2);
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all .15s;
+    font-size: 10px;
+  }
+  .check-item.checked .check-box {
+    background: var(--green);
+    border-color: var(--green);
+    color: #000;
+  }
+  .check-text { font-size: 12px; color: var(--text-dim); line-height: 1.5; font-family: var(--serif); font-style: italic; }
+  .check-item.checked .check-text { text-decoration: line-through; color: var(--text-muted); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 0 40px;
+    margin-top: 60px;
+  }
+  .footer-inner {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 10px; color: var(--text-muted);
+    flex-wrap: wrap; gap: 8px;
+  }
+
+  /* Animations */
+  .phase-block { animation: fadeUp .3s ease both; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  hr.divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 8px 0 24px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ── HEADER ── -->
+  <header>
+    <div class="header-inner">
+      <div>
+        <div class="brand-tag">Project Roadmap v1.0</div>
+        <h1>Doon Gooseberry Farm<br><span>Build Roadmap</span></h1>
+        <p class="subtitle">Monolithic Next.js 16 · Drizzle ORM · Better Auth · Google Antigravity + Cursor</p>
+      </div>
+      <div class="header-meta">
+        <div class="status-dot">Ready to build</div>
+        <div>Arch: Monolithic</div>
+        <div>Stack: Next.js 16 App Router</div>
+        <div>Agent: Antigravity + Cursor</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── TECH STACK ── -->
+  <div class="stack-bar">
+    <div class="chip-label">Core</div>
+    <span class="tech-chip tc-green">Next.js 16</span>
+    <span class="tech-chip tc-green">React 19</span>
+    <span class="tech-chip tc-green">Server Actions</span>
+    <span class="tech-chip tc-green">App Router</span>
+
+    <div class="chip-label">UI</div>
+    <span class="tech-chip tc-blue">shadcn/ui</span>
+    <span class="tech-chip tc-blue">Tailwind CSS</span>
+    <span class="tech-chip tc-blue">Lucide Icons</span>
+
+    <div class="chip-label">Auth</div>
+    <span class="tech-chip tc-amber">Better Auth</span>
+
+    <div class="chip-label">Database</div>
+    <span class="tech-chip tc-pink">PostgreSQL</span>
+    <span class="tech-chip tc-pink">Drizzle ORM</span>
+
+    <div class="chip-label">Tooling</div>
+    <span class="tech-chip tc-red">pnpm</span>
+    <span class="tech-chip tc-red">Biome</span>
+
+    <div class="chip-label">AI Agents</div>
+    <span class="tech-chip tc-green">Google Antigravity</span>
+    <span class="tech-chip tc-blue">Cursor</span>
+  </div>
+
+  <!-- ── AGENTS SECTION ── -->
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <span class="section-title">AI Agent Roles — Who Does What</span>
+  </div>
+
+  <div class="agent-grid">
+    <div class="agent-card">
+      <div class="agent-icon">🗺️</div>
+      <div class="agent-name">Planning Agent</div>
+      <div class="agent-tool">Antigravity — Mission Control</div>
+      <div class="agent-desc">You describe the feature in plain English. Antigravity breaks it into sub-tasks, assigns agents, and tracks artifacts. Handles scaffolding entire modules autonomously.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-icon">🎨</div>
+      <div class="agent-name">UI Builder Agent</div>
+      <div class="agent-tool">Cursor Composer + Antigravity</div>
+      <div class="agent-desc">Builds shadcn/ui components, Tailwind layouts, and responsive pages. Cursor for precision edits; Antigravity for generating full page scaffolds fast.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-icon">⚡</div>
+      <div class="agent-name">Server Action Agent</div>
+      <div class="agent-tool">Cursor Agent — precise edits</div>
+      <div class="agent-desc">Writes Server Actions for forms, mutations, and data fetching. Cursor is ideal here — Server Actions require surgical precision to avoid breaking Next.js conventions.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-icon">🗄️</div>
+      <div class="agent-name">Database Agent</div>
+      <div class="agent-tool">Cursor Agent + Drizzle Studio</div>
+      <div class="agent-desc">Writes Drizzle schema files, generates migrations, builds query helpers. Cursor understands your existing schema context and stays type-safe throughout.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-icon">🔐</div>
+      <div class="agent-name">Auth Agent</div>
+      <div class="agent-tool">Cursor Agent (surgical)</div>
+      <div class="agent-desc">Integrates Better Auth across app — session handling, middleware, protected routes, and role-based access for admin vs. user. Cursor prevents auth regressions.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-icon">🧪</div>
+      <div class="agent-name">Testing & QA Agent</div>
+      <div class="agent-tool">Antigravity — Browser Agent</div>
+      <div class="agent-desc">Antigravity's browser agent clicks through checkout flows, fills forms, and records video of any issues. Generates test artifacts you can verify.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-icon">📦</div>
+      <div class="agent-name">Deploy Agent</div>
+      <div class="agent-tool">Antigravity Terminal Agent</div>
+      <div class="agent-desc">Runs build commands, sets environment variables, and executes Railway/Vercel deployments from terminal. Antigravity handles multi-step deploy sequences autonomously.</div>
+    </div>
+    <div class="agent-card">
+      <div class="agent-icon">✍️</div>
+      <div class="agent-name">Content Agent</div>
+      <div class="agent-tool">Claude.ai (me!)</div>
+      <div class="agent-desc">Writes product descriptions, SEO meta, blog posts, and email templates. Feed me product details and I generate optimized, on-brand content for every page.</div>
+    </div>
+  </div>
+
+  <br>
+  <!-- ── PHASES ── -->
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <span class="section-title">Complete Build Phases — Step by Step</span>
+  </div>
+
+  <div class="phases">
+
+    <!-- PHASE 0 -->
+    <div class="phase-block">
+      <div class="phase-header open" onclick="togglePhase(this)">
+        <span class="phase-num">P0</span>
+        <div class="phase-title-group">
+          <div class="phase-title">Project Setup & Tooling</div>
+          <div class="phase-meta">DAY 1 · Foundation before any feature code</div>
+        </div>
+        <span class="phase-toggle">▾</span>
+      </div>
+      <div class="phase-body open">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num-col">0.1</span>
+            <div class="step-content">
+              <div class="step-title">Bootstrap the monorepo</div>
+              <div class="step-desc">Run pnpm create next-app with App Router, TypeScript, and Tailwind. This is your single repo — no separate frontend/backend folders.</div>
+              <div class="step-tags">
+                <span class="step-tag tag-green">pnpm</span>
+                <span class="step-tag tag-green">Next.js 16</span>
+                <span class="step-tag tag-green">TypeScript</span>
+              </div>
+              <div class="step-agent-badge">Use: Cursor inline (30s scaffold)</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">0.2</span>
+            <div class="step-content">
+              <div class="step-title">Install and configure Biome</div>
+              <div class="step-desc">Replace ESLint + Prettier with Biome. One tool for linting and formatting. Add biome.json with your rules and a pre-commit hook via lint-staged.</div>
+              <div class="step-tags">
+                <span class="step-tag tag-red">Biome</span>
+                <span class="step-tag tag-red">lint-staged</span>
+                <span class="step-tag tag-red">husky</span>
+              </div>
+              <div class="step-agent-badge">Use: Cursor — paste Biome config template</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">0.3</span>
+            <div class="step-content">
+              <div class="step-title">shadcn/ui initialization</div>
+              <div class="step-desc">Run npx shadcn@latest init. Set base color, CSS variables, and component path. Install your starter components: Button, Card, Input, Badge, Dialog, Sheet, Table.</div>
+              <div class="step-tags">
+                <span class="step-tag tag-blue">shadcn/ui</span>
+                <span class="step-tag tag-blue">Tailwind</span>
+                <span class="step-tag tag-blue">Lucide</span>
+              </div>
+              <div class="step-agent-badge">Use: CLI (manual, 5 minutes)</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">0.4</span>
+            <div class="step-content">
+              <div class="step-title">PostgreSQL + Drizzle ORM setup</div>
+              <div class="step-desc">Install drizzle-orm, drizzle-kit, and pg. Create src/db/schema.ts and drizzle.config.ts. Set DATABASE_URL in .env.local. Run your first pnpm db:push.</div>
+              <div class="step-tags">
+                <span class="step-tag tag-pink">PostgreSQL</span>
+                <span class="step-tag tag-pink">Drizzle ORM</span>
+                <span class="step-tag tag-pink">drizzle-kit</span>
+              </div>
+              <div class="step-agent-badge">Use: Cursor — schema generation from ERD description</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">0.5</span>
+            <div class="step-content">
+              <div class="step-title">Better Auth integration</div>
+              <div class="step-desc">Install better-auth. Create auth.ts config, add auth API route at app/api/auth/[...all]/route.ts, configure Drizzle adapter, set up middleware.ts for protected routes.</div>
+              <div class="step-tags">
+                <span class="step-tag tag-amber">Better Auth</span>
+                <span class="step-tag tag-amber">Middleware</span>
+                <span class="step-tag tag-amber">Sessions</span>
+              </div>
+              <div class="step-agent-badge">Use: Cursor Agent (auth is complex — use surgical mode)</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">0.6</span>
+            <div class="step-content">
+              <div class="step-title">Folder structure & environment</div>
+              <div class="step-desc">Set up env validation with zod (t3-env pattern), create src/lib/ utilities, define role constants (ADMIN | USER), configure path aliases in tsconfig.</div>
+              <div class="step-tags">
+                <span class="step-tag tag-green">t3-env</span>
+                <span class="step-tag tag-green">Zod</span>
+                <span class="step-tag tag-green">tsconfig paths</span>
+              </div>
+              <div class="step-agent-badge">Use: Cursor (copy your env vars, agent generates schema)</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 1 -->
+    <div class="phase-block">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num amber">P1</span>
+        <div class="phase-title-group">
+          <div class="phase-title">Database Schema Design</div>
+          <div class="phase-meta">DAYS 2–3 · Design everything before touching UI</div>
+        </div>
+        <span class="phase-toggle">▾</span>
+      </div>
+      <div class="phase-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num-col">1.1</span>
+            <div class="step-content">
+              <div class="step-title">Define all Drizzle tables</div>
+              <div class="step-desc">Write tables: users, sessions, products, categories, orders, order_items, cart, cart_items, reviews, addresses, coupons. Define relations in relations.ts.</div>
+              <div class="step-tags">
+                <span class="step-tag tag-pink">Schema</span>
+                <span class="step-tag tag-pink">Relations</span>
+                <span class="step-tag tag-pink">Migrations</span>
+              </div>
+              <div class="step-agent-badge">Use: Cursor — describe tables in plain English, agent writes schema</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">1.2</span>
+            <div class="step-content">
+              <div class="step-title">Add indexes and constraints</div>
+              <div class="step-desc">Add unique constraints, foreign keys, and performance indexes. Product slug must be unique. Order status uses a pgEnum. Price stored as integer (paise, not float).</div>
+              <div class="step-tags">
+                <span class="step-tag tag-pink">Indexes</span>
+                <span class="step-tag tag-pink">pgEnum</span>
+                <span class="step-tag tag-amber">No float prices</span>
+              </div>
+              <div class="step-agent-badge">Use: Cursor Agent (paste schema, ask for index recommendations)</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">1.3</span>
+            <div class="step-content">
+              <div class="step-title">Seed data for development</div>
+              <div class="step-desc">Create src/db/seed.ts with all 17 existing products, categories (Pickle, Chutney, Jam, Juice, Candy, Spices), and an admin user. Run before any UI work.</div>
+              <div class="step-tags">
+                <span class="step-tag tag-green">Seed Script</span>
+                <span class="step-tag tag-green">Dev Data</span>
+              </div>
+              <div class="step-agent-badge">Use: Antigravity — feed it the product list from the website, it writes the seed file</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase-block">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">P2</span>
+        <div class="phase-title-group">
+          <div class="phase-title">Shared Layout & Navigation</div>
+          <div class="phase-meta">DAYS 4–5 · App shell used by every page</div>
+        </div>
+        <span class="phase-toggle">▾</span>
+      </div>
+      <div class="phase-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num-col">2.1</span>
+            <div class="step-content">
+              <div class="step-title">Root layout.tsx + global styles</div>
+              <div class="step-desc">Set Tailwind CSS variables for your brand palette (farm greens, earthy tones). Configure Next.js font with next/font. Create ThemeProvider wrapper.</div>
+              <div class="step-tags"><span class="step-tag tag-blue">Layout</span><span class="step-tag tag-blue">Fonts</span><span class="step-tag tag-blue">CSS Variables</span></div>
+              <div class="step-agent-badge">Use: Cursor — describe brand colors, agent sets up CSS tokens</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">2.2</span>
+            <div class="step-content">
+              <div class="step-title">Header with cart + auth state</div>
+              <div class="step-desc">Build sticky header: logo, category nav, search icon, cart icon with count badge, and user dropdown. Cart count is a Server Component reading from DB; optimistically updates client-side.</div>
+              <div class="step-tags"><span class="step-tag tag-blue">Header</span><span class="step-tag tag-green">Cart Badge</span><span class="step-tag tag-amber">Auth State</span></div>
+              <div class="step-agent-badge">Use: Antigravity (scaffold full header) → Cursor (wire up auth/cart state)</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">2.3</span>
+            <div class="step-content">
+              <div class="step-title">Footer & mobile nav drawer</div>
+              <div class="step-desc">Static footer with links + contact info. Mobile: shadcn Sheet component for slide-in nav. Categories loaded from DB via Server Component at layout level.</div>
+              <div class="step-tags"><span class="step-tag tag-blue">Footer</span><span class="step-tag tag-blue">Mobile Nav</span><span class="step-tag tag-blue">Sheet</span></div>
+              <div class="step-agent-badge">Use: Antigravity Mission — "Build responsive nav with mobile drawer"</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase-block">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num amber">P3</span>
+        <div class="phase-title-group">
+          <div class="phase-title">Homepage</div>
+          <div class="phase-meta">DAYS 6–8 · First impression — make it stunning</div>
+        </div>
+        <span class="phase-toggle">▾</span>
+      </div>
+      <div class="phase-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num-col">3.1</span>
+            <div class="step-content">
+              <div class="step-title">Hero section with farm story</div>
+              <div class="step-desc">Full-width hero with headline, subtext about the Uttarakhand farm, CTA button. Background uses a real farm photo (use next/image with priority). No carousel — single impactful image.</div>
+              <div class="step-tags"><span class="step-tag tag-blue">Hero</span><span class="step-tag tag-green">next/image</span><span class="step-tag tag-blue">CTA</span></div>
+              <div class="step-agent-badge">Use: Antigravity — feed it your brand story, it writes copy + builds component</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">3.2</span>
+            <div class="step-content">
+              <div class="step-title">Featured products carousel</div>
+              <div class="step-desc">Server Component fetches top 6 products. Client-side carousel with scroll snap. Each card: image, name, price (with strikethrough if sale), Add to Cart button using Server Action.</div>
+              <div class="step-tags"><span class="step-tag tag-pink">DB Query</span><span class="step-tag tag-green">Server Action</span><span class="step-tag tag-blue">Scroll Snap</span></div>
+              <div class="step-agent-badge">Use: Cursor Agent (has full schema context — generates Drizzle query + UI)</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">3.3</span>
+            <div class="step-content">
+              <div class="step-title">Category grid + trust badges</div>
+              <div class="step-desc">Visual category grid linking to /shop?category=X. Below: 3-4 trust badges (100% Natural, Farm Fresh, Free Shipping above ₹500, Secure Checkout).</div>
+              <div class="step-tags"><span class="step-tag tag-blue">Categories</span><span class="step-tag tag-blue">Trust Badges</span></div>
+              <div class="step-agent-badge">Use: Antigravity — fast mode, 2-minute scaffold</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">3.4</span>
+            <div class="step-content">
+              <div class="step-title">Testimonials + newsletter signup</div>
+              <div class="step-desc">Static testimonial cards (seed 3-4 real reviews). Email signup form — Server Action saves to a subscribers table in Postgres. No third-party ESP needed initially.</div>
+              <div class="step-tags"><span class="step-tag tag-green">Server Action</span><span class="step-tag tag-pink">DB Insert</span><span class="step-tag tag-blue">Form</span></div>
+              <div class="step-agent-badge">Use: Cursor (write the Server Action + form validation with zod)</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 4 -->
+    <div class="phase-block">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num blue">P4</span>
+        <div class="phase-title-group">
+          <div class="phase-title">Product Catalog & Shop Page</div>
+          <div class="phase-meta">DAYS 9–12 · Core shopping experience</div>
+        </div>
+        <span class="phase-toggle">▾</span>
+      </div>
+      <div class="phase-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num-col">4.1</span>
+            <div class="step-content">
+              <div class="step-title">Shop page with URL-based filters</div>
+              <div class="step-desc">app/shop/page.tsx is a Server Component. Reads searchParams for category, sort, price range. Drizzle query with where clauses. No client-side filter state — URL is the state.</div>
+              <div class="step-tags"><span class="step-tag tag-green">Server Component</span><span class="step-tag tag-pink">Drizzle WHERE</span><span class="step-tag tag-green">searchParams</span></div>
+              <div class="step-agent-badge">Use: Cursor Agent — "Build shop page with searchParams-driven Drizzle filter query"</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">4.2</span>
+            <div class="step-content">
+              <div class="step-title">Product card + grid</div>
+              <div class="step-desc">Reusable ProductCard component: image hover zoom, category badge, sale tag, price, Add to Cart. Use Suspense with skeleton fallbacks. Grid is CSS grid — no library needed.</div>
+              <div class="step-tags"><span class="step-tag tag-blue">ProductCard</span><span class="step-tag tag-blue">Suspense</span><span class="step-tag tag-blue">Skeleton</span></div>
+              <div class="step-agent-badge">Use: Antigravity — build full card component with hover states</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">4.3</span>
+            <div class="step-content">
+              <div class="step-title">Filter sidebar (mobile + desktop)</div>
+              <div class="step-desc">Desktop: sticky sidebar. Mobile: shadcn Sheet. Filters update URL params using useRouter — no API calls. Categories, price range slider, dietary badges (Sugar Free, etc.).</div>
+              <div class="step-tags"><span class="step-tag tag-blue">Filter UI</span><span class="step-tag tag-blue">useRouter</span><span class="step-tag tag-blue">URL State</span></div>
+              <div class="step-agent-badge">Use: Cursor — existing searchParams pattern, agent keeps it consistent</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">4.4</span>
+            <div class="step-content">
+              <div class="step-title">Product detail page</div>
+              <div class="step-desc">app/shop/[slug]/page.tsx. Image gallery, description, nutritional info, quantity selector, Add to Cart Server Action, reviews section, related products from same category.</div>
+              <div class="step-tags"><span class="step-tag tag-pink">Dynamic Route</span><span class="step-tag tag-green">Server Action</span><span class="step-tag tag-blue">Gallery</span></div>
+              <div class="step-agent-badge">Use: Antigravity Mission — "Build product detail page for Next.js App Router"</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">4.5</span>
+            <div class="step-content">
+              <div class="step-title">Search functionality</div>
+              <div class="step-desc">Server Action that queries Postgres full-text search on product name + description. Results page at /search?q=. Add search to header with keyboard shortcut (⌘K).</div>
+              <div class="step-tags"><span class="step-tag tag-pink">Full-text Search</span><span class="step-tag tag-green">Server Action</span><span class="step-tag tag-blue">Command Palette</span></div>
+              <div class="step-agent-badge">Use: Cursor — PostgreSQL tsvector query + shadcn Command component</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 5 -->
+    <div class="phase-block">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">P5</span>
+        <div class="phase-title-group">
+          <div class="phase-title">Cart & Checkout</div>
+          <div class="phase-meta">DAYS 13–17 · The money flow — most critical path</div>
+        </div>
+        <span class="phase-toggle">▾</span>
+      </div>
+      <div class="phase-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num-col">5.1</span>
+            <div class="step-content">
+              <div class="step-title">Cart Server Actions</div>
+              <div class="step-desc">addToCart, removeFromCart, updateQuantity — all Server Actions. Cart stored in Postgres linked to session. Guest cart merges with user cart on login. Use optimistic updates with useOptimistic.</div>
+              <div class="step-tags"><span class="step-tag tag-green">Server Actions</span><span class="step-tag tag-pink">Cart Table</span><span class="step-tag tag-green">useOptimistic</span></div>
+              <div class="step-agent-badge">Use: Cursor Agent (complex logic — surgical mode with full schema context)</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">5.2</span>
+            <div class="step-content">
+              <div class="step-title">Cart page & slide-over</div>
+              <div class="step-desc">Dedicated /cart page + a shadcn Sheet slide-over for quick cart preview. Show product image, name, price, quantity stepper, remove button, subtotal, and Continue to Checkout CTA.</div>
+              <div class="step-tags"><span class="step-tag tag-blue">Cart UI</span><span class="step-tag tag-blue">Sheet</span><span class="step-tag tag-blue">Quantity Stepper</span></div>
+              <div class="step-agent-badge">Use: Antigravity — build cart UI; Cursor — wire up Server Actions</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">5.3</span>
+            <div class="step-content">
+              <div class="step-title">Checkout flow (3 steps)</div>
+              <div class="step-desc">Step 1: Shipping address. Step 2: Review order summary. Step 3: Payment. Use a multi-step form pattern with URL state (/checkout?step=1,2,3). All validated with Zod in Server Actions.</div>
+              <div class="step-tags"><span class="step-tag tag-green">Multi-step Form</span><span class="step-tag tag-green">Zod Validation</span><span class="step-tag tag-amber">Auth Required</span></div>
+              <div class="step-agent-badge">Use: Cursor Agent (step-by-step, validate each action thoroughly)</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">5.4</span>
+            <div class="step-content">
+              <div class="step-title">Razorpay payment integration</div>
+              <div class="step-desc">Create Razorpay order via Server Action (never expose key to client). On payment success, verify signature server-side, create order record in DB, clear cart, redirect to /order/[id]/success.</div>
+              <div class="step-tags"><span class="step-tag tag-amber">Razorpay</span><span class="step-tag tag-green">Server Action</span><span class="step-tag tag-amber">Signature Verify</span></div>
+              <div class="step-agent-badge">Use: Cursor — security-critical, stay in full control. Don't use Antigravity for payment logic.</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">5.5</span>
+            <div class="step-content">
+              <div class="step-title">Order confirmation + email</div>
+              <div class="step-desc">Success page at /order/[id]/success. Trigger email via React Email + Resend (free tier covers small volume). Email shows order summary, estimated delivery, and support contact.</div>
+              <div class="step-tags"><span class="step-tag tag-blue">Order Success</span><span class="step-tag tag-amber">React Email</span><span class="step-tag tag-amber">Resend</span></div>
+              <div class="step-agent-badge">Use: Antigravity — "Build order confirmation email template with React Email"</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 6 -->
+    <div class="phase-block">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num amber">P6</span>
+        <div class="phase-title-group">
+          <div class="phase-title">User Account & Auth Pages</div>
+          <div class="phase-meta">DAYS 18–20 · Returning customer experience</div>
+        </div>
+        <span class="phase-toggle">▾</span>
+      </div>
+      <div class="phase-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num-col">6.1</span>
+            <div class="step-content">
+              <div class="step-title">Login / Register pages</div>
+              <div class="step-desc">Better Auth provides these automatically via signIn/signUp. Style them with shadcn Card + Input. Add Google OAuth as optional. Form validation with react-hook-form + Zod.</div>
+              <div class="step-tags"><span class="step-tag tag-amber">Better Auth</span><span class="step-tag tag-amber">OAuth</span><span class="step-tag tag-blue">Form</span></div>
+              <div class="step-agent-badge">Use: Cursor — wire Better Auth UI helpers to your styled components</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">6.2</span>
+            <div class="step-content">
+              <div class="step-title">User dashboard /account</div>
+              <div class="step-desc">Protected route (middleware redirects if not logged in). Tabs: My Orders, Addresses, Profile Settings, Wishlist. Orders list with status badges. Address CRUD with Server Actions.</div>
+              <div class="step-tags"><span class="step-tag tag-amber">Protected</span><span class="step-tag tag-green">Server Actions</span><span class="step-tag tag-blue">Tabs</span></div>
+              <div class="step-agent-badge">Use: Antigravity Mission — "Build user account dashboard with tabs for orders, addresses, profile"</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">6.3</span>
+            <div class="step-content">
+              <div class="step-title">Order detail & tracking</div>
+              <div class="step-desc">/account/orders/[id] shows full order breakdown, product images, quantities, total, and a simple timeline for order status (Placed → Processing → Shipped → Delivered).</div>
+              <div class="step-tags"><span class="step-tag tag-blue">Order Detail</span><span class="step-tag tag-blue">Status Timeline</span></div>
+              <div class="step-agent-badge">Use: Cursor (build timeline component, stays consistent with design system)</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 7 -->
+    <div class="phase-block">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num blue">P7</span>
+        <div class="phase-title-group">
+          <div class="phase-title">Admin Panel</div>
+          <div class="phase-meta">DAYS 21–26 · Internal tool for farm management</div>
+        </div>
+        <span class="phase-toggle">▾</span>
+      </div>
+      <div class="phase-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num-col">7.1</span>
+            <div class="step-content">
+              <div class="step-title">Admin layout + role guard</div>
+              <div class="step-desc">app/admin/ gets its own layout with a dark sidebar. Middleware checks session role === 'ADMIN', redirects otherwise. This lives inside the same monolith — no separate admin app.</div>
+              <div class="step-tags"><span class="step-tag tag-amber">ADMIN Role</span><span class="step-tag tag-amber">Middleware Guard</span><span class="step-tag tag-blue">Sidebar Layout</span></div>
+              <div class="step-agent-badge">Use: Cursor — role check must be precise, don't let agents be creative here</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">7.2</span>
+            <div class="step-content">
+              <div class="step-title">Product management (CRUD)</div>
+              <div class="step-desc">Table with all products. Add/Edit via shadcn Dialog or separate /admin/products/new page. Image upload to Cloudflare R2 or Vercel Blob. All mutations via Server Actions.</div>
+              <div class="step-tags"><span class="step-tag tag-pink">Product CRUD</span><span class="step-tag tag-green">Server Actions</span><span class="step-tag tag-amber">Image Upload</span></div>
+              <div class="step-agent-badge">Use: Antigravity — "Build full CRUD product table with image upload for Next.js admin"</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">7.3</span>
+            <div class="step-content">
+              <div class="step-title">Order management</div>
+              <div class="step-desc">Orders table with filters by status. Click order to see full details. Dropdown to update status (Processing → Shipped). Status change triggers email to customer via Resend.</div>
+              <div class="step-tags"><span class="step-tag tag-blue">Orders Table</span><span class="step-tag tag-green">Status Update</span><span class="step-tag tag-amber">Email Trigger</span></div>
+              <div class="step-agent-badge">Use: Cursor Agent (full context of schema + email setup)</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">7.4</span>
+            <div class="step-content">
+              <div class="step-title">Dashboard stats overview</div>
+              <div class="step-desc">Admin home: total orders today/week/month, revenue, low stock alerts, recent orders table. All from Server Components with Drizzle aggregate queries. No charts library needed — CSS bars are fine.</div>
+              <div class="step-tags"><span class="step-tag tag-pink">Aggregates</span><span class="step-tag tag-green">Server Component</span><span class="step-tag tag-blue">Stats Cards</span></div>
+              <div class="step-agent-badge">Use: Antigravity — feeds off your schema to generate aggregate queries</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 8 -->
+    <div class="phase-block">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">P8</span>
+        <div class="phase-title-group">
+          <div class="phase-title">Customer Features (Delight Layer)</div>
+          <div class="phase-meta">DAYS 27–32 · What makes customers come back</div>
+        </div>
+        <span class="phase-toggle">▾</span>
+      </div>
+      <div class="phase-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num-col">8.1</span>
+            <div class="step-content">
+              <div class="step-title">Reviews & ratings</div>
+              <div class="step-desc">Verified-purchase-only reviews (check orders table). Star rating with half-star display. Review form: Server Action that saves to DB and revalidates product page cache.</div>
+              <div class="step-tags"><span class="step-tag tag-green">Server Action</span><span class="step-tag tag-pink">Reviews Table</span><span class="step-tag tag-green">revalidatePath</span></div>
+              <div class="step-agent-badge">Use: Cursor Agent</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">8.2</span>
+            <div class="step-content">
+              <div class="step-title">Wishlist</div>
+              <div class="step-desc">Heart icon on product cards. Toggles wishlist item via Server Action. Wishlist page at /account/wishlist. For logged-out users: store in localStorage, sync to DB on login.</div>
+              <div class="step-tags"><span class="step-tag tag-green">Server Action</span><span class="step-tag tag-pink">Wishlist Table</span><span class="step-tag tag-amber">Guest Sync</span></div>
+              <div class="step-agent-badge">Use: Cursor — localStorage sync logic is tricky, stay in control</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">8.3</span>
+            <div class="step-content">
+              <div class="step-title">Coupon codes</div>
+              <div class="step-desc">Coupons table with: code, discount type (% or flat), min order value, expiry, max uses. Apply at checkout via Server Action that validates all rules before applying discount.</div>
+              <div class="step-tags"><span class="step-tag tag-pink">Coupons Table</span><span class="step-tag tag-green">Server Action</span><span class="step-tag tag-amber">Validation Rules</span></div>
+              <div class="step-agent-badge">Use: Cursor Agent (coupon validation logic needs precise, testable code)</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">8.4</span>
+            <div class="step-content">
+              <div class="step-title">Blog (simple, SEO-focused)</div>
+              <div class="step-desc">MDX-based blog at /blog. Posts are .mdx files in src/content/blog/. No CMS needed for a small farm blog. Use next-mdx-remote for rendering. Great for SEO with recipe content.</div>
+              <div class="step-tags"><span class="step-tag tag-blue">MDX</span><span class="step-tag tag-green">SEO</span><span class="step-tag tag-blue">Static</span></div>
+              <div class="step-agent-badge">Use: Antigravity — can write MDX blog posts + configure the parser</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 9 -->
+    <div class="phase-block">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num amber">P9</span>
+        <div class="phase-title-group">
+          <div class="phase-title">SEO, Performance & Polish</div>
+          <div class="phase-meta">DAYS 33–36 · Make it fast, make it findable</div>
+        </div>
+        <span class="phase-toggle">▾</span>
+      </div>
+      <div class="phase-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num-col">9.1</span>
+            <div class="step-content">
+              <div class="step-title">Metadata API + structured data</div>
+              <div class="step-desc">Use Next.js 15 Metadata API (generateMetadata) on every page. Add JSON-LD for Product schema on product pages. Improves Google Shopping visibility significantly.</div>
+              <div class="step-tags"><span class="step-tag tag-green">generateMetadata</span><span class="step-tag tag-green">JSON-LD</span><span class="step-tag tag-green">Open Graph</span></div>
+              <div class="step-agent-badge">Use: Cursor — "Add generateMetadata and JSON-LD to product detail page"</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">9.2</span>
+            <div class="step-content">
+              <div class="step-title">Image optimization pipeline</div>
+              <div class="step-desc">All images through next/image. Use WebP format, define sizes prop for responsive images. Set up Cloudflare R2 or Vercel Blob as image storage. Add blur placeholder for product images.</div>
+              <div class="step-tags"><span class="step-tag tag-blue">next/image</span><span class="step-tag tag-blue">WebP</span><span class="step-tag tag-amber">CDN</span></div>
+              <div class="step-agent-badge">Use: Cursor (systematic — update all ProductCard instances at once)</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">9.3</span>
+            <div class="step-content">
+              <div class="step-title">Caching strategy</div>
+              <div class="step-desc">Product list: revalidate every 60s. Product detail: ISR. Admin mutations: call revalidatePath/revalidateTag. Cart & orders: no-store. Get this right — it's the #1 performance lever in Next.js.</div>
+              <div class="step-tags"><span class="step-tag tag-green">ISR</span><span class="step-tag tag-green">revalidatePath</span><span class="step-tag tag-green">no-store</span></div>
+              <div class="step-agent-badge">Use: Cursor — caching bugs are subtle, review every fetch call</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">9.4</span>
+            <div class="step-content">
+              <div class="step-title">Error boundaries & loading states</div>
+              <div class="step-desc">Every route segment needs error.tsx and loading.tsx. Product grid gets a skeleton. Checkout steps get skeletons. Cart button shows optimistic state. Test by simulating slow DB queries.</div>
+              <div class="step-tags"><span class="step-tag tag-blue">error.tsx</span><span class="step-tag tag-blue">loading.tsx</span><span class="step-tag tag-blue">Skeleton</span></div>
+              <div class="step-agent-badge">Use: Antigravity — "Add loading and error states to all route segments"</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 10 -->
+    <div class="phase-block">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num blue">P10</span>
+        <div class="phase-title-group">
+          <div class="phase-title">Deploy to Production</div>
+          <div class="phase-meta">DAYS 37–40 · Ship it. One command, one server.</div>
+        </div>
+        <span class="phase-toggle">▾</span>
+      </div>
+      <div class="phase-body">
+        <ul class="step-list">
+          <li class="step-item">
+            <span class="step-num-col">10.1</span>
+            <div class="step-content">
+              <div class="step-title">Railway deployment (recommended)</div>
+              <div class="step-desc">Railway hosts your Next.js app + PostgreSQL in one dashboard. Connect GitHub repo, set env vars, deploy. ~$10-20/month total. Zero DevOps complexity — perfect for a small farm business.</div>
+              <div class="step-tags"><span class="step-tag tag-green">Railway</span><span class="step-tag tag-green">One-click Deploy</span><span class="step-tag tag-green">Auto SSL</span></div>
+              <div class="step-agent-badge">Use: Antigravity Terminal Agent — "Deploy to Railway, set all env vars, run migrations"</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">10.2</span>
+            <div class="step-content">
+              <div class="step-title">DNS + domain setup</div>
+              <div class="step-desc">Point doongooseberryfarm.com to Railway. Railway gives you free SSL. Run production DB migrations with drizzle-kit migrate. Smoke test checkout with Razorpay test mode first.</div>
+              <div class="step-tags"><span class="step-tag tag-amber">DNS</span><span class="step-tag tag-amber">SSL</span><span class="step-tag tag-pink">Migrations</span></div>
+              <div class="step-agent-badge">Use: Manual — DNS changes need human verification</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num-col">10.3</span>
+            <div class="step-content">
+              <div class="step-title">Monitoring + error tracking</div>
+              <div class="step-desc">Add Sentry (free tier) for error tracking. Set up Uptime Robot for availability alerts. Railway gives you basic metrics. Add a /health API route that checks DB connectivity.</div>
+              <div class="step-tags"><span class="step-tag tag-red">Sentry</span><span class="step-tag tag-red">Uptime Robot</span><span class="step-tag tag-red">/health Route</span></div>
+              <div class="step-agent-badge">Use: Cursor — "Add Sentry SDK and /health route to Next.js app"</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── FILE STRUCTURE ── -->
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <span class="section-title">Monolithic Folder Structure</span>
+  </div>
+
+  <div class="file-tree">
+    <div class="file-tree-header">📁 doon-gooseberry-farm/ &nbsp;·&nbsp; Single Next.js 16 App — everything lives here</div>
+    <div class="file-tree-body">
+<div><span class="ft-dir">src/</span></div>
+<div class="indent-1"><span class="ft-dir">app/</span> <span class="ft-comment">── Next.js App Router (pages + layouts + API)</span></div>
+<div class="indent-2"><span class="ft-dir">(shop)/</span> <span class="ft-comment">── Route group: public shop pages</span></div>
+<div class="indent-3"><span class="ft-file green">page.tsx</span> <span class="ft-comment">── Homepage</span></div>
+<div class="indent-3"><span class="ft-dir">shop/</span></div>
+<div class="indent-3"><span class="ft-dir">shop/[slug]/</span></div>
+<div class="indent-3"><span class="ft-dir">cart/ &nbsp; checkout/ &nbsp; search/</span></div>
+<div class="indent-3"><span class="ft-dir">blog/ &nbsp; about/ &nbsp; contact/</span></div>
+<div class="indent-2"><span class="ft-dir">(account)/</span> <span class="ft-comment">── Route group: authenticated user pages</span></div>
+<div class="indent-3"><span class="ft-dir">account/ &nbsp; account/orders/ &nbsp; account/wishlist/</span></div>
+<div class="indent-2"><span class="ft-dir">admin/</span> <span class="ft-comment">── Role-guarded admin section</span></div>
+<div class="indent-3"><span class="ft-dir">products/ &nbsp; orders/ &nbsp; customers/</span></div>
+<div class="indent-2"><span class="ft-dir">api/</span></div>
+<div class="indent-3"><span class="ft-file blue">auth/[...all]/route.ts</span> <span class="ft-comment">── Better Auth handler</span></div>
+<div class="indent-3"><span class="ft-file blue">webhooks/razorpay/route.ts</span> <span class="ft-comment">── Payment webhooks</span></div>
+<div class="indent-3"><span class="ft-file blue">health/route.ts</span> <span class="ft-comment">── Uptime probe</span></div>
+
+<br>
+<div class="indent-1"><span class="ft-dir">db/</span> <span class="ft-comment">── Everything Drizzle</span></div>
+<div class="indent-2"><span class="ft-file pink">schema.ts</span> <span class="ft-comment">── All table definitions</span></div>
+<div class="indent-2"><span class="ft-file pink">relations.ts</span> <span class="ft-comment">── Drizzle relations</span></div>
+<div class="indent-2"><span class="ft-file pink">index.ts</span> <span class="ft-comment">── DB client singleton</span></div>
+<div class="indent-2"><span class="ft-file pink">seed.ts</span> <span class="ft-comment">── Development seed data</span></div>
+<div class="indent-2"><span class="ft-dir">queries/</span> <span class="ft-comment">── Reusable Drizzle queries</span></div>
+
+<br>
+<div class="indent-1"><span class="ft-dir">actions/</span> <span class="ft-comment">── All Server Actions (the API layer)</span></div>
+<div class="indent-2"><span class="ft-file green">cart.actions.ts</span></div>
+<div class="indent-2"><span class="ft-file green">order.actions.ts</span></div>
+<div class="indent-2"><span class="ft-file green">product.actions.ts</span></div>
+<div class="indent-2"><span class="ft-file green">review.actions.ts</span></div>
+<div class="indent-2"><span class="ft-file green">auth.actions.ts</span></div>
+
+<br>
+<div class="indent-1"><span class="ft-dir">components/</span></div>
+<div class="indent-2"><span class="ft-dir">ui/</span> <span class="ft-comment">── shadcn/ui components (auto-generated)</span></div>
+<div class="indent-2"><span class="ft-dir">shop/</span> <span class="ft-comment">── ProductCard, ProductGrid, FilterSidebar</span></div>
+<div class="indent-2"><span class="ft-dir">cart/</span> <span class="ft-comment">── CartItem, CartSlideOver, CartSummary</span></div>
+<div class="indent-2"><span class="ft-dir">layout/</span> <span class="ft-comment">── Header, Footer, MobileNav</span></div>
+<div class="indent-2"><span class="ft-dir">admin/</span> <span class="ft-comment">── AdminSidebar, DataTable, StatCard</span></div>
+
+<br>
+<div class="indent-1"><span class="ft-dir">lib/</span></div>
+<div class="indent-2"><span class="ft-file blue">auth.ts</span> <span class="ft-comment">── Better Auth config</span></div>
+<div class="indent-2"><span class="ft-file blue">razorpay.ts</span> <span class="ft-comment">── Payment client</span></div>
+<div class="indent-2"><span class="ft-file blue">email.ts</span> <span class="ft-comment">── Resend + React Email setup</span></div>
+<div class="indent-2"><span class="ft-file blue">validations.ts</span> <span class="ft-comment">── Shared Zod schemas</span></div>
+<div class="indent-2"><span class="ft-file blue">utils.ts</span> <span class="ft-comment">── formatPrice, slugify, etc.</span></div>
+
+<br>
+<div class="indent-1"><span class="ft-dir">content/blog/</span> <span class="ft-comment">── .mdx blog posts</span></div>
+
+<br>
+<div><span class="ft-file pink">drizzle.config.ts</span></div>
+<div><span class="ft-file red">biome.json</span></div>
+<div><span class="ft-file green">middleware.ts</span> <span class="ft-comment">── Route protection (Better Auth + role check)</span></div>
+<div><span class="ft-file green">next.config.ts</span></div>
+<div><span class="ft-file">package.json</span> <span class="ft-comment">── pnpm workspace</span></div>
+    </div>
+  </div>
+
+  <!-- ── AGENT PROMPTS ── -->
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <span class="section-title">Example Agent Prompts — Copy & Use These</span>
+  </div>
+
+  <div class="prompt-box">
+    <div class="prompt-header">🤖 Antigravity Mission &nbsp;·&nbsp; <span>Scaffold full product catalog</span></div>
+    <div class="prompt-body">Build a product catalog for a Next.js 16 App Router e-commerce app.
+
+Tech: Drizzle ORM with PostgreSQL, shadcn/ui, Tailwind CSS, Server Actions.
+
+Requirements:
+- /shop page is a Server Component, reads category + sort from searchParams
+- ProductCard component: image (next/image), category badge, sale badge, price, Add to Cart button
+- Filter sidebar: category checkboxes, price range, updates URL params (no API calls)  
+- Add to Cart is a Server Action that upserts to cart_items table
+- Use Suspense + loading skeleton for product grid
+- Mobile: filters in a shadcn Sheet slide-over
+
+<em>Schema already exists at src/db/schema.ts — read it before writing any queries.</em></div>
+  </div>
+
+  <div class="prompt-box">
+    <div class="prompt-header">🔧 Cursor Agent &nbsp;·&nbsp; <span>Drizzle schema from description</span></div>
+    <div class="prompt-body">Write a Drizzle ORM schema for an e-commerce app in src/db/schema.ts.
+
+Tables needed:
+- users (id, name, email, role: 'USER'|'ADMIN', createdAt)
+- products (id, name, slug UNIQUE, description, price in paise, images jsonb, stock, categoryId, isActive)
+- categories (id, name, slug)
+- orders (id, userId, status enum, total, shippingAddress jsonb, createdAt)
+- order_items (id, orderId, productId, quantity, priceAtTime)
+- cart (id, userId UNIQUE, sessionId)
+- cart_items (id, cartId, productId, quantity)
+- reviews (id, userId, productId, rating 1-5, body, createdAt — only if verified purchase)
+- addresses (id, userId, name, line1, line2, city, state, pincode, isDefault)
+
+Use pgEnum for order status: PENDING, PROCESSING, SHIPPED, DELIVERED, CANCELLED.
+Add proper indexes. Export all relations in relations.ts.
+Price is always integer (paise) — NEVER float.</div>
+  </div>
+
+  <div class="prompt-box">
+    <div class="prompt-header">🔧 Cursor Agent &nbsp;·&nbsp; <span>Server Actions for cart</span></div>
+    <div class="prompt-body">Write Server Actions in src/actions/cart.actions.ts for a Next.js 16 App Router app.
+
+Actions needed:
+- addToCart(productId, quantity) — upsert to cart_items
+- removeFromCart(cartItemId) 
+- updateCartQuantity(cartItemId, quantity)
+- getCart() — returns cart with product details joined
+- mergeGuestCart(sessionCart) — called on login to merge localStorage cart
+
+Rules:
+- All actions use 'use server' directive
+- Auth via Better Auth: const session = await auth.api.getSession()
+- Use db from src/db/index.ts (Drizzle client)
+- Validate inputs with Zod before DB operations
+- Call revalidatePath('/cart') after mutations
+- Return { success: true, data } or { success: false, error: string }
+
+Read src/db/schema.ts before writing any queries.</div>
+  </div>
+
+  <!-- ── RULES ── -->
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <span class="section-title">When to Use Antigravity vs Cursor</span>
+  </div>
+
+  <div class="rules-grid">
+    <div class="rules-col">
+      <div class="rules-col-header do">✓ Use Antigravity when…</div>
+      <div class="rule-item"><span class="rule-icon">✓</span>Scaffolding entire new pages or features from scratch</div>
+      <div class="rule-item"><span class="rule-icon">✓</span>Writing boilerplate: forms, tables, layouts, email templates</div>
+      <div class="rule-item"><span class="rule-icon">✓</span>You need browser testing — it clicks through your app autonomously</div>
+      <div class="rule-item"><span class="rule-icon">✓</span>Multi-step terminal tasks: install deps, run migrations, deploy</div>
+      <div class="rule-item"><span class="rule-icon">✓</span>Generating seed data and MDX blog content</div>
+      <div class="rule-item"><span class="rule-icon">✓</span>You want to delegate and review — not type every line</div>
+    </div>
+    <div class="rules-col">
+      <div class="rules-col-header dont">✗ Use Cursor when…</div>
+      <div class="rule-item"><span class="rule-icon">✗</span>Writing payment logic (Razorpay signature verification)</div>
+      <div class="rule-item"><span class="rule-icon">✗</span>Auth middleware — one mistake = security hole</div>
+      <div class="rule-item"><span class="rule-icon">✗</span>Fixing a specific bug in existing code (surgical edits)</div>
+      <div class="rule-item"><span class="rule-icon">✗</span>Writing Drizzle queries that touch existing schema</div>
+      <div class="rule-item"><span class="rule-icon">✗</span>Refactoring critical business logic (coupons, order totals)</div>
+      <div class="rule-item"><span class="rule-icon">✗</span>You want full control + diff review before any change is applied</div>
+    </div>
+  </div>
+
+  <!-- ── LAUNCH CHECKLIST ── -->
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <span class="section-title">Pre-Launch Checklist — click to track your progress</span>
+  </div>
+
+  <div class="checklist" id="checklist">
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">All 17 products migrated to PostgreSQL with images on CDN</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Add to Cart → Checkout → Payment full flow tested with Razorpay test mode</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Better Auth: login, register, logout, session persistence all working</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Admin panel: can create/edit/delete products and update order status</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Order confirmation email delivered to real inbox via Resend</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Razorpay switched from test mode to live mode, real payment verified</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">All pages have correct meta titles, descriptions, and Open Graph images</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Mobile responsive — tested on real Android & iPhone</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Lighthouse score: Performance 90+, Accessibility 90+, SEO 100</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">PostgreSQL database backed up (Railway auto-backup enabled)</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Sentry error monitoring active and receiving events</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Old WordPress site kept live as fallback until 1 week after launch</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">Biome passing with zero linting errors (pnpm lint)</div></div>
+    <div class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><div class="check-text">All environment variables set in Railway production — .env.local never deployed</div></div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <span>Doon Gooseberry Farm — Website Rebuild Roadmap</span>
+      <span>Stack: Next.js 16 · React 19 · Drizzle · Better Auth · PostgreSQL</span>
+      <span>Monolithic Architecture · Single Deploy · Railway hosting</span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  function togglePhase(header) {
+    const body = header.nextElementSibling;
+    const isOpen = header.classList.contains('open');
+    header.classList.toggle('open', !isOpen);
+    body.classList.toggle('open', !isOpen);
+  }
+
+  function toggleCheck(item) {
+    item.classList.toggle('checked');
+    const box = item.querySelector('.check-box');
+    box.textContent = item.classList.contains('checked') ? '✓' : '';
+  }
+
+  // Open first phase by default already set in HTML
+  // Animate phase blocks on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.style.opacity = '1';
+    });
+  }, { threshold: 0.05 });
+  document.querySelectorAll('.phase-block').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
