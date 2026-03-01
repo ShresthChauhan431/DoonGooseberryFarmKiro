@@ -1,4 +1,5 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 import Script from 'next/script';
 import { Suspense } from 'react';
