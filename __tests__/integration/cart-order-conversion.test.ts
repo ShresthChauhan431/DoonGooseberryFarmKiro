@@ -12,8 +12,7 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { verifyPaymentAndCreateOrder } from '@/lib/actions/orders';
 import { db } from '@/lib/db';
-import { calculateCartTotals, getCart } from '@/lib/queries/cart';
-import { getOrderById } from '@/lib/queries/orders';
+import { calculateCartTotals } from '@/lib/queries/cart';
 import type { CartItem, Coupon } from '@/lib/utils/cart';
 
 // Mock dependencies
@@ -59,7 +58,7 @@ describe('Integration: Cart to Order Conversion', () => {
     vi.mocked(verifyPaymentSignature).mockReturnValue(true);
 
     // Mock email sending
-    vi.mocked(sendEmail).mockResolvedValue(undefined);
+    vi.mocked(sendEmail).mockResolvedValue({ success: true });
   });
 
   test('Cart items are correctly converted to order items with captured prices', async () => {
@@ -68,10 +67,10 @@ describe('Integration: Cart to Order Conversion', () => {
       {
         id: 'item-1',
         cartId: 'cart-123',
-        productId: 'prod-1',
+        productId: '13f0bb21-1d54-47c4-a621-cf7b988fceba',
         quantity: 2,
         product: {
-          id: 'prod-1',
+          id: '13f0bb21-1d54-47c4-a621-cf7b988fceba',
           name: 'Mango Pickle',
           slug: 'mango-pickle',
           price: 25000, // ₹250 in paise
@@ -83,10 +82,10 @@ describe('Integration: Cart to Order Conversion', () => {
       {
         id: 'item-2',
         cartId: 'cart-123',
-        productId: 'prod-2',
+        productId: '24f0bb21-1d54-47c4-a621-cf7b988fceba',
         quantity: 3,
         product: {
-          id: 'prod-2',
+          id: '24f0bb21-1d54-47c4-a621-cf7b988fceba',
           name: 'Gooseberry Chutney',
           slug: 'gooseberry-chutney',
           price: 30000, // ₹300 in paise
@@ -98,10 +97,10 @@ describe('Integration: Cart to Order Conversion', () => {
       {
         id: 'item-3',
         cartId: 'cart-123',
-        productId: 'prod-3',
+        productId: '35f0bb21-1d54-47c4-a621-cf7b988fceba',
         quantity: 1,
         product: {
-          id: 'prod-3',
+          id: '35f0bb21-1d54-47c4-a621-cf7b988fceba',
           name: 'Mixed Fruit Jam',
           slug: 'mixed-fruit-jam',
           price: 35000, // ₹350 in paise
@@ -113,33 +112,30 @@ describe('Integration: Cart to Order Conversion', () => {
     ];
 
     // Mock getCart to return our test cart
-    vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
+    vi.spyOn(db, 'select')
+      .mockReturnValueOnce({
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
+        limit: vi
+          .fn()
+          .mockResolvedValue([
+            { id: 'cart-123', userId: testUserId, sessionId: null, createdAt: new Date() },
+          ]),
+      } as any)
+      .mockReturnValueOnce({
+        from: vi.fn().mockReturnThis(),
         leftJoin: vi.fn().mockReturnThis(),
-      };
-
-      // Cart query
-      mockChain.limit.mockResolvedValueOnce([
-        { id: 'cart-123', userId: testUserId, sessionId: null, createdAt: new Date() },
-      ]);
-
-      // Cart items query
-      mockChain.where.mockResolvedValueOnce(
-        cartItems.map((item) => ({
-          id: item.id,
-          cartId: item.cartId,
-          productId: item.productId,
-          quantity: item.quantity,
-          product: item.product,
-          category: null,
-        }))
-      );
-
-      return mockChain;
-    }) as any);
+        where: vi.fn().mockResolvedValue(
+          cartItems.map((item) => ({
+            id: item.id,
+            cartId: item.cartId,
+            productId: item.productId,
+            quantity: item.quantity,
+            product: item.product,
+            category: null,
+          }))
+        ),
+      } as any);
 
     // Calculate expected totals
     const totals = calculateCartTotals(cartItems);
@@ -156,7 +152,7 @@ describe('Integration: Cart to Order Conversion', () => {
     const createdOrderItems: any[] = [];
     vi.spyOn(db, 'transaction').mockImplementation(async (callback) => {
       const tx = {
-        insert: vi.fn().mockImplementation((table) => {
+        insert: vi.fn().mockImplementation((_table) => {
           return {
             values: vi.fn().mockImplementation((values) => {
               // Capture order items being created
@@ -215,7 +211,7 @@ describe('Integration: Cart to Order Conversion', () => {
     // Verify first order item
     expect(createdOrderItems[0]).toMatchObject({
       orderId: 'order-123',
-      productId: 'prod-1',
+      productId: '13f0bb21-1d54-47c4-a621-cf7b988fceba',
       quantity: 2,
       price: 25000, // Price captured at time of purchase
     });
@@ -223,7 +219,7 @@ describe('Integration: Cart to Order Conversion', () => {
     // Verify second order item
     expect(createdOrderItems[1]).toMatchObject({
       orderId: 'order-123',
-      productId: 'prod-2',
+      productId: '24f0bb21-1d54-47c4-a621-cf7b988fceba',
       quantity: 3,
       price: 30000, // Price captured at time of purchase
     });
@@ -231,7 +227,7 @@ describe('Integration: Cart to Order Conversion', () => {
     // Verify third order item
     expect(createdOrderItems[2]).toMatchObject({
       orderId: 'order-123',
-      productId: 'prod-3',
+      productId: '35f0bb21-1d54-47c4-a621-cf7b988fceba',
       quantity: 1,
       price: 35000, // Price captured at time of purchase
     });
@@ -242,10 +238,10 @@ describe('Integration: Cart to Order Conversion', () => {
       {
         id: 'item-1',
         cartId: 'cart-456',
-        productId: 'prod-1',
+        productId: '13f0bb21-1d54-47c4-a621-cf7b988fceba',
         quantity: 5, // Specific quantity to test
         product: {
-          id: 'prod-1',
+          id: '13f0bb21-1d54-47c4-a621-cf7b988fceba',
           name: 'Product 1',
           slug: 'product-1',
           price: 20000,
@@ -257,10 +253,10 @@ describe('Integration: Cart to Order Conversion', () => {
       {
         id: 'item-2',
         cartId: 'cart-456',
-        productId: 'prod-2',
+        productId: '24f0bb21-1d54-47c4-a621-cf7b988fceba',
         quantity: 7, // Different quantity
         product: {
-          id: 'prod-2',
+          id: '24f0bb21-1d54-47c4-a621-cf7b988fceba',
           name: 'Product 2',
           slug: 'product-2',
           price: 15000,
@@ -271,36 +267,35 @@ describe('Integration: Cart to Order Conversion', () => {
       },
     ];
 
-    vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
+    vi.spyOn(db, 'select')
+      .mockReturnValueOnce({
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
+        limit: vi
+          .fn()
+          .mockResolvedValue([
+            { id: 'cart-456', userId: testUserId, sessionId: null, createdAt: new Date() },
+          ]),
+      } as any)
+      .mockReturnValueOnce({
+        from: vi.fn().mockReturnThis(),
         leftJoin: vi.fn().mockReturnThis(),
-      };
-
-      mockChain.limit.mockResolvedValueOnce([
-        { id: 'cart-456', userId: testUserId, sessionId: null, createdAt: new Date() },
-      ]);
-
-      mockChain.where.mockResolvedValueOnce(
-        cartItems.map((item) => ({
-          id: item.id,
-          cartId: item.cartId,
-          productId: item.productId,
-          quantity: item.quantity,
-          product: item.product,
-          category: null,
-        }))
-      );
-
-      return mockChain;
-    }) as any);
+        where: vi.fn().mockResolvedValue(
+          cartItems.map((item) => ({
+            id: item.id,
+            cartId: item.cartId,
+            productId: item.productId,
+            quantity: item.quantity,
+            product: item.product,
+            category: null,
+          }))
+        ),
+      } as any);
 
     const createdOrderItems: any[] = [];
     vi.spyOn(db, 'transaction').mockImplementation(async (callback) => {
       const tx = {
-        insert: vi.fn().mockImplementation((table) => {
+        insert: vi.fn().mockImplementation((_table) => {
           return {
             values: vi.fn().mockImplementation((values) => {
               if (Array.isArray(values)) {
@@ -363,10 +358,10 @@ describe('Integration: Cart to Order Conversion', () => {
       {
         id: 'item-1',
         cartId: 'cart-789',
-        productId: 'prod-1',
+        productId: '13f0bb21-1d54-47c4-a621-cf7b988fceba',
         quantity: 1,
         product: {
-          id: 'prod-1',
+          id: '13f0bb21-1d54-47c4-a621-cf7b988fceba',
           name: 'Product 1',
           slug: 'product-1',
           price: 30000, // ₹300
@@ -388,10 +383,10 @@ describe('Integration: Cart to Order Conversion', () => {
       {
         id: 'item-1',
         cartId: 'cart-790',
-        productId: 'prod-1',
+        productId: '13f0bb21-1d54-47c4-a621-cf7b988fceba',
         quantity: 2,
         product: {
-          id: 'prod-1',
+          id: '13f0bb21-1d54-47c4-a621-cf7b988fceba',
           name: 'Product 1',
           slug: 'product-1',
           price: 30000, // ₹300 × 2 = ₹600
@@ -460,10 +455,10 @@ describe('Integration: Cart to Order Conversion', () => {
       {
         id: 'item-1',
         cartId: 'cart-clear',
-        productId: 'prod-1',
+        productId: '13f0bb21-1d54-47c4-a621-cf7b988fceba',
         quantity: 1,
         product: {
-          id: 'prod-1',
+          id: '13f0bb21-1d54-47c4-a621-cf7b988fceba',
           name: 'Product 1',
           slug: 'product-1',
           price: 50000,
@@ -474,31 +469,30 @@ describe('Integration: Cart to Order Conversion', () => {
       },
     ];
 
-    vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
+    vi.spyOn(db, 'select')
+      .mockReturnValueOnce({
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
+        limit: vi
+          .fn()
+          .mockResolvedValue([
+            { id: 'cart-clear', userId: testUserId, sessionId: null, createdAt: new Date() },
+          ]),
+      } as any)
+      .mockReturnValueOnce({
+        from: vi.fn().mockReturnThis(),
         leftJoin: vi.fn().mockReturnThis(),
-      };
-
-      mockChain.limit.mockResolvedValueOnce([
-        { id: 'cart-clear', userId: testUserId, sessionId: null, createdAt: new Date() },
-      ]);
-
-      mockChain.where.mockResolvedValueOnce(
-        cartItems.map((item) => ({
-          id: item.id,
-          cartId: item.cartId,
-          productId: item.productId,
-          quantity: item.quantity,
-          product: item.product,
-          category: null,
-        }))
-      );
-
-      return mockChain;
-    }) as any);
+        where: vi.fn().mockResolvedValue(
+          cartItems.map((item) => ({
+            id: item.id,
+            cartId: item.cartId,
+            productId: item.productId,
+            quantity: item.quantity,
+            product: item.product,
+            category: null,
+          }))
+        ),
+      } as any);
 
     let cartDeleted = false;
     vi.spyOn(db, 'transaction').mockImplementation(async (callback) => {
@@ -565,10 +559,10 @@ describe('Integration: Cart to Order Conversion', () => {
       {
         id: 'item-1',
         cartId: 'cart-price',
-        productId: 'prod-price',
+        productId: '80f0bb21-1d54-47c4-a621-cf7b988fceba',
         quantity: 2,
         product: {
-          id: 'prod-price',
+          id: '80f0bb21-1d54-47c4-a621-cf7b988fceba',
           name: 'Product with Price Change',
           slug: 'product-price-change',
           price: originalPrice, // Cart has old price
@@ -579,36 +573,35 @@ describe('Integration: Cart to Order Conversion', () => {
       },
     ];
 
-    vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
+    vi.spyOn(db, 'select')
+      .mockReturnValueOnce({
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
+        limit: vi
+          .fn()
+          .mockResolvedValue([
+            { id: 'cart-price', userId: testUserId, sessionId: null, createdAt: new Date() },
+          ]),
+      } as any)
+      .mockReturnValueOnce({
+        from: vi.fn().mockReturnThis(),
         leftJoin: vi.fn().mockReturnThis(),
-      };
-
-      mockChain.limit.mockResolvedValueOnce([
-        { id: 'cart-price', userId: testUserId, sessionId: null, createdAt: new Date() },
-      ]);
-
-      mockChain.where.mockResolvedValueOnce(
-        cartItems.map((item) => ({
-          id: item.id,
-          cartId: item.cartId,
-          productId: item.productId,
-          quantity: item.quantity,
-          product: item.product, // Returns cart's stored price
-          category: null,
-        }))
-      );
-
-      return mockChain;
-    }) as any);
+        where: vi.fn().mockResolvedValue(
+          cartItems.map((item) => ({
+            id: item.id,
+            cartId: item.cartId,
+            productId: item.productId,
+            quantity: item.quantity,
+            product: item.product,
+            category: null,
+          }))
+        ),
+      } as any);
 
     const createdOrderItems: any[] = [];
     vi.spyOn(db, 'transaction').mockImplementation(async (callback) => {
       const tx = {
-        insert: vi.fn().mockImplementation((table) => {
+        insert: vi.fn().mockImplementation((_table) => {
           return {
             values: vi.fn().mockImplementation((values) => {
               if (Array.isArray(values)) {

@@ -67,7 +67,11 @@ describe('Reviews Actions', () => {
         limit: vi.fn().mockResolvedValue([{ slug: 'mango-pickle' }]),
       } as any);
 
-      const result = await submitReview('prod-123', 5, 'Excellent product!');
+      const result = await submitReview(
+        '123e4567-e89b-12d3-a456-426614174000',
+        5,
+        'Excellent product!'
+      );
 
       expect(result.success).toBe(true);
       expect(result.message).toContain('submitted successfully');
@@ -78,7 +82,7 @@ describe('Reviews Actions', () => {
     test('should fail when user not authenticated', async () => {
       vi.mocked(getSession).mockResolvedValue(null);
 
-      const result = await submitReview('prod-123', 5, 'Great product');
+      const result = await submitReview('123e4567-e89b-12d3-a456-426614174000', 5, 'Great product');
 
       expect(result.success).toBe(false);
       expect(result.message).toContain('must be logged in');
@@ -89,7 +93,6 @@ describe('Reviews Actions', () => {
         user: { id: 'user-123', email: 'test@example.com', name: 'Test User' },
       } as any);
 
-      // Mock verified purchase check - no purchase
       vi.mocked(db.select).mockReturnValueOnce({
         from: vi.fn().mockReturnThis(),
         innerJoin: vi.fn().mockReturnThis(),
@@ -97,7 +100,7 @@ describe('Reviews Actions', () => {
         limit: vi.fn().mockResolvedValue([]),
       } as any);
 
-      const result = await submitReview('prod-123', 5, 'Great product');
+      const result = await submitReview('123e4567-e89b-12d3-a456-426614174000', 5, 'Great product');
 
       expect(result.success).toBe(false);
       expect(result.message).toContain('must purchase this product');
@@ -108,7 +111,11 @@ describe('Reviews Actions', () => {
         user: { id: 'user-123', email: 'test@example.com', name: 'Test User' },
       } as any);
 
-      const result = await submitReview('prod-123', 0, 'Test comment here');
+      const result = await submitReview(
+        '123e4567-e89b-12d3-a456-426614174000',
+        0,
+        'Test comment here'
+      );
 
       expect(result.success).toBe(false);
     });
@@ -118,7 +125,11 @@ describe('Reviews Actions', () => {
         user: { id: 'user-123', email: 'test@example.com', name: 'Test User' },
       } as any);
 
-      const result = await submitReview('prod-123', 6, 'Test comment here');
+      const result = await submitReview(
+        '123e4567-e89b-12d3-a456-426614174000',
+        6,
+        'Test comment here'
+      );
 
       expect(result.success).toBe(false);
     });
@@ -128,7 +139,7 @@ describe('Reviews Actions', () => {
         user: { id: 'user-123', email: 'test@example.com', name: 'Test User' },
       } as any);
 
-      const result = await submitReview('prod-123', 5, 'Short');
+      const result = await submitReview('123e4567-e89b-12d3-a456-426614174000', 5, 'Short');
 
       expect(result.success).toBe(false);
     });
@@ -139,7 +150,7 @@ describe('Reviews Actions', () => {
       } as any);
 
       const longComment = 'a'.repeat(501);
-      const result = await submitReview('prod-123', 5, longComment);
+      const result = await submitReview('123e4567-e89b-12d3-a456-426614174000', 5, longComment);
 
       expect(result.success).toBe(false);
     });
@@ -177,7 +188,11 @@ describe('Reviews Actions', () => {
         limit: vi.fn().mockResolvedValue([{ slug: 'mango-pickle' }]),
       } as any);
 
-      const result = await submitReview('prod-123', 4, 'Updated review text');
+      const result = await submitReview(
+        '123e4567-e89b-12d3-a456-426614174000',
+        4,
+        'Updated review text'
+      );
 
       expect(result.success).toBe(true);
       expect(result.message).toContain('updated successfully');
@@ -214,7 +229,7 @@ describe('Reviews Actions', () => {
       } as any);
 
       const validComment = 'This is a valid comment with exactly enough characters.';
-      const result = await submitReview('prod-123', 5, validComment);
+      const result = await submitReview('123e4567-e89b-12d3-a456-426614174000', 5, validComment);
 
       expect(result.success).toBe(true);
     });
@@ -224,32 +239,39 @@ describe('Reviews Actions', () => {
         user: { id: 'user-123', email: 'test@example.com', name: 'Test User' },
       } as any);
 
-      vi.mocked(db.select).mockReturnValue({
-        from: vi.fn().mockReturnThis(),
-        innerJoin: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([{ id: 'order-item-123' }]),
-      } as any);
-
-      vi.mocked(db.select).mockReturnValue({
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([]),
-      } as any);
+      let selectCallCount = 0;
+      vi.mocked(db.select).mockImplementation((() => {
+        const mockChain: Record<string, unknown> = {
+          from: vi.fn().mockReturnThis(),
+          innerJoin: vi.fn().mockReturnThis(),
+          where: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockImplementation(() => {
+            selectCallCount++;
+            // Modulo 3 because there are 3 queries per loop iteration in submitReview:
+            // 1: Order item check (needs innerJoin)
+            // 2: Existing review check
+            // 3: Product query for slug
+            const queryIndex = selectCallCount % 3;
+            if (queryIndex === 1) return Promise.resolve([{ id: 'order-item-123' }]);
+            if (queryIndex === 2) return Promise.resolve([]);
+            if (queryIndex === 0) return Promise.resolve([{ slug: 'mango-pickle' }]);
+            return Promise.resolve([]);
+          }),
+        };
+        return mockChain as any;
+      }) as any);
 
       vi.mocked(db.insert).mockReturnValue({
         values: vi.fn().mockReturnThis(),
         returning: vi.fn().mockResolvedValue([{ id: 'review-123' }]),
       } as any);
 
-      vi.mocked(db.select).mockReturnValue({
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([{ slug: 'mango-pickle' }]),
-      } as any);
-
       for (let rating = 1; rating <= 5; rating++) {
-        const result = await submitReview('prod-123', rating, 'Valid comment text here');
+        const result = await submitReview(
+          '123e4567-e89b-12d3-a456-426614174000',
+          rating,
+          'Valid comment text here'
+        );
         expect(result.success).toBe(true);
       }
     });

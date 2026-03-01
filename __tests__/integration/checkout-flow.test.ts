@@ -14,13 +14,11 @@
  * - User can view order in account
  */
 
-import { eq } from 'drizzle-orm';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { addToCart, removeFromCart } from '@/lib/actions/cart';
+import { addToCart } from '@/lib/actions/cart';
 import { validateCoupon } from '@/lib/actions/coupons';
 import { createRazorpayOrderAction, verifyPaymentAndCreateOrder } from '@/lib/actions/orders';
 import { db } from '@/lib/db';
-import { cartItems, carts, coupons, orderItems, orders, products } from '@/lib/db/schema';
 import { getCart } from '@/lib/queries/cart';
 import { getOrderById } from '@/lib/queries/orders';
 
@@ -49,8 +47,8 @@ import { createRazorpayOrder, verifyPaymentSignature } from '@/lib/payment/razor
 
 describe('Integration: Complete Checkout Flow', () => {
   const testUserId = 'test-user-123';
-  const testProductId1 = 'test-product-1';
-  const testProductId2 = 'test-product-2';
+  const testProductId1 = '550e8400-e29b-41d4-a716-446655440001';
+  const testProductId2 = '550e8400-e29b-41d4-a716-446655440002';
   const testCouponCode = 'SAVE10';
 
   beforeEach(() => {
@@ -235,7 +233,7 @@ describe('Integration: Complete Checkout Flow', () => {
 
     const razorpayOrderResult = await createRazorpayOrderAction(171000);
     expect(razorpayOrderResult.success).toBe(true);
-    expect(razorpayOrderResult.data?.orderId).toBe('order_razorpay_123');
+    expect((razorpayOrderResult.data as any)?.orderId).toBe('order_razorpay_123');
 
     // ===== STEP 6: Verify payment and create order =====
 
@@ -334,7 +332,7 @@ describe('Integration: Complete Checkout Flow', () => {
     });
 
     // Mock email sending
-    vi.mocked(sendEmail).mockResolvedValue(undefined);
+    vi.mocked(sendEmail).mockResolvedValue({ success: true });
 
     const shippingAddress = {
       name: 'Test User',
@@ -354,7 +352,7 @@ describe('Integration: Complete Checkout Flow', () => {
     );
 
     expect(orderResult.success).toBe(true);
-    expect(orderResult.data?.orderId).toBe('order-123');
+    expect((orderResult.data as any)?.orderId).toBe('order-123');
 
     // ===== STEP 7: Verify order was created correctly =====
 
@@ -574,7 +572,7 @@ describe('Integration: Complete Checkout Flow', () => {
     );
 
     expect(orderResult.success).toBe(true);
-    expect(orderResult.data?.orderId).toBe('order-456');
+    expect((orderResult.data as any)?.orderId).toBe('order-456');
   });
 
   test('Checkout flow fails with invalid payment signature', async () => {
@@ -639,12 +637,29 @@ describe('Integration: Complete Checkout Flow', () => {
       };
 
       // Cart exists but is empty
-      mockChain.limit.mockResolvedValueOnce([
-        { id: 'cart-empty', userId: testUserId, sessionId: null, createdAt: new Date() },
-      ]);
+      mockChain.limit.mockReturnValueOnce(
+        Object.assign(
+          Promise.resolve([
+            { id: 'cart-empty', userId: testUserId, sessionId: null, createdAt: new Date() },
+          ]),
+          {
+            then: vi
+              .fn()
+              .mockImplementation((res) =>
+                res([
+                  { id: 'cart-empty', userId: testUserId, sessionId: null, createdAt: new Date() },
+                ])
+              ),
+          }
+        )
+      );
 
       // No cart items
-      mockChain.where.mockResolvedValueOnce([]);
+      mockChain.where.mockReturnValueOnce(
+        Object.assign(Promise.resolve([]), {
+          then: vi.fn().mockImplementation((res) => res([])),
+        })
+      );
 
       return mockChain;
     }) as any);

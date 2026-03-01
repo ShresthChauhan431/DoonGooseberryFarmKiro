@@ -1,0 +1,731 @@
+
+> gooseberry1@1.0.0 test /Users/shresthchauhan/Documents/Projects/gooseberry1
+> vitest --run
+
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90m/Users/shresthchauhan/Documents/Projects/gooseberry1[39m
+
+ [31m❯[39m __tests__/integration/order-status-transitions.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m lib/queries/__tests__/cart.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m lib/utils/__tests__/slug.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m __tests__/integration/guest-cart-merge.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m lib/queries/__tests__/products.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m __tests__/integration/checkout-flow.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m __tests__/integration/cart-order-conversion.test.ts [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m lib/actions/__tests__/reviews.test.ts [2m([22m[2m10 tests[22m[2m | [22m[31m5 failed[39m[2m)[22m[32m 15[2mms[22m[39m
+[31m       [31m×[31m should successfully submit new review[39m[32m 6[2mms[22m[39m
+       [32m✓[39m should fail when user not authenticated[32m 1[2mms[22m[39m
+[31m       [31m×[31m should fail when user has not purchased product[39m[32m 2[2mms[22m[39m
+       [32m✓[39m should fail with invalid rating (below 1)[32m 0[2mms[22m[39m
+       [32m✓[39m should fail with invalid rating (above 5)[32m 0[2mms[22m[39m
+       [32m✓[39m should fail with short comment (less than 10 characters)[32m 0[2mms[22m[39m
+       [32m✓[39m should fail with long comment (more than 500 characters)[32m 0[2mms[22m[39m
+[31m       [31m×[31m should update existing review[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should accept valid comment length (10-500 characters)[39m[32m 1[2mms[22m[39m
+[31m       [31m×[31m should accept all valid ratings (1-5)[39m[32m 2[2mms[22m[39m
+[90mstderr[2m | lib/actions/__tests__/orders.test.ts[2m > [22m[2mOrders Actions[2m > [22m[2mcreateRazorpayOrderAction[2m > [22m[2mshould handle Razorpay API errors
+[22m[39mError creating Razorpay order: Error: Razorpay API error
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/orders.test.ts:116:56
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:37
+    at Traces.$ [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/traces.CCmnQaNT.js:142:27[90m)[39m
+    at trace [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/test.B8ej_ZHS.js:239:21[90m)[39m
+    at runTest [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:12[90m)[39m
+
+[90mstderr[2m | lib/actions/__tests__/orders.test.ts[2m > [22m[2mOrders Actions[2m > [22m[2mverifyPaymentAndCreateOrder[2m > [22m[2mshould successfully verify payment and create order
+[22m[39mFailed to send order confirmation email: TypeError: Cannot read properties of undefined (reading '0')
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/orders.ts:238:25
+    at Array.map (<anonymous>)
+    at sendOrderConfirmationEmail [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/orders.ts:234:32[90m)[39m
+    at Module.verifyPaymentAndCreateOrder [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/orders.ts:191:5[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:103:5)[39m
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/orders.test.ts:185:22
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+
+[90mstderr[2m | lib/actions/__tests__/orders.test.ts[2m > [22m[2mOrders Actions[2m > [22m[2mverifyPaymentAndCreateOrder[2m > [22m[2mshould fail when payment signature is invalid
+[22m[39mInvalid payment signature { razorpayOrderId: [32m'order_123'[39m, razorpayPaymentId: [32m'pay_123'[39m }
+
+[90mstderr[2m | lib/actions/__tests__/orders.test.ts[2m > [22m[2mOrders Actions[2m > [22m[2mverifyPaymentAndCreateOrder[2m > [22m[2mshould apply coupon discount when provided
+[22m[39mFailed to send order confirmation email: TypeError: Cannot read properties of undefined (reading '0')
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/orders.ts:238:25
+    at Array.map (<anonymous>)
+    at sendOrderConfirmationEmail [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/orders.ts:234:32[90m)[39m
+    at Module.verifyPaymentAndCreateOrder [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/orders.ts:191:5[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:103:5)[39m
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/orders.test.ts:313:22
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+
+[90mstderr[2m | lib/actions/__tests__/orders.test.ts[2m > [22m[2mOrders Actions[2m > [22m[2mverifyPaymentAndCreateOrder[2m > [22m[2mshould handle database transaction errors
+[22m[39mError creating order: Error: Database error
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/orders.test.ts:351:51
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:37
+    at Traces.$ [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/traces.CCmnQaNT.js:142:27[90m)[39m
+    at trace [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/test.B8ej_ZHS.js:239:21[90m)[39m
+    at runTest [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:12[90m)[39m
+
+[90mstderr[2m | lib/actions/__tests__/orders.test.ts[2m > [22m[2mOrders Actions[2m > [22m[2mupdateOrderStatus[2m > [22m[2mshould successfully update order status (PENDING to PROCESSING)
+[22m[39mError updating order status: TypeError: Cannot read properties of undefined (reading 'from')
+    at Module.updateOrderStatus [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/orders.ts:353:36[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:103:5)[39m
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/orders.test.ts:397:22
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+
+ [32m✓[39m lib/utils/__tests__/validation.test.ts [2m([22m[2m57 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m lib/queries/__tests__/reviews.test.ts [2m([22m[2m19 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+[90mstderr[2m | lib/actions/__tests__/addresses.test.ts[2m > [22m[2mAddresses Actions[2m > [22m[2mcreateAddress[2m > [22m[2mshould fail with invalid pincode (not 6 digits)
+[22m[39mCreate address error: ZodError: [
+  {
+    "origin": "string",
+    "code": "invalid_format",
+    "format": "regex",
+    "pattern": "/^\\d{6}$/",
+    "path": [
+      "pincode"
+    ],
+    "message": "Pincode must be 6 digits"
+  }
+]
+    at Module.createAddress [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/addresses.ts:37:37[90m)[39m
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/addresses.test.ts:88:28
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:37
+    at Traces.$ [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/traces.CCmnQaNT.js:142:27[90m)[39m
+    at trace [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/test.B8ej_ZHS.js:239:21[90m)[39m
+
+[90mstderr[2m | lib/actions/__tests__/addresses.test.ts[2m > [22m[2mAddresses Actions[2m > [22m[2mcreateAddress[2m > [22m[2mshould fail with invalid phone (not 10 digits)
+[22m[39mCreate address error: ZodError: [
+  {
+    "origin": "string",
+    "code": "invalid_format",
+    "format": "regex",
+    "pattern": "/^\\d{10}$/",
+    "path": [
+      "phone"
+    ],
+    "message": "Phone must be 10 digits"
+  }
+]
+    at Module.createAddress [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/addresses.ts:37:37[90m)[39m
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/addresses.test.ts:100:28
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:37
+    at Traces.$ [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/traces.CCmnQaNT.js:142:27[90m)[39m
+    at trace [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/test.B8ej_ZHS.js:239:21[90m)[39m
+
+[90mstderr[2m | lib/actions/__tests__/addresses.test.ts[2m > [22m[2mAddresses Actions[2m > [22m[2mcreateAddress[2m > [22m[2mshould fail with missing required fields
+[22m[39mCreate address error: ZodError: [
+  {
+    "origin": "string",
+    "code": "too_small",
+    "minimum": 1,
+    "inclusive": true,
+    "path": [
+      "name"
+    ],
+    "message": "Name is required"
+  }
+]
+    at Module.createAddress [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/addresses.ts:37:37[90m)[39m
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/addresses.test.ts:112:28
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:37
+    at Traces.$ [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/traces.CCmnQaNT.js:142:27[90m)[39m
+    at trace [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/test.B8ej_ZHS.js:239:21[90m)[39m
+
+[90mstderr[2m | lib/actions/__tests__/addresses.test.ts[2m > [22m[2mAddresses Actions[2m > [22m[2mupdateAddress[2m > [22m[2mshould fail with invalid data
+[22m[39mUpdate address error: ZodError: [
+  {
+    "origin": "string",
+    "code": "invalid_format",
+    "format": "regex",
+    "pattern": "/^\\d{6}$/",
+    "path": [
+      "pincode"
+    ],
+    "message": "Pincode must be 6 digits"
+  }
+]
+    at Module.updateAddress [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/addresses.ts:78:37[90m)[39m
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/addresses.test.ts:168:28
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:37
+    at Traces.$ [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/traces.CCmnQaNT.js:142:27[90m)[39m
+    at trace [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/test.B8ej_ZHS.js:239:21[90m)[39m
+
+[90mstderr[2m | lib/actions/__tests__/addresses.test.ts[2m > [22m[2mAddresses Actions[2m > [22m[2mdeleteAddress[2m > [22m[2mshould handle database errors gracefully
+[22m[39mDelete address error: Error: Database error
+    at Object.<anonymous> [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/addresses.test.ts:207:15[90m)[39m
+    at Object.Mock [as delete] [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+spy@4.0.18/node_modules/[4m@vitest/spy[24m/dist/index.js:285:34[90m)[39m
+    at Module.deleteAddress [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/addresses.ts:130:8[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:103:5)[39m
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/addresses.test.ts:210:22
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+
+[90mstderr[2m | lib/actions/__tests__/newsletter.test.ts[2m > [22m[2mNewsletter Actions[2m > [22m[2msubscribeNewsletter[2m > [22m[2mshould handle database errors gracefully
+[22m[39mNewsletter subscription error: Error: Database error
+    at Object.<anonymous> [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/newsletter.test.ts:89:15[90m)[39m
+    at Object.Mock [as select] [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+spy@4.0.18/node_modules/[4m@vitest/spy[24m/dist/index.js:285:34[90m)[39m
+    at Module.subscribeNewsletter [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/newsletter.ts:27:8[90m)[39m
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/newsletter.test.ts:92:28
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:37
+
+ [32m✓[39m lib/actions/__tests__/newsletter.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould successfully add product to cart for new item
+[22m[39m[addToCart] Called with: {
+  productId: [32m'prod-123'[39m,
+  quantity: [33m2[39m,
+  userId: [32m'user-123'[39m,
+  sessionId: [90mundefined[39m
+}
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould successfully add product to cart for new item
+[22m[39m[addToCart] Product found: [90mundefined[39m Stock: [33m10[39m
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould successfully add product to cart for new item
+[22m[39m[addToCart] Created new cart item
+[addToCart] Success!
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould fail when product not found
+[22m[39m[addToCart] Called with: {
+  productId: [32m'prod-999'[39m,
+  quantity: [33m2[39m,
+  userId: [32m'user-123'[39m,
+  sessionId: [90mundefined[39m
+}
+
+[90mstderr[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould fail when product not found
+[22m[39m[addToCart] Product not found: prod-999
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould fail when product is out of stock
+[22m[39m[addToCart] Called with: {
+  productId: [32m'prod-123'[39m,
+  quantity: [33m2[39m,
+  userId: [32m'user-123'[39m,
+  sessionId: [90mundefined[39m
+}
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould fail when product is out of stock
+[22m[39m[addToCart] Product found: [90mundefined[39m Stock: [33m0[39m
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould fail when quantity exceeds stock
+[22m[39m[addToCart] Called with: {
+  productId: [32m'prod-123'[39m,
+  quantity: [33m15[39m,
+  userId: [32m'user-123'[39m,
+  sessionId: [90mundefined[39m
+}
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould fail when quantity exceeds stock
+[22m[39m[addToCart] Product found: [90mundefined[39m Stock: [33m10[39m
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould increment quantity when product already in cart
+[22m[39m[addToCart] Called with: {
+  productId: [32m'prod-123'[39m,
+  quantity: [33m2[39m,
+  userId: [32m'user-123'[39m,
+  sessionId: [90mundefined[39m
+}
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould increment quantity when product already in cart
+[22m[39m[addToCart] Product found: [90mundefined[39m Stock: [33m10[39m
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould increment quantity when product already in cart
+[22m[39m[addToCart] Updated existing cart item, new quantity: [33m5[39m
+[addToCart] Success!
+
+[90mstderr[2m | lib/actions/__tests__/addresses.test.ts[2m > [22m[2mAddresses Actions[2m > [22m[2msetDefaultAddress[2m > [22m[2mshould handle transaction errors gracefully
+[22m[39mSet default address error: Error: Transaction error
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/addresses.test.ts:276:51
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:37
+    at Traces.$ [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/traces.CCmnQaNT.js:142:27[90m)[39m
+    at trace [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/test.B8ej_ZHS.js:239:21[90m)[39m
+    at runTest [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:12[90m)[39m
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould fail when adding to existing item would exceed stock
+[22m[39m[addToCart] Called with: {
+  productId: [32m'prod-123'[39m,
+  quantity: [33m5[39m,
+  userId: [32m'user-123'[39m,
+  sessionId: [90mundefined[39m
+}
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould fail when adding to existing item would exceed stock
+[22m[39m[addToCart] Product found: [90mundefined[39m Stock: [33m10[39m
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould fail with validation error for invalid data
+[22m[39m[addToCart] Called with: {
+  productId: [32m'prod-123'[39m,
+  quantity: [33m-1[39m,
+  userId: [32m'user-123'[39m,
+  sessionId: [90mundefined[39m
+}
+
+[90mstderr[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould fail with validation error for invalid data
+[22m[39m[addToCart] Validation failed: { issues: [ { message: [32m'Invalid quantity'[39m } ] }
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould fail when neither userId nor sessionId provided
+[22m[39m[addToCart] Called with: {
+  productId: [32m'prod-123'[39m,
+  quantity: [33m2[39m,
+  userId: [90mundefined[39m,
+  sessionId: [90mundefined[39m
+}
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould fail when neither userId nor sessionId provided
+[22m[39m[addToCart] Product found: [90mundefined[39m Stock: [33m10[39m
+
+[90mstderr[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould fail when neither userId nor sessionId provided
+[22m[39m[addToCart] No userId or sessionId provided
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould create new cart for user if not exists
+[22m[39m[addToCart] Called with: {
+  productId: [32m'prod-123'[39m,
+  quantity: [33m2[39m,
+  userId: [32m'user-123'[39m,
+  sessionId: [90mundefined[39m
+}
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould create new cart for user if not exists
+[22m[39m[addToCart] Product found: [90mundefined[39m Stock: [33m10[39m
+
+[90mstdout[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2maddToCart[2m > [22m[2mshould create new cart for user if not exists
+[22m[39m[addToCart] Created new cart item
+[addToCart] Success!
+
+ [32m✓[39m lib/actions/__tests__/addresses.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+[90mstderr[2m | lib/actions/__tests__/wishlist.test.ts[2m > [22m[2mWishlist Actions[2m > [22m[2mtoggleWishlist[2m > [22m[2mshould handle errors gracefully
+[22m[39mError toggling wishlist: Error: Database error
+    at Object.<anonymous> [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/wishlist.test.ts:103:15[90m)[39m
+    at Object.Mock [as select] [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+spy@4.0.18/node_modules/[4m@vitest/spy[24m/dist/index.js:285:34[90m)[39m
+    at Module.toggleWishlist [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/wishlist.ts:34:8[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:103:5)[39m
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/wishlist.test.ts:106:22
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+
+[90mstderr[2m | lib/actions/__tests__/cart.test.ts[2m > [22m[2mCart Actions[2m > [22m[2mremoveFromCart[2m > [22m[2mshould handle errors gracefully
+[22m[39mRemove from cart error: Error: Database error
+    at Object.<anonymous> [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/cart.test.ts:393:15[90m)[39m
+    at Object.Mock [as delete] [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+spy@4.0.18/node_modules/[4m@vitest/spy[24m/dist/index.js:285:34[90m)[39m
+    at Module.removeFromCart [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/cart.ts:229:14[90m)[39m
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/cart.test.ts:396:28
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:37
+
+[90mstderr[2m | lib/actions/__tests__/wishlist.test.ts[2m > [22m[2mWishlist Actions[2m > [22m[2misInWishlist[2m > [22m[2mshould return false on error
+[22m[39mError checking wishlist: Error: Database error
+    at Object.<anonymous> [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/wishlist.test.ts:163:15[90m)[39m
+    at Object.Mock [as select] [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+spy@4.0.18/node_modules/[4m@vitest/spy[24m/dist/index.js:285:34[90m)[39m
+    at Module.isInWishlist [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/wishlist.ts:87:8[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:103:5)[39m
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/wishlist.test.ts:166:22
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+
+[90mstderr[2m | lib/actions/__tests__/wishlist.test.ts[2m > [22m[2mWishlist Actions[2m > [22m[2mmergeGuestWishlist[2m > [22m[2mshould handle errors gracefully
+[22m[39mError merging guest wishlist: Error: Database error
+    at Object.<anonymous> [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/wishlist.test.ts:251:15[90m)[39m
+    at Object.Mock [as select] [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+spy@4.0.18/node_modules/[4m@vitest/spy[24m/dist/index.js:285:34[90m)[39m
+    at Module.mergeGuestWishlist [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/wishlist.ts:117:8[90m)[39m
+[90m    at processTicksAndRejections (node:internal/process/task_queues:103:5)[39m
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/wishlist.test.ts:254:22
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+
+ [32m✓[39m lib/actions/__tests__/wishlist.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m lib/actions/__tests__/cart.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+[90mstderr[2m | lib/actions/__tests__/products.test.ts[2m > [22m[2mProducts Actions[2m > [22m[2mcreateProduct[2m > [22m[2mshould fail when user is not admin
+[22m[39mError creating product: Error: Unauthorized
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/products.test.ts:90:49
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:37
+    at Traces.$ [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/traces.CCmnQaNT.js:142:27[90m)[39m
+    at trace [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/test.B8ej_ZHS.js:239:21[90m)[39m
+    at runTest [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:12[90m)[39m
+
+[90mstderr[2m | lib/actions/__tests__/products.test.ts[2m > [22m[2mProducts Actions[2m > [22m[2mupdateProduct[2m > [22m[2mshould fail when user is not admin
+[22m[39mError updating product: Error: Unauthorized
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/products.test.ts:214:49
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:37
+    at Traces.$ [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/traces.CCmnQaNT.js:142:27[90m)[39m
+    at trace [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/test.B8ej_ZHS.js:239:21[90m)[39m
+    at runTest [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:12[90m)[39m
+
+[90mstderr[2m | lib/actions/__tests__/products.test.ts[2m > [22m[2mProducts Actions[2m > [22m[2mdeleteProduct[2m > [22m[2mshould fail when user is not admin
+[22m[39mError deleting product: Error: Unauthorized
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/products.test.ts:359:49
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:37
+    at Traces.$ [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/traces.CCmnQaNT.js:142:27[90m)[39m
+    at trace [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/vitest@4.0.18_@opentelemetry+api@1.9.0_@types+node@25.3.0_jiti@2.6.1_jsdom@28.1.0_@nobl_83328c14f0885db12789b82e983d16ff/node_modules/[4mvitest[24m/dist/chunks/test.B8ej_ZHS.js:239:21[90m)[39m
+    at runTest [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:12[90m)[39m
+
+ [32m✓[39m lib/actions/__tests__/products.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+[90mstderr[2m | lib/actions/__tests__/coupons.test.ts[2m > [22m[2mCoupons Actions[2m > [22m[2mincrementCouponUsage[2m > [22m[2mshould handle database errors gracefully
+[22m[39mError incrementing coupon usage: Error: Database error
+    at Object.<anonymous> [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/coupons.test.ts:392:15[90m)[39m
+    at Object.Mock [as select] [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+spy@4.0.18/node_modules/[4m@vitest/spy[24m/dist/index.js:285:34[90m)[39m
+    at Module.incrementCouponUsage [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/coupons.ts:104:8[90m)[39m
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/coupons.test.ts:396:13
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:145:11
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:26
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1209:10[90m)[39m
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:1653:37
+
+ [32m✓[39m lib/actions/__tests__/coupons.test.ts [2m([22m[2m18 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m lib/utils/__tests__/cart.test.ts [2m([22m[2m26 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/utils/__tests__/image.test.ts [2m([22m[2m16 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m lib/utils/__tests__/price.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/queries/__tests__/orders.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/queries/__tests__/categories.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m lib/queries/__tests__/addresses.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m lib/queries/__tests__/wishlist.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 3[2mms[22m[39m
+[90mstderr[2m | lib/actions/__tests__/orders.test.ts[2m > [22m[2mOrders Actions[2m > [22m[2mupdateOrderStatus[2m > [22m[2mshould allow valid transition PENDING to CANCELLED
+[22m[39mError updating order status: TypeError: Cannot read properties of undefined (reading 'from')
+    at Module.updateOrderStatus [90m(/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/orders.ts:353:36[90m)[39m
+    at [90m/Users/shresthchauhan/Documents/Projects/gooseberry1/[39mlib/actions/__tests__/orders.test.ts:661:22
+    at [90mfile:///Users/shresthchauhan/Documents/Projects/gooseberry1/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.0.18/node_modules/[4m@vitest/runner[24m/dist/index.js:915:20
+
+ [31m❯[39m lib/actions/__tests__/orders.test.ts [2m([22m[2m23 tests[22m[2m | [22m[31m3 failed[39m[2m)[22m[33m 5058[2mms[22m[39m
+       [32m✓[39m should successfully create Razorpay order[32m 1[2mms[22m[39m
+       [32m✓[39m should fail when user not authenticated[32m 0[2mms[22m[39m
+       [32m✓[39m should fail for invalid amount (zero)[32m 0[2mms[22m[39m
+       [32m✓[39m should fail for invalid amount (negative)[32m 0[2mms[22m[39m
+       [32m✓[39m should handle Razorpay API errors[32m 3[2mms[22m[39m
+       [32m✓[39m should successfully verify payment and create order[32m 29[2mms[22m[39m
+       [32m✓[39m should fail when user not authenticated[32m 0[2mms[22m[39m
+       [32m✓[39m should fail when payment signature is invalid[32m 3[2mms[22m[39m
+       [32m✓[39m should fail when cart is empty[32m 0[2mms[22m[39m
+       [32m✓[39m should apply coupon discount when provided[32m 2[2mms[22m[39m
+       [32m✓[39m should handle database transaction errors[32m 2[2mms[22m[39m
+[31m       [31m×[31m should successfully update order status (PENDING to PROCESSING)[39m[32m 5[2mms[22m[39m
+       [32m✓[39m should fail when user not authenticated[32m 0[2mms[22m[39m
+       [32m✓[39m should fail when user is not admin[32m 0[2mms[22m[39m
+       [32m✓[39m should fail when order not found[32m 0[2mms[22m[39m
+       [32m✓[39m should fail for invalid status transition (PENDING to DELIVERED)[32m 0[2mms[22m[39m
+       [32m✓[39m should fail for invalid status transition (DELIVERED to SHIPPED)[32m 0[2mms[22m[39m
+[31m       [31m×[31m should restore stock when order is cancelled[39m[33m 5003[2mms[22m[39m
+       [32m✓[39m should send shipping email when status changes to SHIPPED[32m 1[2mms[22m[39m
+       [32m✓[39m should send delivery email when status changes to DELIVERED[32m 2[2mms[22m[39m
+[31m       [31m×[31m should allow valid transition PENDING to CANCELLED[39m[32m 2[2mms[22m[39m
+       [32m✓[39m should allow valid transition PROCESSING to SHIPPED[32m 1[2mms[22m[39m
+       [32m✓[39m should allow valid transition SHIPPED to DELIVERED[32m 0[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 7 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m __tests__/integration/cart-order-conversion.test.ts[2m [ __tests__/integration/cart-order-conversion.test.ts ][22m
+[41m[1m FAIL [22m[49m __tests__/integration/order-status-transitions.test.ts[2m [ __tests__/integration/order-status-transitions.test.ts ][22m
+[31m[1mZodError[22m: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "NEXT_PUBLIC_AUTH_URL"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  }
+][39m
+[36m [2m❯[22m lib/env.ts:[2m63:30[22m[39m
+    [90m 61| [39m})[33m;[39m
+    [90m 62| [39m
+    [90m 63| [39m[35mexport[39m [35mconst[39m env [33m=[39m envSchema[33m.[39m[34mparse[39m(process[33m.[39menv)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m 64| [39m
+[90m [2m❯[22m lib/db/index.ts:[2m3:1[22m[39m
+[90m [2m❯[22m lib/actions/orders.ts:[2m7:1[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/15]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m __tests__/integration/checkout-flow.test.ts[2m [ __tests__/integration/checkout-flow.test.ts ][22m
+[41m[1m FAIL [22m[49m __tests__/integration/guest-cart-merge.test.ts[2m [ __tests__/integration/guest-cart-merge.test.ts ][22m
+[31m[1mZodError[22m: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "NEXT_PUBLIC_AUTH_URL"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  }
+][39m
+[36m [2m❯[22m lib/env.ts:[2m63:30[22m[39m
+    [90m 61| [39m})[33m;[39m
+    [90m 62| [39m
+    [90m 63| [39m[35mexport[39m [35mconst[39m env [33m=[39m envSchema[33m.[39m[34mparse[39m(process[33m.[39menv)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m 64| [39m
+[90m [2m❯[22m lib/db/index.ts:[2m3:1[22m[39m
+[90m [2m❯[22m lib/actions/cart.ts:[2m5:1[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/15]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m lib/queries/__tests__/cart.test.ts[2m [ lib/queries/__tests__/cart.test.ts ][22m
+[31m[1mZodError[22m: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "NEXT_PUBLIC_AUTH_URL"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  }
+][39m
+[36m [2m❯[22m lib/env.ts:[2m63:30[22m[39m
+    [90m 61| [39m})[33m;[39m
+    [90m 62| [39m
+    [90m 63| [39m[35mexport[39m [35mconst[39m env [33m=[39m envSchema[33m.[39m[34mparse[39m(process[33m.[39menv)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m 64| [39m
+[90m [2m❯[22m lib/db/index.ts:[2m3:1[22m[39m
+[90m [2m❯[22m lib/queries/cart.ts:[2m2:1[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/15]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m lib/queries/__tests__/products.test.ts[2m [ lib/queries/__tests__/products.test.ts ][22m
+[31m[1mZodError[22m: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "NEXT_PUBLIC_AUTH_URL"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  }
+][39m
+[36m [2m❯[22m lib/env.ts:[2m63:30[22m[39m
+    [90m 61| [39m})[33m;[39m
+    [90m 62| [39m
+    [90m 63| [39m[35mexport[39m [35mconst[39m env [33m=[39m envSchema[33m.[39m[34mparse[39m(process[33m.[39menv)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m 64| [39m
+[90m [2m❯[22m lib/db/index.ts:[2m3:1[22m[39m
+[90m [2m❯[22m lib/queries/__tests__/products.test.ts:[2m4:1[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/15]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m lib/utils/__tests__/slug.test.ts[2m [ lib/utils/__tests__/slug.test.ts ][22m
+[31m[1mZodError[22m: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "NEXT_PUBLIC_AUTH_URL"
+    ],
+    "message": "Invalid input: expected string, received undefined"
+  }
+][39m
+[36m [2m❯[22m lib/env.ts:[2m63:30[22m[39m
+    [90m 61| [39m})[33m;[39m
+    [90m 62| [39m
+    [90m 63| [39m[35mexport[39m [35mconst[39m env [33m=[39m envSchema[33m.[39m[34mparse[39m(process[33m.[39menv)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m 64| [39m
+[90m [2m❯[22m lib/db/index.ts:[2m3:1[22m[39m
+[90m [2m❯[22m lib/utils/__tests__/slug.test.ts:[2m4:1[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/15]⎯[22m[39m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 8 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m lib/actions/__tests__/orders.test.ts[2m > [22mOrders Actions[2m > [22mupdateOrderStatus[2m > [22mshould successfully update order status (PENDING to PROCESSING)
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m lib/actions/__tests__/orders.test.ts:[2m399:30[22m[39m
+    [90m397| [39m      const result = await updateOrderStatus('order-123', 'PROCESSING'…
+    [90m398| [39m
+    [90m399| [39m      [34mexpect[39m(result[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m400| [39m      expect(result.message).toContain('Order status updated successfu…
+    [90m401| [39m      [34mexpect[39m(revalidatePath)[33m.[39m[34mtoHaveBeenCalledWith[39m([32m'/admin/orders'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/15]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m lib/actions/__tests__/orders.test.ts[2m > [22mOrders Actions[2m > [22mupdateOrderStatus[2m > [22mshould restore stock when order is cancelled
+[31m[1mError[22m: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m lib/actions/__tests__/orders.test.ts:[2m488:5[22m[39m
+    [90m486| [39m    })[33m;[39m
+    [90m487| [39m
+    [90m488| [39m    [34mtest[39m([32m'should restore stock when order is cancelled'[39m[33m,[39m [35masync[39m () [33m=>[39m {
+    [90m   | [39m    [31m^[39m
+    [90m489| [39m      vi[33m.[39m[34mmocked[39m(getSession)[33m.[39m[34mmockResolvedValue[39m({
+    [90m490| [39m        user: { id: 'admin-123', email: 'admin@example.com', name: 'Ad…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/15]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m lib/actions/__tests__/orders.test.ts[2m > [22mOrders Actions[2m > [22mupdateOrderStatus[2m > [22mshould allow valid transition PENDING to CANCELLED
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m lib/actions/__tests__/orders.test.ts:[2m663:30[22m[39m
+    [90m661| [39m      [35mconst[39m result [33m=[39m [35mawait[39m [34mupdateOrderStatus[39m([32m'order-123'[39m[33m,[39m [32m'CANCELLED'[39m)[33m;[39m
+    [90m662| [39m
+    [90m663| [39m      [34mexpect[39m(result[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m664| [39m    })[33m;[39m
+    [90m665| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/15]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m lib/actions/__tests__/reviews.test.ts[2m > [22mReviews Actions[2m > [22msubmitReview[2m > [22mshould successfully submit new review
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m lib/actions/__tests__/reviews.test.ts:[2m72:30[22m[39m
+    [90m 70| [39m      const result = await submitReview('prod-123', 5, 'Excellent prod…
+    [90m 71| [39m
+    [90m 72| [39m      [34mexpect[39m(result[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m 73| [39m      [34mexpect[39m(result[33m.[39mmessage)[33m.[39m[34mtoContain[39m([32m'submitted successfully'[39m)[33m;[39m
+    [90m 74| [39m      [34mexpect[39m(result[33m.[39mreviewId)[33m.[39m[34mtoBe[39m([32m'review-123'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/15]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m lib/actions/__tests__/reviews.test.ts[2m > [22mReviews Actions[2m > [22msubmitReview[2m > [22mshould fail when user has not purchased product
+[31m[1mAssertionError[22m: expected 'productId: Invalid UUID' to contain 'must purchase this product'[39m
+
+Expected: [32m"must purchase this product"[39m
+Received: [31m"productId: Invalid UUID"[39m
+
+[36m [2m❯[22m lib/actions/__tests__/reviews.test.ts:[2m103:30[22m[39m
+    [90m101| [39m
+    [90m102| [39m      [34mexpect[39m(result[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m103| [39m      [34mexpect[39m(result[33m.[39mmessage)[33m.[39m[34mtoContain[39m([32m'must purchase this product'[39m)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m104| [39m    })[33m;[39m
+    [90m105| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/15]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m lib/actions/__tests__/reviews.test.ts[2m > [22mReviews Actions[2m > [22msubmitReview[2m > [22mshould update existing review
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m lib/actions/__tests__/reviews.test.ts:[2m182:30[22m[39m
+    [90m180| [39m      const result = await submitReview('prod-123', 4, 'Updated review…
+    [90m181| [39m
+    [90m182| [39m      [34mexpect[39m(result[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m183| [39m      [34mexpect[39m(result[33m.[39mmessage)[33m.[39m[34mtoContain[39m([32m'updated successfully'[39m)[33m;[39m
+    [90m184| [39m      [34mexpect[39m(db[33m.[39mupdate)[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/15]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m lib/actions/__tests__/reviews.test.ts[2m > [22mReviews Actions[2m > [22msubmitReview[2m > [22mshould accept valid comment length (10-500 characters)
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m lib/actions/__tests__/reviews.test.ts:[2m219:30[22m[39m
+    [90m217| [39m      [35mconst[39m result [33m=[39m [35mawait[39m [34msubmitReview[39m([32m'prod-123'[39m[33m,[39m [34m5[39m[33m,[39m validComment)[33m;[39m
+    [90m218| [39m
+    [90m219| [39m      [34mexpect[39m(result[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                             [31m^[39m
+    [90m220| [39m    })[33m;[39m
+    [90m221| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/15]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m lib/actions/__tests__/reviews.test.ts[2m > [22mReviews Actions[2m > [22msubmitReview[2m > [22mshould accept all valid ratings (1-5)
+[31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+[36m [2m❯[22m lib/actions/__tests__/reviews.test.ts:[2m253:32[22m[39m
+    [90m251| [39m      [35mfor[39m ([35mlet[39m rating [33m=[39m [34m1[39m[33m;[39m rating [33m<=[39m [34m5[39m[33m;[39m rating[33m++[39m) {
+    [90m252| [39m        const result = await submitReview('prod-123', rating, 'Valid c…
+    [90m253| [39m        [34mexpect[39m(result[33m.[39msuccess)[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                               [31m^[39m
+    [90m254| [39m      }
+    [90m255| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/15]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m9 failed[39m[22m[2m | [22m[1m[32m15 passed[39m[22m[90m (24)[39m
+[2m      Tests [22m [1m[31m8 failed[39m[22m[2m | [22m[1m[32m281 passed[39m[22m[90m (289)[39m
+[2m   Start at [22m 18:27:18
+[2m   Duration [22m 7.80s[2m (transform 1.53s, setup 4.15s, import 5.81s, tests 5.21s, environment 18.22s)[22m
+
+ ELIFECYCLE  Test failed. See above for more details.

@@ -28,7 +28,7 @@ interface Address {
 // Razorpay types
 declare global {
   interface Window {
-    Razorpay: any;
+    Razorpay: new (options: Record<string, unknown>) => { open: () => void };
   }
 }
 
@@ -96,7 +96,12 @@ export function PaymentForm({ cart }: PaymentFormProps) {
         return;
       }
 
-      const { orderId, amount, currency, keyId } = result.data;
+      const { orderId, amount, currency, keyId } = result.data as {
+        orderId: string;
+        amount: number;
+        currency: string;
+        keyId: string;
+      };
 
       // Configure Razorpay options
       const options = {
@@ -106,7 +111,7 @@ export function PaymentForm({ cart }: PaymentFormProps) {
         name: 'Doon Gooseberry Farm',
         description: 'Order Payment',
         order_id: orderId,
-        handler: async (response: any) => {
+        handler: async (response: Record<string, string>) => {
           // Payment successful, verify and create order
           const verifyResult = await verifyPaymentAndCreateOrder(
             response.razorpay_order_id,
@@ -122,7 +127,7 @@ export function PaymentForm({ cart }: PaymentFormProps) {
             sessionStorage.removeItem('appliedCoupon');
 
             // Redirect to success page
-            router.push(`/order/${verifyResult.data.orderId}/success`);
+            router.push(`/order/${(verifyResult.data as { orderId: string }).orderId}/success`);
           } else {
             toast.error(verifyResult.message || 'Payment verification failed');
             setIsLoading(false);

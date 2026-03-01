@@ -40,7 +40,7 @@ describe('Integration: Order Status Transitions', () => {
     vi.clearAllMocks();
 
     // Mock email sending
-    vi.mocked(sendEmail).mockResolvedValue(undefined);
+    vi.mocked(sendEmail).mockResolvedValue({ success: true });
   });
 
   describe('Valid Status Transitions', () => {
@@ -261,20 +261,43 @@ describe('Integration: Order Status Transitions', () => {
             stockRestored = true;
             return {
               set: vi.fn().mockReturnThis(),
-              where: vi.fn().mockResolvedValue(undefined),
+              where: vi.fn().mockReturnValue(
+                Object.assign(Promise.resolve(undefined), {
+                  then: vi.fn().mockImplementation((res) => res(undefined)),
+                })
+              ),
             };
           }),
           select: vi.fn().mockReturnValue({
             from: vi.fn().mockReturnThis(),
-            where: vi.fn().mockReturnValue({
-              // Mock order items query
-              then: vi.fn().mockResolvedValue([
-                { productId: 'prod-1', quantity: 2 },
-                { productId: 'prod-2', quantity: 3 },
-              ]),
-              // Mock product query
-              limit: vi.fn().mockResolvedValue([{ id: 'prod-1', stock: 10 }]),
-            }),
+            where: vi.fn().mockReturnValue(
+              Object.assign(
+                Promise.resolve([
+                  { productId: '13f0bb21-1d54-47c4-a621-cf7b988fceba', quantity: 2 },
+                  { productId: '24f0bb21-1d54-47c4-a621-cf7b988fceba', quantity: 3 },
+                ]),
+                {
+                  then: vi.fn().mockImplementation((res) =>
+                    res([
+                      { productId: '13f0bb21-1d54-47c4-a621-cf7b988fceba', quantity: 2 },
+                      { productId: '24f0bb21-1d54-47c4-a621-cf7b988fceba', quantity: 3 },
+                    ])
+                  ),
+                  limit: vi.fn().mockReturnValue(
+                    Object.assign(
+                      Promise.resolve([{ id: '13f0bb21-1d54-47c4-a621-cf7b988fceba', stock: 10 }]),
+                      {
+                        then: vi
+                          .fn()
+                          .mockImplementation((res) =>
+                            res([{ id: '13f0bb21-1d54-47c4-a621-cf7b988fceba', stock: 10 }])
+                          ),
+                      }
+                    )
+                  ),
+                }
+              )
+            ),
           }),
         };
         return callback(tx as any);
@@ -320,14 +343,40 @@ describe('Integration: Order Status Transitions', () => {
         const tx = {
           update: vi.fn().mockReturnValue({
             set: vi.fn().mockReturnThis(),
-            where: vi.fn().mockResolvedValue(undefined),
+            where: vi.fn().mockReturnValue(
+              Object.assign(Promise.resolve(undefined), {
+                then: vi.fn().mockImplementation((res) => res(undefined)),
+              })
+            ),
           }),
           select: vi.fn().mockReturnValue({
             from: vi.fn().mockReturnThis(),
-            where: vi.fn().mockReturnValue({
-              then: vi.fn().mockResolvedValue([{ productId: 'prod-1', quantity: 2 }]),
-              limit: vi.fn().mockResolvedValue([{ id: 'prod-1', stock: 10 }]),
-            }),
+            where: vi.fn().mockReturnValue(
+              Object.assign(
+                Promise.resolve([
+                  { productId: '13f0bb21-1d54-47c4-a621-cf7b988fceba', quantity: 2 },
+                ]),
+                {
+                  then: vi
+                    .fn()
+                    .mockImplementation((res) =>
+                      res([{ productId: '13f0bb21-1d54-47c4-a621-cf7b988fceba', quantity: 2 }])
+                    ),
+                  limit: vi.fn().mockReturnValue(
+                    Object.assign(
+                      Promise.resolve([{ id: '13f0bb21-1d54-47c4-a621-cf7b988fceba', stock: 10 }]),
+                      {
+                        then: vi
+                          .fn()
+                          .mockImplementation((res) =>
+                            res([{ id: '13f0bb21-1d54-47c4-a621-cf7b988fceba', stock: 10 }])
+                          ),
+                      }
+                    )
+                  ),
+                }
+              )
+            ),
           }),
         };
         return callback(tx as any);
@@ -754,14 +803,24 @@ describe('Integration: Order Status Transitions', () => {
         const tx = {
           update: vi.fn().mockReturnValue({
             set: vi.fn().mockReturnThis(),
-            where: vi.fn().mockResolvedValue(undefined),
+            where: vi.fn().mockReturnValue(
+              Object.assign(Promise.resolve(undefined), {
+                then: vi.fn().mockImplementation((res) => res(undefined)),
+              })
+            ),
           }),
           select: vi.fn().mockReturnValue({
             from: vi.fn().mockReturnThis(),
-            where: vi.fn().mockReturnValue({
-              then: vi.fn().mockResolvedValue([]),
-              limit: vi.fn().mockResolvedValue([]),
-            }),
+            where: vi.fn().mockReturnValue(
+              Object.assign(Promise.resolve([]), {
+                then: vi.fn().mockImplementation((res) => res([])),
+                limit: vi.fn().mockReturnValue(
+                  Object.assign(Promise.resolve([]), {
+                    then: vi.fn().mockImplementation((res) => res([])),
+                  })
+                ),
+              })
+            ),
           }),
         };
         return callback(tx as any);
@@ -803,14 +862,24 @@ describe('Integration: Order Status Transitions', () => {
         const tx = {
           update: vi.fn().mockReturnValue({
             set: vi.fn().mockReturnThis(),
-            where: vi.fn().mockResolvedValue(undefined),
+            where: vi.fn().mockReturnValue(
+              Object.assign(Promise.resolve(undefined), {
+                then: vi.fn().mockImplementation((res) => res(undefined)),
+              })
+            ),
           }),
           select: vi.fn().mockReturnValue({
             from: vi.fn().mockReturnThis(),
-            where: vi.fn().mockReturnValue({
-              then: vi.fn().mockResolvedValue([]),
-              limit: vi.fn().mockResolvedValue([]),
-            }),
+            where: vi.fn().mockReturnValue(
+              Object.assign(Promise.resolve([]), {
+                then: vi.fn().mockImplementation((res) => res([])),
+                limit: vi.fn().mockReturnValue(
+                  Object.assign(Promise.resolve([]), {
+                    then: vi.fn().mockImplementation((res) => res([])),
+                  })
+                ),
+              })
+            ),
           }),
         };
         return callback(tx as any);

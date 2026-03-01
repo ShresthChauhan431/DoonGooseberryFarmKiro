@@ -34,7 +34,7 @@ export interface SecurityEvent {
   userId?: string;
   ipAddress?: string;
   userAgent?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   timestamp: Date;
 }
 
@@ -167,7 +167,7 @@ export function logSuspiciousActivity(
   description: string,
   userId?: string,
   ipAddress?: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ): void {
   logSecurityEvent({
     type: SecurityEventType.SUSPICIOUS_ACTIVITY,
@@ -186,7 +186,7 @@ export function logAdminAction(
   action: string,
   userId: string,
   ipAddress?: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ): void {
   logSecurityEvent({
     type: SecurityEventType.ADMIN_ACTION,
@@ -282,7 +282,7 @@ export interface SecurityStats {
  * Get security statistics for a time period
  * This would query a database table of security events
  */
-export async function getSecurityStats(startDate: Date, endDate: Date): Promise<SecurityStats> {
+export async function getSecurityStats(_startDate: Date, _endDate: Date): Promise<SecurityStats> {
   // TODO: Implement database query
   // For now, return mock data
   return {

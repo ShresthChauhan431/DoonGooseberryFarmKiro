@@ -25,7 +25,7 @@ vi.mock('@/lib/utils/validation', () => ({
     safeParse: vi.fn(),
   },
   validateDataSafe: vi.fn(),
-  formatValidationErrors: vi.fn((error) => ['Validation error']),
+  formatValidationErrors: vi.fn((_error) => ['Validation error']),
 }));
 
 import { revalidatePath } from 'next/cache';

@@ -1,11 +1,18 @@
 'use server';
 
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { validateCoupon } from '@/lib/actions/coupons';
 import { getSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
-import { cartItems, carts, coupons, orderItems, orders, products, users } from '@/lib/db/schema';
+import {
+  cartItems as cartItemsSchema,
+  carts,
+  coupons,
+  orderItems as orderItemsSchema,
+  orders,
+  products,
+  users,
+} from '@/lib/db/schema';
 import { sendEmail } from '@/lib/email/send';
 import { OrderConfirmationEmail } from '@/lib/email/templates/order-confirmation';
 import {
@@ -13,13 +20,13 @@ import {
   getRazorpayKeyId,
   verifyPaymentSignature,
 } from '@/lib/payment/razorpay';
-import { type Coupon, calculateCartTotals, getCart } from '@/lib/queries/cart';
+import { calculateCartTotals, getCart } from '@/lib/queries/cart';
 import { getEstimatedDeliveryDate } from '@/lib/queries/orders';
 
 export interface ActionResult {
   success: boolean;
   message?: string;
-  data?: any;
+  data?: unknown;
 }
 
 interface Address {
@@ -109,7 +116,7 @@ export async function verifyPaymentAndCreateOrder(
     }
 
     // Validate and get coupon if provided
-    let validatedCoupon: any;
+    let validatedCoupon: typeof coupons.$inferSelect | undefined;
     if (couponCode) {
       const [coupon] = await db
         .select()
@@ -152,7 +159,7 @@ export async function verifyPaymentAndCreateOrder(
         price: item.product.price, // Store price at time of purchase
       }));
 
-      await tx.insert(orderItems).values(orderItemsData);
+      await tx.insert(orderItemsSchema).values(orderItemsData);
 
       // Decrement product stock
       for (const item of cart.items) {
@@ -165,7 +172,7 @@ export async function verifyPaymentAndCreateOrder(
       }
 
       // Clear cart items
-      await tx.delete(cartItems).where(eq(cartItems.cartId, cart.id));
+      await tx.delete(cartItemsSchema).where(eq(cartItemsSchema.cartId, cart.id));
 
       // Delete cart
       await tx.delete(carts).where(eq(carts.id, cart.id));
@@ -223,7 +230,10 @@ async function sendOrderConfirmationEmail(
   orderId: string,
   customerEmail: string,
   customerName: string,
-  cartItems: any[],
+  cartItems: {
+    quantity: number | null;
+    product: { name: string; price: number; images: string[] | null };
+  }[],
   totals: { subtotal: number; shipping: number; discount: number; total: number },
   shippingAddress: Address,
   orderDate: Date
@@ -233,9 +243,12 @@ async function sendOrderConfirmationEmail(
 
   const emailItems = cartItems.map((item) => ({
     name: item.product.name,
-    quantity: item.quantity,
+    quantity: item.quantity ?? 1,
     price: item.product.price,
-    image: item.product.images[0] || 'https://via.placeholder.com/80',
+    image:
+      item.product.images && item.product.images.length > 0
+        ? item.product.images[0]
+        : 'https://via.placeholder.com/80',
   }));
 
   const formattedOrderDate = orderDate.toLocaleDateString('en-IN', {
@@ -276,7 +289,7 @@ export async function updateOrderStatus(orderId: string, newStatus: string): Pro
     }
 
     // Check if user is admin
-    const userRole = (session.user as any).role;
+    const userRole = (session.user as Record<string, unknown>).role;
     if (userRole !== 'ADMIN') {
       return { success: false, message: 'Admin access required' };
     }
@@ -318,7 +331,7 @@ export async function updateOrderStatus(orderId: string, newStatus: string): Pro
       await tx
         .update(orders)
         .set({
-          status: newStatus as any,
+          status: newStatus as typeof orders.$inferInsert.status,
           updatedAt: new Date(),
         })
         .where(eq(orders.id, Number(orderId)));
@@ -327,14 +340,14 @@ export async function updateOrderStatus(orderId: string, newStatus: string): Pro
       if (newStatus === 'CANCELLED') {
         const orderItemsList = await tx
           .select()
-          .from(orderItems)
-          .where(eq(orderItems.orderId, Number(orderId)));
+          .from(orderItemsSchema)
+          .where(eq(orderItemsSchema.orderId, Number(orderId)));
 
         for (const item of orderItemsList) {
           const [product] = await tx
             .select()
             .from(products)
-            .where(eq(products.id, item.productId!))
+            .where(eq(products.id, String(item.productId)))
             .limit(1);
 
           if (product) {
@@ -343,14 +356,18 @@ export async function updateOrderStatus(orderId: string, newStatus: string): Pro
               .set({
                 stock: product.stock + (item.quantity ?? 0),
               })
-              .where(eq(products.id, item.productId!));
+              .where(eq(products.id, String(item.productId)));
           }
         }
       }
     });
 
     // Get user info for email
-    const [user] = await db.select().from(users).where(eq(users.id, order.userId!)).limit(1);
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, String(order.userId)))
+      .limit(1);
 
     // Send email notifications (async, don't block)
     if (newStatus === 'SHIPPED' && user) {

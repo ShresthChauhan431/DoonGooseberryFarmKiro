@@ -1,4 +1,4 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { cartItems, carts, categories, products } from '@/lib/db/schema';
 
@@ -106,12 +106,12 @@ export async function getCart(userId?: string, sessionId?: string): Promise<Cart
         productId: item.productId,
         quantity: item.quantity,
         product: {
-          id: item.product!.id,
-          name: item.product!.name,
-          slug: item.product!.slug,
-          price: item.product!.price,
-          stock: item.product!.stock,
-          images: item.product!.images,
+          id: item.product?.id as string,
+          name: item.product?.name as string,
+          slug: item.product?.slug as string,
+          price: item.product?.price as number,
+          stock: item.product?.stock as number,
+          images: item.product?.images as string[],
           category: item.category,
         },
       })),

@@ -1,9 +1,29 @@
 import { eq } from 'drizzle-orm';
 import fc from 'fast-check';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { db } from '@/lib/db';
 import { categories, products } from '@/lib/db/schema';
 import { getProducts, getRelatedProducts } from '../products';
+
+vi.mock('@/lib/db', () => ({
+  db: {
+    select: vi.fn().mockImplementation(() => ({
+      from: vi.fn().mockImplementation(() => {
+        const mockChain = {
+          where: vi.fn().mockReturnThis(),
+          leftJoin: vi.fn().mockReturnThis(),
+          orderBy: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockReturnThis(),
+          offset: vi.fn().mockReturnThis(),
+          $dynamic: vi.fn().mockReturnThis(),
+          then: vi.fn().mockImplementation((res) => res([])),
+        };
+        // By default returning an empty array for any await
+        return Object.assign(Promise.resolve([]), mockChain);
+      }),
+    })),
+  },
+}));
 
 describe('Product Queries', () => {
   /**

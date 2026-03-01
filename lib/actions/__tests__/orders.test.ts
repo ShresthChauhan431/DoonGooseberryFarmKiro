@@ -73,8 +73,8 @@ describe('Orders Actions', () => {
       const result = await createRazorpayOrderAction(50000);
 
       expect(result.success).toBe(true);
-      expect(result.data?.orderId).toBe('order_123');
-      expect(result.data?.keyId).toBe('test_key_id');
+      expect((result.data as any)?.orderId).toBe('order_123');
+      expect((result.data as any)?.keyId).toBe('test_key_id');
     });
 
     test('should fail when user not authenticated', async () => {
@@ -180,7 +180,7 @@ describe('Orders Actions', () => {
       });
 
       // Mock email sending
-      vi.mocked(sendEmail).mockResolvedValue(undefined);
+      vi.mocked(sendEmail).mockResolvedValue({ success: true });
 
       const result = await verifyPaymentAndCreateOrder(
         'order_123',
@@ -190,7 +190,7 @@ describe('Orders Actions', () => {
       );
 
       expect(result.success).toBe(true);
-      expect(result.data?.orderId).toBe('order-123');
+      expect((result.data as any)?.orderId).toBe('order-123');
       expect(revalidatePath).toHaveBeenCalledWith('/cart');
     });
 
@@ -308,7 +308,7 @@ describe('Orders Actions', () => {
         } as any);
       });
 
-      vi.mocked(sendEmail).mockResolvedValue(undefined);
+      vi.mocked(sendEmail).mockResolvedValue({ success: true });
 
       const result = await verifyPaymentAndCreateOrder(
         'order_123',
@@ -369,20 +369,32 @@ describe('Orders Actions', () => {
         user: { id: 'admin-123', email: 'admin@example.com', name: 'Admin', role: 'ADMIN' },
       } as any);
 
-      // Mock order query
-      vi.mocked(db.select).mockReturnValueOnce({
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([
-          {
-            id: 'order-123',
-            status: 'PENDING',
-            userId: 'user-123',
-            shippingAddress: {},
-            createdAt: new Date(),
-          },
-        ]),
-      } as any);
+      // Mock order query and user query in sequence
+      vi.mocked(db.select)
+        .mockReturnValueOnce({
+          from: vi.fn().mockReturnThis(),
+          where: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockResolvedValue([
+            {
+              id: 'order-123',
+              status: 'PENDING',
+              userId: 'user-123',
+              shippingAddress: {},
+              createdAt: new Date(),
+            },
+          ]),
+        } as any)
+        .mockReturnValueOnce({
+          from: vi.fn().mockReturnThis(),
+          where: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockResolvedValue([
+            {
+              id: 'user-123',
+              email: 'test@example.com',
+              name: 'Test User',
+            },
+          ]),
+        } as any);
 
       // Mock transaction
       vi.mocked(db.transaction).mockImplementation(async (callback) => {
@@ -502,6 +514,19 @@ describe('Orders Actions', () => {
         ]),
       } as any);
 
+      // Mock user query for email (used post-transaction)
+      vi.mocked(db.select).mockReturnValueOnce({
+        from: vi.fn().mockReturnThis(),
+        where: vi.fn().mockReturnThis(),
+        limit: vi.fn().mockResolvedValue([
+          {
+            id: 'user-123',
+            email: 'user@example.com',
+            name: 'Test User',
+          },
+        ]),
+      } as any);
+
       const mockTransaction = vi.fn(async (callback) => {
         const tx = {
           update: vi.fn().mockReturnValue({
@@ -510,15 +535,15 @@ describe('Orders Actions', () => {
           }),
           select: vi.fn().mockReturnValue({
             from: vi.fn().mockReturnThis(),
-            where: vi.fn().mockReturnValue({
-              // Mock order items query
-              then: vi.fn().mockResolvedValue([
-                { productId: 'prod-1', quantity: 2 },
-                { productId: 'prod-2', quantity: 3 },
-              ]),
-              // Mock product query
-              limit: vi.fn().mockResolvedValue([{ id: 'prod-1', stock: 10 }]),
-            }),
+            where: vi.fn().mockReturnValue(
+              Object.assign(
+                Promise.resolve([
+                  { productId: 'prod-1', quantity: 2 },
+                  { productId: 'prod-2', quantity: 3 },
+                ]),
+                { limit: vi.fn().mockResolvedValue([{ id: 'prod-1', stock: 10 }]) }
+              )
+            ),
           }),
         };
         return callback(tx);
@@ -572,7 +597,7 @@ describe('Orders Actions', () => {
         ]),
       } as any);
 
-      vi.mocked(sendEmail).mockResolvedValue(undefined);
+      vi.mocked(sendEmail).mockResolvedValue({ success: true });
 
       const result = await updateOrderStatus('order-123', 'SHIPPED');
 
@@ -621,7 +646,7 @@ describe('Orders Actions', () => {
         ]),
       } as any);
 
-      vi.mocked(sendEmail).mockResolvedValue(undefined);
+      vi.mocked(sendEmail).mockResolvedValue({ success: true });
 
       const result = await updateOrderStatus('order-123', 'DELIVERED');
 
@@ -633,17 +658,29 @@ describe('Orders Actions', () => {
         user: { id: 'admin-123', email: 'admin@example.com', name: 'Admin', role: 'ADMIN' },
       } as any);
 
-      vi.mocked(db.select).mockReturnValueOnce({
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([
-          {
-            id: 'order-123',
-            status: 'PENDING',
-            userId: 'user-123',
-          },
-        ]),
-      } as any);
+      vi.mocked(db.select)
+        .mockReturnValueOnce({
+          from: vi.fn().mockReturnThis(),
+          where: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockResolvedValue([
+            {
+              id: 'order-123',
+              status: 'PENDING',
+              userId: 'user-123',
+            },
+          ]),
+        } as any)
+        .mockReturnValueOnce({
+          from: vi.fn().mockReturnThis(),
+          where: vi.fn().mockReturnThis(),
+          limit: vi.fn().mockResolvedValue([
+            {
+              id: 'user-123',
+              email: 'admin@example.com',
+              name: 'Admin',
+            },
+          ]),
+        } as any);
 
       vi.mocked(db.transaction).mockImplementation(async (callback) => {
         return callback({

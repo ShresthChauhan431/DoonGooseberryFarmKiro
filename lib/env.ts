@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 const envSchema = z.object({
   // =========================
@@ -7,7 +7,7 @@ const envSchema = z.object({
 
   DATABASE_URL: z.string().min(1),
 
-  AUTH_SECRET: z.string().min(32, "AUTH_SECRET must be at least 32 characters"),
+  AUTH_SECRET: z.string().min(32, 'AUTH_SECRET must be at least 32 characters'),
 
   AUTH_URL: z.string().url(),
 
@@ -57,9 +57,7 @@ const envSchema = z.object({
   // Environment
   // =========================
 
-  NODE_ENV: z
-    .enum(["development", "production", "test"])
-    .default("development"),
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 });
 
 export const env = envSchema.parse(process.env);

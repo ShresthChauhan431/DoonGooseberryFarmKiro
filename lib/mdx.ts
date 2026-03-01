@@ -1,8 +1,7 @@
-import fs from 'fs';
+import fs from 'node:fs';
+import path from 'node:path';
 import matter from 'gray-matter';
 import { compileMDX } from 'next-mdx-remote/rsc';
-import path from 'path';
-import rehypeHighlight from 'rehype-highlight';
 import rehypePrettyCode from 'rehype-pretty-code';
 
 const contentDirectory = path.join(process.cwd(), 'content/blog');

@@ -25,7 +25,7 @@ type AddressInput = z.infer<typeof addressSchema>;
 interface ActionResult {
   success: boolean;
   message?: string;
-  data?: any;
+  data?: unknown;
 }
 
 /**
@@ -87,7 +87,7 @@ export async function updateAddress(addressId: string, data: AddressInput): Prom
     }
 
     // Update address (only if it belongs to the user)
-    const result = await db
+    const _result = await db
       .update(addresses)
       .set({
         name: validated.name,

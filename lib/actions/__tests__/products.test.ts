@@ -30,7 +30,7 @@ vi.mock('@/lib/utils/slug', () => ({
 vi.mock('@/lib/utils/validation', () => ({
   productSchema: {},
   validateDataSafe: vi.fn(),
-  formatValidationErrors: vi.fn((error) => ['Validation error']),
+  formatValidationErrors: vi.fn((_error) => ['Validation error']),
 }));
 
 import { revalidatePath } from 'next/cache';
@@ -54,11 +54,12 @@ describe('Products Actions', () => {
       stock: 50,
       images: ['https://example.com/image.jpg'],
       isActive: true,
+      nutritionalInfo: undefined,
     };
 
     test('should successfully create product', async () => {
       // Mock admin authentication
-      vi.mocked(requireAdmin).mockResolvedValue(undefined);
+      vi.mocked(requireAdmin).mockResolvedValue(undefined as any);
 
       // Mock validation success
       vi.mocked(validateDataSafe).mockReturnValue({
@@ -96,7 +97,7 @@ describe('Products Actions', () => {
     });
 
     test('should fail with validation error', async () => {
-      vi.mocked(requireAdmin).mockResolvedValue(undefined);
+      vi.mocked(requireAdmin).mockResolvedValue(undefined as any);
 
       vi.mocked(validateDataSafe).mockReturnValue({
         success: false,
@@ -110,7 +111,7 @@ describe('Products Actions', () => {
     });
 
     test('should fail when slug already exists', async () => {
-      vi.mocked(requireAdmin).mockResolvedValue(undefined);
+      vi.mocked(requireAdmin).mockResolvedValue(undefined as any);
 
       vi.mocked(validateDataSafe).mockReturnValue({
         success: true,
@@ -131,7 +132,7 @@ describe('Products Actions', () => {
     });
 
     test('should generate slug if not provided', async () => {
-      vi.mocked(requireAdmin).mockResolvedValue(undefined);
+      vi.mocked(requireAdmin).mockResolvedValue(undefined as any);
 
       const dataWithoutSlug = { ...validProductData };
       delete (dataWithoutSlug as any).slug;
@@ -168,10 +169,11 @@ describe('Products Actions', () => {
       stock: 60,
       images: ['https://example.com/new-image.jpg'],
       isActive: true,
+      nutritionalInfo: undefined,
     };
 
     test('should successfully update product', async () => {
-      vi.mocked(requireAdmin).mockResolvedValue(undefined);
+      vi.mocked(requireAdmin).mockResolvedValue(undefined as any);
 
       vi.mocked(validateDataSafe).mockReturnValue({
         success: true,
@@ -220,7 +222,7 @@ describe('Products Actions', () => {
     });
 
     test('should fail when product not found', async () => {
-      vi.mocked(requireAdmin).mockResolvedValue(undefined);
+      vi.mocked(requireAdmin).mockResolvedValue(undefined as any);
 
       vi.mocked(validateDataSafe).mockReturnValue({
         success: true,
@@ -241,7 +243,7 @@ describe('Products Actions', () => {
     });
 
     test('should fail when new slug already exists', async () => {
-      vi.mocked(requireAdmin).mockResolvedValue(undefined);
+      vi.mocked(requireAdmin).mockResolvedValue(undefined as any);
 
       vi.mocked(validateDataSafe).mockReturnValue({
         success: true,
@@ -279,7 +281,7 @@ describe('Products Actions', () => {
     });
 
     test('should allow same slug for same product', async () => {
-      vi.mocked(requireAdmin).mockResolvedValue(undefined);
+      vi.mocked(requireAdmin).mockResolvedValue(undefined as any);
 
       const dataWithSameSlug = { ...validProductData, slug: 'same-slug' };
 
@@ -312,7 +314,7 @@ describe('Products Actions', () => {
     });
 
     test('should fail with validation error', async () => {
-      vi.mocked(requireAdmin).mockResolvedValue(undefined);
+      vi.mocked(requireAdmin).mockResolvedValue(undefined as any);
 
       vi.mocked(validateDataSafe).mockReturnValue({
         success: false,
@@ -328,7 +330,7 @@ describe('Products Actions', () => {
 
   describe('deleteProduct', () => {
     test('should successfully soft delete product', async () => {
-      vi.mocked(requireAdmin).mockResolvedValue(undefined);
+      vi.mocked(requireAdmin).mockResolvedValue(undefined as any);
 
       // Mock existing product query
       vi.mocked(db.select).mockReturnValueOnce({
@@ -365,7 +367,7 @@ describe('Products Actions', () => {
     });
 
     test('should fail when product not found', async () => {
-      vi.mocked(requireAdmin).mockResolvedValue(undefined);
+      vi.mocked(requireAdmin).mockResolvedValue(undefined as any);
 
       // Mock existing product query - not found
       vi.mocked(db.select).mockReturnValueOnce({
@@ -381,7 +383,7 @@ describe('Products Actions', () => {
     });
 
     test('should set isActive to false (soft delete)', async () => {
-      vi.mocked(requireAdmin).mockResolvedValue(undefined);
+      vi.mocked(requireAdmin).mockResolvedValue(undefined as any);
 
       vi.mocked(db.select).mockReturnValueOnce({
         from: vi.fn().mockReturnThis(),
@@ -391,6 +393,7 @@ describe('Products Actions', () => {
             id: 'prod-123',
             slug: 'mango-pickle',
             isActive: true,
+            nutritionalInfo: undefined,
           },
         ]),
       } as any);
@@ -403,7 +406,7 @@ describe('Products Actions', () => {
 
       await deleteProduct('prod-123');
 
-      expect(mockSet).toHaveBeenCalledWith({ isActive: false });
+      expect(mockSet).toHaveBeenCalledWith({ isActive: false, nutritionalInfo: undefined });
     });
   });
 });

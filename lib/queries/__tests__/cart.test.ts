@@ -537,8 +537,8 @@ describe('Property 4: Cart Duplicate Prevention', () => {
           // Simulate the cart duplicate prevention logic
           // This tests the core property: when a product exists, increment quantity
 
-          const cartId = 'cart-' + userId;
-          const cartItemId = 'item-' + productId;
+          const cartId = `cart-${userId}`;
+          const cartItemId = `item-${productId}`;
 
           // Simulate first add - creates new cart item
           const cartItems: Array<{
@@ -563,7 +563,7 @@ describe('Property 4: Cart Duplicate Prevention', () => {
           } else {
             // This would be incorrect: creating a duplicate
             cartItems.push({
-              id: 'duplicate-' + productId,
+              id: `duplicate-${productId}`,
               cartId: cartId,
               productId: productId,
               quantity: additionalQuantity,
@@ -595,7 +595,7 @@ describe('Property 4: Cart Duplicate Prevention', () => {
         fc.uuid(), // userId
         async (productId, quantities, userId) => {
           // Simulate multiple addToCart calls for the same product
-          const cartId = 'cart-' + userId;
+          const cartId = `cart-${userId}`;
           const cartItems: Array<{
             id: string;
             cartId: string;
@@ -613,7 +613,7 @@ describe('Property 4: Cart Duplicate Prevention', () => {
             } else {
               // Create new cart item (should only happen on first add)
               cartItems.push({
-                id: 'item-' + productId,
+                id: `item-${productId}`,
                 cartId: cartId,
                 productId: productId,
                 quantity: quantity,
@@ -2059,7 +2059,7 @@ describe('Property 9: Coupon Discount Calculation', () => {
             minOrderValue: 0,
           };
 
-          const totals1 = calculateCartTotals(cartItems1, coupon);
+          const _totals1 = calculateCartTotals(cartItems1, coupon);
           const totals2 = calculateCartTotals(cartItems2, coupon);
 
           // Property: When subtotal is multiplied by N, percentage discount should be approximately multiplied by N

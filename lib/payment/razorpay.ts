@@ -65,7 +65,7 @@ export function verifyPaymentSignature(
     console.error('Invalid payment signature detected', {
       orderId,
       paymentId,
-      providedSignature: signature.substring(0, 10) + '...',
+      providedSignature: `${signature.substring(0, 10)}...`,
     });
   }
 

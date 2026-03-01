@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gte, ilike, lte, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, lte, sql } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { categories, products } from '@/lib/db/schema';
 
@@ -88,7 +88,6 @@ export async function getProducts(filters: ProductFilters = {}) {
     case 'price-desc':
       query.orderBy(desc(products.price));
       break;
-    case 'newest':
     default:
       query.orderBy(desc(products.createdAt));
       break;

@@ -13,7 +13,6 @@ import {
   Section,
   Text,
 } from '@react-email/components';
-import * as React from 'react';
 
 interface OrderConfirmationEmailProps {
   orderNumber: string;
@@ -116,6 +115,7 @@ export const OrderConfirmationEmail = ({
               Order Items
             </Heading>
             {items.map((item, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: order items have no unique DB id in template payload
               <Row key={index} style={itemRow}>
                 <Column style={itemImageColumn}>
                   <Img src={item.image} alt={item.name} width="80" height="80" style={itemImage} />

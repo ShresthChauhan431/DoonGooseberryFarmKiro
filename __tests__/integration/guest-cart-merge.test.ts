@@ -13,7 +13,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { addToCart, mergeCart } from '@/lib/actions/cart';
 import { db } from '@/lib/db';
-import { getCart } from '@/lib/queries/cart';
 
 // Mock dependencies
 vi.mock('@/lib/auth/session', () => ({
@@ -30,9 +29,9 @@ import { getSession } from '@/lib/auth/session';
 describe('Integration: Guest to User Cart Merge', () => {
   const guestSessionId = 'guest-session-123';
   const userId = 'user-456';
-  const productId1 = 'prod-1';
-  const productId2 = 'prod-2';
-  const productId3 = 'prod-3';
+  const productId1 = '13f0bb21-1d54-47c4-a621-cf7b988fceba';
+  const productId2 = '24f0bb21-1d54-47c4-a621-cf7b988fceba';
+  const productId3 = '35f0bb21-1d54-47c4-a621-cf7b988fceba';
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -43,24 +42,32 @@ describe('Integration: Guest to User Cart Merge', () => {
     vi.mocked(getSession).mockResolvedValue(null); // Not authenticated
 
     // Mock product queries for guest cart
+    let addToCart1CallCount = 0;
     vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
+      const mockChain: any = {
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
         limit: vi.fn().mockReturnThis(),
         leftJoin: vi.fn().mockReturnThis(),
       };
 
-      // Product 1 query
-      mockChain.limit.mockResolvedValueOnce([
-        { id: productId1, price: 25000, stock: 20, name: 'Product 1' },
-      ]);
-
-      // Guest cart doesn't exist yet
-      mockChain.limit.mockResolvedValueOnce([]);
-
-      // Cart item doesn't exist
-      mockChain.limit.mockResolvedValueOnce([]);
+      // The runtime ultimately calls .then() whether limit() is used or not.
+      mockChain.then = vi.fn().mockImplementation((resolve) => {
+        addToCart1CallCount++;
+        if (addToCart1CallCount === 1) {
+          // 1. Product check
+          return resolve([{ id: productId1, price: 25000, stock: 20, name: 'Product 1' }]);
+        }
+        if (addToCart1CallCount === 2) {
+          // 2. Cart check
+          return resolve([]); // Guest cart doesn't exist yet
+        }
+        if (addToCart1CallCount === 3) {
+          // 3. Cart items check
+          return resolve([]); // Cart item doesn't exist
+        }
+        return resolve([]);
+      });
 
       return mockChain;
     }) as any);
@@ -72,25 +79,42 @@ describe('Integration: Guest to User Cart Merge', () => {
       };
     }) as any);
 
+    vi.spyOn(db, 'update').mockImplementation((() => {
+      return {
+        set: vi.fn().mockReturnThis(),
+        where: vi.fn().mockResolvedValue(undefined),
+      };
+    }) as any);
+
     const addResult1 = await addToCart(productId1, 2, undefined, guestSessionId);
     expect(addResult1.success).toBe(true);
 
     // Add second product to guest cart
+    let addToCart2CallCount = 0;
     vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
+      const mockChain: any = {
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
         limit: vi.fn().mockReturnThis(),
         leftJoin: vi.fn().mockReturnThis(),
       };
 
-      mockChain.limit.mockResolvedValueOnce([
-        { id: productId2, price: 30000, stock: 15, name: 'Product 2' },
-      ]);
-
-      mockChain.limit.mockResolvedValueOnce([{ id: 'guest-cart-123' }]);
-
-      mockChain.limit.mockResolvedValueOnce([]);
+      mockChain.then = vi.fn().mockImplementation((resolve) => {
+        addToCart2CallCount++;
+        if (addToCart2CallCount === 1) {
+          // 1. Product check
+          return resolve([{ id: productId2, price: 30000, stock: 15, name: 'Product 2' }]);
+        }
+        if (addToCart2CallCount === 2) {
+          // 2. Cart check
+          return resolve([{ id: 'guest-cart-123' }]); // Cart exists now
+        }
+        if (addToCart2CallCount === 3) {
+          // 3. Cart items check
+          return resolve([]); // Cart item doesn't exist
+        }
+        return resolve([]);
+      });
 
       return mockChain;
     }) as any);
@@ -110,24 +134,48 @@ describe('Integration: Guest to User Cart Merge', () => {
 
     // Step 3: Merge guest cart with user cart
     // Mock queries for merge operation
+    let mergeCallCount = 0;
     vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
+      const mockChain: any = {
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
         limit: vi.fn().mockReturnThis(),
       };
 
-      // Guest cart query
-      mockChain.limit.mockResolvedValueOnce([{ id: 'guest-cart-123' }]);
+      mockChain.then = vi.fn().mockImplementation((resolve) => {
+        mergeCallCount++;
 
-      // Guest cart items query
-      mockChain.where.mockResolvedValueOnce([
-        { id: 'guest-item-1', productId: productId1, quantity: 2 },
-        { id: 'guest-item-2', productId: productId2, quantity: 3 },
-      ]);
+        if (mergeCallCount === 1) {
+          // Guest cart query
+          return resolve([{ id: 'guest-cart-123', sessionId: guestSessionId }]);
+        }
+        if (mergeCallCount === 2) {
+          // Guest cart items query
+          const guestItems = [
+            { id: 'guest-item-1', cartId: 'guest-cart-123', productId: productId1, quantity: 2 },
+            { id: 'guest-item-2', cartId: 'guest-cart-123', productId: productId2, quantity: 3 },
+          ];
+          return resolve(guestItems);
+        }
+        if (mergeCallCount === 3) {
+          // User cart query (empty)
+          return resolve([]);
+        }
+        if (mergeCallCount === 4) {
+          // User cart items query
+          return resolve([]);
+        }
+        if (mergeCallCount === 5) {
+          // Stock check query for Product 1
+          return resolve([{ id: productId1, stock: 20 }]);
+        }
+        if (mergeCallCount === 6) {
+          // Stock check query for Product 2
+          return resolve([{ id: productId2, stock: 15 }]);
+        }
 
-      // User cart query (empty)
-      mockChain.limit.mockResolvedValueOnce([]);
+        return resolve([]);
+      });
 
       return mockChain;
     }) as any);
@@ -141,20 +189,8 @@ describe('Integration: Guest to User Cart Merge', () => {
     }) as any);
 
     // Mock user cart items query (empty)
-    vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
-      };
-
-      mockChain.where.mockResolvedValueOnce([]);
-
-      // Product stock queries
-      mockChain.limit.mockResolvedValue([{ id: productId1, stock: 20 }]);
-
-      return mockChain;
-    }) as any);
+    // Removed because the previous mock now handles it via the `thenCallCount === 2` resolve([]) logic!
+    // However, product stock checking needs to be added to the merge operation mock limit sequence!
 
     // Mock delete guest cart
     vi.spyOn(db, 'delete').mockImplementation((() => {
@@ -177,32 +213,49 @@ describe('Integration: Guest to User Cart Merge', () => {
     // After merge: User cart should have A, B, and C
 
     // Mock guest cart query
+    let mergeCallCount = 0;
     vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
+      const mockChain: any = {
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
         limit: vi.fn().mockReturnThis(),
       };
 
-      // Guest cart exists
-      mockChain.limit.mockResolvedValueOnce([{ id: 'guest-cart-789' }]);
+      mockChain.then = vi.fn().mockImplementation((resolve) => {
+        mergeCallCount++;
 
-      // Guest cart items (products 1 and 2)
-      mockChain.where.mockResolvedValueOnce([
-        { id: 'guest-item-1', productId: productId1, quantity: 2 },
-        { id: 'guest-item-2', productId: productId2, quantity: 1 },
-      ]);
+        if (mergeCallCount === 1) {
+          // Guest cart exists
+          return resolve([{ id: 'guest-cart-789', sessionId: guestSessionId }]);
+        }
+        if (mergeCallCount === 2) {
+          // Guest cart items (products 1 and 2)
+          return resolve([
+            { id: 'guest-item-1', cartId: 'guest-cart-789', productId: productId1, quantity: 2 },
+            { id: 'guest-item-2', cartId: 'guest-cart-789', productId: productId2, quantity: 1 },
+          ]);
+        }
+        if (mergeCallCount === 3) {
+          // User cart exists
+          return resolve([{ id: 'user-cart-789', userId: userId }]);
+        }
+        if (mergeCallCount === 4) {
+          // User cart items (product 3)
+          return resolve([
+            { id: 'user-item-1', cartId: 'user-cart-789', productId: productId3, quantity: 3 },
+          ]);
+        }
+        if (mergeCallCount === 5) {
+          // Product stock query for product 1
+          return resolve([{ id: productId1, stock: 20 }]);
+        }
+        if (mergeCallCount === 6) {
+          // Product stock query for product 2
+          return resolve([{ id: productId2, stock: 15 }]);
+        }
 
-      // User cart exists
-      mockChain.limit.mockResolvedValueOnce([{ id: 'user-cart-789' }]);
-
-      // User cart items (product 3)
-      mockChain.where.mockResolvedValueOnce([
-        { id: 'user-item-1', productId: productId3, quantity: 3 },
-      ]);
-
-      // Product stock queries
-      mockChain.limit.mockResolvedValue([{ id: productId1, stock: 20 }]);
+        return resolve([]);
+      });
 
       return mockChain;
     }) as any);
@@ -237,31 +290,44 @@ describe('Integration: Guest to User Cart Merge', () => {
     // After merge: User cart should have 5 of product A (combined)
 
     // Mock guest cart query
+    let mergeCallCount = 0;
     vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
+      const mockChain: any = {
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
         limit: vi.fn().mockReturnThis(),
       };
 
-      // Guest cart exists
-      mockChain.limit.mockResolvedValueOnce([{ id: 'guest-cart-dup' }]);
+      mockChain.then = vi.fn().mockImplementation((resolve) => {
+        mergeCallCount++;
 
-      // Guest cart items (product 1 with quantity 2)
-      mockChain.where.mockResolvedValueOnce([
-        { id: 'guest-item-1', productId: productId1, quantity: 2 },
-      ]);
+        if (mergeCallCount === 1) {
+          // Guest cart exists
+          return resolve([{ id: 'guest-cart-dup', sessionId: guestSessionId }]);
+        }
+        if (mergeCallCount === 2) {
+          // Guest cart items (product 1 with quantity 2)
+          return resolve([
+            { id: 'guest-item-1', cartId: 'guest-cart-dup', productId: productId1, quantity: 2 },
+          ]);
+        }
+        if (mergeCallCount === 3) {
+          // User cart exists
+          return resolve([{ id: 'user-cart-dup', userId: userId }]);
+        }
+        if (mergeCallCount === 4) {
+          // User cart items (product 1 with quantity 3)
+          return resolve([
+            { id: 'user-item-1', cartId: 'user-cart-dup', productId: productId1, quantity: 3 },
+          ]);
+        }
+        if (mergeCallCount === 5) {
+          // Product stock query
+          return resolve([{ id: productId1, stock: 20 }]);
+        }
 
-      // User cart exists
-      mockChain.limit.mockResolvedValueOnce([{ id: 'user-cart-dup' }]);
-
-      // User cart items (product 1 with quantity 3)
-      mockChain.where.mockResolvedValueOnce([
-        { id: 'user-item-1', productId: productId1, quantity: 3 },
-      ]);
-
-      // Product stock query
-      mockChain.limit.mockResolvedValue([{ id: productId1, stock: 20 }]);
+        return resolve([]);
+      });
 
       return mockChain;
     }) as any);
@@ -271,7 +337,9 @@ describe('Integration: Guest to User Cart Merge', () => {
     vi.spyOn(db, 'update').mockImplementation((() => {
       return {
         set: vi.fn().mockImplementation((values: any) => {
-          updatedQuantity = values.quantity;
+          if (values && 'quantity' in values) {
+            updatedQuantity = values.quantity;
+          }
           return {
             where: vi.fn().mockResolvedValue(undefined),
           };
@@ -307,31 +375,44 @@ describe('Integration: Guest to User Cart Merge', () => {
     const stockLimit = 10;
 
     // Mock guest cart query
+    let mergeCallCount = 0;
     vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
+      const mockChain: any = {
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
         limit: vi.fn().mockReturnThis(),
       };
 
-      // Guest cart exists
-      mockChain.limit.mockResolvedValueOnce([{ id: 'guest-cart-stock' }]);
+      mockChain.then = vi.fn().mockImplementation((resolve) => {
+        mergeCallCount++;
 
-      // Guest cart items (product 1 with quantity 8)
-      mockChain.where.mockResolvedValueOnce([
-        { id: 'guest-item-1', productId: productId1, quantity: 8 },
-      ]);
+        if (mergeCallCount === 1) {
+          // Guest cart exists
+          return resolve([{ id: 'guest-cart-stock', sessionId: guestSessionId }]);
+        }
+        if (mergeCallCount === 2) {
+          // Guest cart items (product 1 with quantity 8)
+          return resolve([
+            { id: 'guest-item-1', cartId: 'guest-cart-stock', productId: productId1, quantity: 8 },
+          ]);
+        }
+        if (mergeCallCount === 3) {
+          // User cart exists
+          return resolve([{ id: 'user-cart-stock', userId: userId }]);
+        }
+        if (mergeCallCount === 4) {
+          // User cart items (product 1 with quantity 5)
+          return resolve([
+            { id: 'user-item-1', cartId: 'user-cart-stock', productId: productId1, quantity: 5 },
+          ]);
+        }
+        if (mergeCallCount === 5) {
+          // Product stock query (stock is 10)
+          return resolve([{ id: productId1, stock: stockLimit }]);
+        }
 
-      // User cart exists
-      mockChain.limit.mockResolvedValueOnce([{ id: 'user-cart-stock' }]);
-
-      // User cart items (product 1 with quantity 5)
-      mockChain.where.mockResolvedValueOnce([
-        { id: 'user-item-1', productId: productId1, quantity: 5 },
-      ]);
-
-      // Product stock query (stock is 10)
-      mockChain.limit.mockResolvedValue([{ id: productId1, stock: stockLimit }]);
+        return resolve([]);
+      });
 
       return mockChain;
     }) as any);
@@ -341,7 +422,9 @@ describe('Integration: Guest to User Cart Merge', () => {
     vi.spyOn(db, 'update').mockImplementation((() => {
       return {
         set: vi.fn().mockImplementation((values: any) => {
-          updatedQuantity = values.quantity;
+          if (values && 'quantity' in values) {
+            updatedQuantity = values.quantity;
+          }
           return {
             where: vi.fn().mockResolvedValue(undefined),
           };
@@ -396,18 +479,28 @@ describe('Integration: Guest to User Cart Merge', () => {
     // After merge: Guest cart should be deleted
 
     // Mock guest cart query
+    let mergeCallCount = 0;
     vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
+      const mockChain: any = {
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
         limit: vi.fn().mockReturnThis(),
       };
 
-      // Guest cart exists
-      mockChain.limit.mockResolvedValueOnce([{ id: 'guest-cart-empty' }]);
+      mockChain.then = vi.fn().mockImplementation((resolve) => {
+        mergeCallCount++;
 
-      // Guest cart items (empty)
-      mockChain.where.mockResolvedValueOnce([]);
+        if (mergeCallCount === 1) {
+          // Guest cart exists
+          return resolve([{ id: 'guest-cart-empty', sessionId: guestSessionId }]);
+        }
+        if (mergeCallCount === 2) {
+          // Guest cart items (empty)
+          return resolve([]);
+        }
+
+        return resolve([]);
+      });
 
       return mockChain;
     }) as any);
@@ -432,34 +525,80 @@ describe('Integration: Guest to User Cart Merge', () => {
     // After merge: User should have A (qty 3), B (qty 3), C (qty 1), D (qty 2)
 
     // Mock guest cart query
+    let mergeCallCount = 0;
     vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
+      const mockChain: any = {
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
         limit: vi.fn().mockReturnThis(),
       };
 
-      // Guest cart exists
-      mockChain.limit.mockResolvedValueOnce([{ id: 'guest-cart-complex' }]);
+      mockChain.then = vi.fn().mockImplementation((resolve) => {
+        mergeCallCount++;
 
-      // Guest cart items
-      mockChain.where.mockResolvedValueOnce([
-        { id: 'guest-item-1', productId: 'prod-A', quantity: 2 },
-        { id: 'guest-item-2', productId: 'prod-B', quantity: 3 },
-        { id: 'guest-item-3', productId: 'prod-C', quantity: 1 },
-      ]);
+        if (mergeCallCount === 1) {
+          // Guest cart exists
+          return resolve([{ id: 'guest-cart-complex', sessionId: guestSessionId }]);
+        }
+        if (mergeCallCount === 2) {
+          // Guest cart items
+          return resolve([
+            {
+              id: 'guest-item-1',
+              cartId: 'guest-cart-complex',
+              productId: '46f0bb21-1d54-47c4-a621-cf7b988fceba',
+              quantity: 2,
+            },
+            {
+              id: 'guest-item-2',
+              cartId: 'guest-cart-complex',
+              productId: '57f0bb21-1d54-47c4-a621-cf7b988fceba',
+              quantity: 3,
+            },
+            {
+              id: 'guest-item-3',
+              cartId: 'guest-cart-complex',
+              productId: '68f0bb21-1d54-47c4-a621-cf7b988fceba',
+              quantity: 1,
+            },
+          ]);
+        }
+        if (mergeCallCount === 3) {
+          // User cart exists
+          return resolve([{ id: 'user-cart-complex', userId: userId }]);
+        }
+        if (mergeCallCount === 4) {
+          // User cart items
+          return resolve([
+            {
+              id: 'user-item-1',
+              cartId: 'user-cart-complex',
+              productId: '46f0bb21-1d54-47c4-a621-cf7b988fceba',
+              quantity: 1,
+            },
+            {
+              id: 'user-item-2',
+              cartId: 'user-cart-complex',
+              productId: '79f0bb21-1d54-47c4-a621-cf7b988fceba',
+              quantity: 2,
+            },
+          ]);
+        }
+        if (mergeCallCount === 5) {
+          // Product stock query for Product A
+          return resolve([{ id: '46f0bb21-1d54-47c4-a621-cf7b988fceba', stock: 20 }]);
+        }
+        if (mergeCallCount === 6) {
+          // Product stock query for Product B
+          return resolve([{ id: '57f0bb21-1d54-47c4-a621-cf7b988fceba', stock: 20 }]);
+        }
+        if (mergeCallCount === 7) {
+          // Product stock query for Product C
+          return resolve([{ id: '68f0bb21-1d54-47c4-a621-cf7b988fceba', stock: 20 }]);
+        }
 
-      // User cart exists
-      mockChain.limit.mockResolvedValueOnce([{ id: 'user-cart-complex' }]);
-
-      // User cart items
-      mockChain.where.mockResolvedValueOnce([
-        { id: 'user-item-1', productId: 'prod-A', quantity: 1 },
-        { id: 'user-item-2', productId: 'prod-D', quantity: 2 },
-      ]);
-
-      // Product stock queries
-      mockChain.limit.mockResolvedValue([{ id: 'prod-A', stock: 20 }]);
+        return resolve([]);
+      });
 
       return mockChain;
     }) as any);
@@ -471,7 +610,9 @@ describe('Integration: Guest to User Cart Merge', () => {
     vi.spyOn(db, 'update').mockImplementation((() => {
       return {
         set: vi.fn().mockImplementation((values: any) => {
-          updatedItems.push(values);
+          if (values && 'quantity' in values) {
+            updatedItems.push(values);
+          }
           return {
             where: vi.fn().mockResolvedValue(undefined),
           };
@@ -516,29 +657,42 @@ describe('Integration: Guest to User Cart Merge', () => {
     // After merge: User cart should be created with guest items
 
     // Mock guest cart query
+    let mergeCallCount = 0;
     vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
+      const mockChain: any = {
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
         limit: vi.fn().mockReturnThis(),
       };
 
-      // Guest cart exists
-      mockChain.limit.mockResolvedValueOnce([{ id: 'guest-cart-new' }]);
+      mockChain.then = vi.fn().mockImplementation((resolve) => {
+        mergeCallCount++;
 
-      // Guest cart items
-      mockChain.where.mockResolvedValueOnce([
-        { id: 'guest-item-1', productId: productId1, quantity: 2 },
-      ]);
+        if (mergeCallCount === 1) {
+          // Guest cart exists
+          return resolve([{ id: 'guest-cart-new', sessionId: guestSessionId }]);
+        }
+        if (mergeCallCount === 2) {
+          // Guest cart items
+          return resolve([
+            { id: 'guest-item-1', cartId: 'guest-cart-new', productId: productId1, quantity: 2 },
+          ]);
+        }
+        if (mergeCallCount === 3) {
+          // User cart doesn't exist
+          return resolve([]);
+        }
+        if (mergeCallCount === 4) {
+          // User cart items (empty, cart doesn't exist)
+          return resolve([]);
+        }
+        if (mergeCallCount === 5) {
+          // Product stock query
+          return resolve([{ id: productId1, stock: 20 }]);
+        }
 
-      // User cart doesn't exist
-      mockChain.limit.mockResolvedValueOnce([]);
-
-      // User cart items (empty, cart doesn't exist)
-      mockChain.where.mockResolvedValueOnce([]);
-
-      // Product stock query
-      mockChain.limit.mockResolvedValue([{ id: productId1, stock: 20 }]);
+        return resolve([]);
+      });
 
       return mockChain;
     }) as any);

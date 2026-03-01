@@ -10,7 +10,6 @@ import {
   couponSchema,
   formatValidationErrors,
   newsletterSchema,
-  orderSchema,
   orderStatusSchema,
   paginationSchema,
   paymentVerificationSchema,

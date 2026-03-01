@@ -1,22 +1,16 @@
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { ProductGallery } from "@/components/product/product-gallery";
-import { ProductInfo } from "@/components/product/product-info";
-import { ProductReviews } from "@/components/product/product-reviews";
-import { RelatedProducts } from "@/components/product/related-products";
-import { isInWishlist } from "@/lib/actions/wishlist";
-import { getSession } from "@/lib/auth/session";
-import {
-  getProductBySlug,
-  getRelatedProducts,
-} from "@/lib/queries/products";
-import {
-  getProductReviewStats,
-  getProductReviews,
-} from "@/lib/queries/reviews";
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { ProductGallery } from '@/components/product/product-gallery';
+import { ProductInfo } from '@/components/product/product-info';
+import { ProductReviews } from '@/components/product/product-reviews';
+import { RelatedProducts } from '@/components/product/related-products';
+import { isInWishlist } from '@/lib/actions/wishlist';
+import { getSession } from '@/lib/auth/session';
+import { getProductBySlug, getRelatedProducts } from '@/lib/queries/products';
+import { getProductReviewStats, getProductReviews } from '@/lib/queries/reviews';
 
 /**
  * Generate metadata for SEO (dynamic)
@@ -30,7 +24,7 @@ export async function generateMetadata({
 
   if (!product) {
     return {
-      title: "Product Not Found",
+      title: 'Product Not Found',
     };
   }
 
@@ -44,10 +38,10 @@ export async function generateMetadata({
         url,
         alt: product.name,
       })),
-      type: "website",
+      type: 'website',
     },
     twitter: {
-      card: "summary_large_image",
+      card: 'summary_large_image',
       title: product.name,
       description: product.description.substring(0, 160),
       images: product.images,
@@ -55,11 +49,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function ProductDetailPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default async function ProductDetailPage({ params }: { params: { slug: string } }) {
   const product = await getProductBySlug(params.slug);
 
   if (!product) {
@@ -69,46 +59,41 @@ export default async function ProductDetailPage({
   const session = await getSession();
   const userId = session?.user?.id;
 
-  const [reviews, reviewStats, relatedProducts, inWishlist] =
-    await Promise.all([
-      getProductReviews(product.id),
-      getProductReviewStats(product.id),
-      getRelatedProducts(product.id, product.categoryId, 4),
-      isInWishlist(product.id),
-    ]);
+  const [reviews, reviewStats, relatedProducts, inWishlist] = await Promise.all([
+    getProductReviews(product.id),
+    getProductReviewStats(product.id),
+    getRelatedProducts(product.id, product.categoryId, 4),
+    isInWishlist(product.id),
+  ]);
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    "https://your-vercel-domain.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://your-vercel-domain.vercel.app';
 
   const productSchema = {
-    "@context": "https://schema.org",
-    "@type": "Product",
+    '@context': 'https://schema.org',
+    '@type': 'Product',
     name: product.name,
     description: product.description,
     image: product.images,
     sku: product.id,
     brand: {
-      "@type": "Brand",
-      name: "Doon Gooseberry Farm",
+      '@type': 'Brand',
+      name: 'Doon Gooseberry Farm',
     },
     offers: {
-      "@type": "Offer",
+      '@type': 'Offer',
       price: (product.price / 100).toFixed(2),
-      priceCurrency: "INR",
+      priceCurrency: 'INR',
       availability:
-        product.stock > 0
-          ? "https://schema.org/InStock"
-          : "https://schema.org/OutOfStock",
+        product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       url: `${baseUrl}/shop/${product.slug}`,
       seller: {
-        "@type": "Organization",
-        name: "Doon Gooseberry Farm",
+        '@type': 'Organization',
+        name: 'Doon Gooseberry Farm',
       },
     },
     ...(reviewStats.totalReviews > 0 && {
       aggregateRating: {
-        "@type": "AggregateRating",
+        '@type': 'AggregateRating',
         ratingValue: Number(reviewStats.averageRating).toFixed(1),
         reviewCount: reviewStats.totalReviews,
         bestRating: 5,
@@ -118,29 +103,29 @@ export default async function ProductDetailPage({
   };
 
   const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
     itemListElement: [
       {
-        "@type": "ListItem",
+        '@type': 'ListItem',
         position: 1,
-        name: "Home",
+        name: 'Home',
         item: baseUrl,
       },
       {
-        "@type": "ListItem",
+        '@type': 'ListItem',
         position: 2,
-        name: "Shop",
+        name: 'Shop',
         item: `${baseUrl}/shop`,
       },
       {
-        "@type": "ListItem",
+        '@type': 'ListItem',
         position: 3,
-        name: product.category?.name || "Products",
+        name: product.category?.name || 'Products',
         item: `${baseUrl}/shop?category=${product.category?.slug}`,
       },
       {
-        "@type": "ListItem",
+        '@type': 'ListItem',
         position: 4,
         name: product.name,
         item: `${baseUrl}/shop/${product.slug}`,
@@ -152,24 +137,19 @@ export default async function ProductDetailPage({
     <>
       <script
         type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: required for script tag json-ld
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
       />
       <script
         type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: required for script tag json-ld
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <ProductGallery
-            images={product.images}
-            productName={product.name}
-          />
-          <ProductInfo
-            product={product}
-            isInWishlist={inWishlist}
-            userId={userId}
-          />
+          <ProductGallery images={product.images} productName={product.name} />
+          <ProductInfo product={product} isInWishlist={inWishlist} userId={userId} />
         </div>
 
         <section className="mt-12">
