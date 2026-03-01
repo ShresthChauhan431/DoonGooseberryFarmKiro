@@ -1,3 +1,4 @@
+import Script from 'next/script';
 import { Suspense } from 'react';
 import { MobileFilterSheet } from '@/components/product/mobile-filter-sheet';
 import { ProductCard } from '@/components/product/product-card';
@@ -23,8 +24,8 @@ interface ShopPageProps {
 function ProductGridSkeleton() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="space-y-4">
+      {Array.from({ length: 6 }).map(() => (
+        <div key={Math.random()} className="space-y-4">
           <Skeleton className="h-64 w-full" />
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-4 w-1/2" />
@@ -45,8 +46,8 @@ async function ProductGrid({ searchParams }: ShopPageProps) {
     category: params.category,
     sort: params.sort,
     // Convert rupees to paise (multiply by 100)
-    priceMin: params.priceMin ? Number.parseInt(params.priceMin) * 100 : undefined,
-    priceMax: params.priceMax ? Number.parseInt(params.priceMax) * 100 : undefined,
+    priceMin: params.priceMin ? Number.parseInt(params.priceMin, 10) * 100 : undefined,
+    priceMax: params.priceMax ? Number.parseInt(params.priceMax, 10) * 100 : undefined,
     search: params.search,
   };
 
@@ -111,10 +112,9 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* JSON-LD structured data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-      />
+      <Script id="breadcrumb-schema" type="application/ld+json" strategy="afterInteractive">
+        {JSON.stringify(breadcrumbSchema)}
+      </Script>
 
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">Shop All Products</h1>

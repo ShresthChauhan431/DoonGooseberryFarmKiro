@@ -13,7 +13,7 @@ Phase 18 focused on implementing comprehensive caching strategies, database quer
 **Implementation**:
 - Product detail pages (`app/(shop)/shop/[slug]/page.tsx`) already had ISR configured
 - Revalidation set to 3600 seconds (1 hour)
-- `generateStaticParams` implemented for static generation of all active products
+<!-- - `generateStaticParams` implemented for static generation of all active products -->
 - Verified configuration meets Requirement 26.1
 
 **Files Modified**: None (already implemented)

@@ -4,7 +4,7 @@ import { ProfileForm } from '@/components/account/profile-form';
 import { auth } from '@/lib/auth/config';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// export const revalidate = 0;
 
 export default async function ProfilePage() {
   const session = await auth.api.getSession({

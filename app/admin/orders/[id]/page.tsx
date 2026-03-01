@@ -8,7 +8,7 @@ import { getOrderById } from '@/lib/queries/orders';
 import { formatPrice } from '@/lib/utils/price';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// export const revalidate = 0;
 
 export default async function AdminOrderDetailPage({
   params,

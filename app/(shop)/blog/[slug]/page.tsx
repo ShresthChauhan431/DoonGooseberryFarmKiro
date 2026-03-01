@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import RelatedProducts from '@/components/blog/related-products';
 import { Button } from '@/components/ui/button';
-import { formatDate, getAllBlogSlugs, getBlogPost } from '@/lib/mdx';
+import { formatDate, getBlogPost } from '@/lib/mdx';
 import { getBlogImageBlurDataURL } from '@/lib/utils/image';
 
 interface BlogPostPageProps {

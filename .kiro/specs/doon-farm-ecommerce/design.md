@@ -1830,12 +1830,12 @@ Product pages use Incremental Static Regeneration for optimal performance:
 // app/shop/[slug]/page.tsx
 export const revalidate = 3600; // Revalidate every hour
 
-export async function generateStaticParams() {
-  const products = await getProducts({ isActive: true });
-  return products.map((product) => ({
-    slug: product.slug,
-  }));
-}
+// export async function generateStaticParams() {
+//   const products = await getProducts({ isActive: true });
+//   return products.map((product) => ({
+//     slug: product.slug,
+//   }));
+// }
 
 export default async function ProductPage({ params }: { params: { slug: string } }) {
   const product = await getProductBySlug(params.slug);

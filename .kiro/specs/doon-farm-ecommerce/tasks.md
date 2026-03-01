@@ -300,7 +300,7 @@ This task list provides a step-by-step implementation plan for the Doon Gooseber
 - [x] 6. Phase 6: Product Detail Page
   - [x] 6.1 Create product detail page
     - Create app/(shop)/shop/[slug]/page.tsx
-    - Implement generateStaticParams for ISR
+    <!-- - Implement generateStaticParams for ISR -->
     - Query product by slug with category relation
     - Return 404 if product not found
     - Set revalidate to 3600 seconds
