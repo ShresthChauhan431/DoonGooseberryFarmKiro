@@ -11,7 +11,7 @@ import { getEstimatedDeliveryDate, getOrderById } from '@/lib/queries/orders';
 import { formatPrice } from '@/lib/utils/price';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// export const revalidate = 0;
 
 const statusColors = {
   PENDING: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100',
