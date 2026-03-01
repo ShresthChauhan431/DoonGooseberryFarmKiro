@@ -25,8 +25,11 @@ export async function sendEmail(
   try {
     const resend = new Resend(env.RESEND_API_KEY);
 
+    // ✅ Fix TypeScript issue (without changing logic)
+    const fromEmail: string = env.FROM_EMAIL;
+
     const { data, error } = await resend.emails.send({
-      from: env.FROM_EMAIL,
+      from: fromEmail,
       to: options.to,
       subject: options.subject,
       react: options.react,
