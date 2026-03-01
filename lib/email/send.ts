@@ -1,7 +1,5 @@
-import { Resend } from 'resend';
-import { env } from '@/lib/env';
-
-const resend = new Resend(env.RESEND_API_KEY);
+import { Resend } from "resend";
+import { env } from "@/lib/env";
 
 export interface SendEmailOptions {
   to: string;
@@ -11,14 +9,22 @@ export interface SendEmailOptions {
 
 /**
  * Send an email using Resend
- * @param options - Email options (to, subject, react component)
- * @returns Promise with success status and error if any
  */
-export async function sendEmail(options: SendEmailOptions): Promise<{
+export async function sendEmail(
+  options: SendEmailOptions
+): Promise<{
   success: boolean;
   error?: string;
 }> {
+  // 🚫 If email is not configured, skip sending
+  if (!env.RESEND_API_KEY || !env.FROM_EMAIL) {
+    console.log("Email service not configured. Skipping email send.");
+    return { success: true };
+  }
+
   try {
+    const resend = new Resend(env.RESEND_API_KEY);
+
     const { data, error } = await resend.emails.send({
       from: env.FROM_EMAIL,
       to: options.to,
@@ -27,20 +33,20 @@ export async function sendEmail(options: SendEmailOptions): Promise<{
     });
 
     if (error) {
-      console.error('Error sending email:', error);
+      console.error("Error sending email:", error);
       return {
         success: false,
         error: error.message,
       };
     }
 
-    console.log('Email sent successfully:', data);
+    console.log("Email sent successfully:", data);
     return { success: true };
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("Error sending email:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
