@@ -9,8 +9,8 @@ const envSchema = z.object({
   AUTH_URL: z.string().url(),
 
   // Razorpay
-  RAZORPAY_KEY_ID: z.string(),
-  RAZORPAY_KEY_SECRET: z.string(),
+  RAZORPAY_KEY_ID: z.string().optional(),
+  RAZORPAY_KEY_SECRET: z.string().optional(),
 
   // Email (Resend)
   RESEND_API_KEY: z.string(),
