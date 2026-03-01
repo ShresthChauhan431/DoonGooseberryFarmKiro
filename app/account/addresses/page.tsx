@@ -5,7 +5,7 @@ import { auth } from '@/lib/auth/config';
 import { getUserAddresses } from '@/lib/queries/addresses';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// export const revalidate = 0;
 
 export default async function AddressesPage() {
   const session = await auth.api.getSession({
