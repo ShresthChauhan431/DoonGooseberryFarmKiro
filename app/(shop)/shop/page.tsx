@@ -8,7 +8,7 @@ import { getCategories } from '@/lib/queries/categories';
 import { getProducts } from '@/lib/queries/products';
 
 // Revalidate every 60 seconds
-export const revalidate = 60;
+// export const revalidate = 60;
 
 interface ShopPageProps {
   searchParams: Promise<{
