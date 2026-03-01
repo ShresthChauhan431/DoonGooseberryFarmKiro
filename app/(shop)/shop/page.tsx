@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import Script from 'next/script';
 import { Suspense } from 'react';
 import { MobileFilterSheet } from '@/components/product/mobile-filter-sheet';
