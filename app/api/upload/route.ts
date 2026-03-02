@@ -1,7 +1,6 @@
-import { writeFile } from 'fs/promises';
+import { put } from '@vercel/blob';
 import { headers } from 'next/headers';
 import { type NextRequest, NextResponse } from 'next/server';
-import path from 'path';
 import { auth } from '@/lib/auth/config';
 
 export async function POST(request: NextRequest) {
@@ -40,29 +39,14 @@ export async function POST(request: NextRequest) {
     const extension = file.name.split('.').pop();
     const filename = `${timestamp}-${randomString}.${extension}`;
 
-    // Convert file to buffer
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Save to public/uploads directory
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    const filePath = path.join(uploadDir, filename);
-
-    // Create uploads directory if it doesn't exist
-    try {
-      await writeFile(filePath, buffer);
-    } catch (error) {
-      // If directory doesn't exist, create it
-      const { mkdir } = await import('fs/promises');
-      await mkdir(uploadDir, { recursive: true });
-      await writeFile(filePath, buffer);
-    }
-
-    // Return public URL
-    const url = `/uploads/${filename}`;
+    // Upload to Vercel Blob
+    const blob = await put(filename, file, {
+      access: 'public',
+      addRandomSuffix: false,
+    });
 
     return NextResponse.json({
-      url,
+      url: blob.url,
       message: 'Image uploaded successfully',
     });
   } catch (error) {
@@ -88,14 +72,11 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ message: 'No URL provided' }, { status: 400 });
     }
 
-    // Only delete local uploads
-    if (url.startsWith('/uploads/')) {
-      const { unlink } = await import('fs/promises');
-      const filename = url.replace('/uploads/', '');
-      const filePath = path.join(process.cwd(), 'public', 'uploads', filename);
-
+    // Delete from Vercel Blob if it's a blob URL
+    if (url.includes('vercel-storage.com') || url.includes('blob.vercel-storage.com')) {
+      const { del } = await import('@vercel/blob');
       try {
-        await unlink(filePath);
+        await del(url);
       } catch (error) {
         console.error('Delete error:', error);
       }
