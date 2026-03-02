@@ -9,13 +9,13 @@ const envSchema = z.object({
   AUTH_URL: z.string().url(),
   NEXT_PUBLIC_AUTH_URL: z.string().url(),
 
-  // Razorpay
-  RAZORPAY_KEY_ID: z.string(),
-  RAZORPAY_KEY_SECRET: z.string(),
+  // Razorpay - Optional for deployment
+  RAZORPAY_KEY_ID: z.string().optional(),
+  RAZORPAY_KEY_SECRET: z.string().optional(),
 
-  // Email (Resend)
-  RESEND_API_KEY: z.string(),
-  FROM_EMAIL: z.string().email(),
+  // Email (Resend) - Optional for deployment
+  RESEND_API_KEY: z.string().optional(),
+  FROM_EMAIL: z.string().email().optional(),
 
   // Storage (Cloudflare R2 or Vercel Blob)
   R2_ACCOUNT_ID: z.string().optional(),
