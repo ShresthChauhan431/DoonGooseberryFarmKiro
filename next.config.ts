@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
 
   // Compiler options for optimization
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
   },
 
   // Security headers
@@ -44,9 +44,9 @@ const nextConfig: NextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://checkout.razorpay.com https://cdn.jsdelivr.net",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "img-src 'self' data: https: blob:",
+              "img-src 'self' data: https: blob: https://*.public.blob.vercel-storage.com",
               "font-src 'self' data: https://fonts.gstatic.com",
-              "connect-src 'self' https://api.razorpay.com https://*.sentry.io https://*.vercel.app",
+              "connect-src 'self' https://api.razorpay.com https://*.sentry.io https://*.vercel.app https://*.public.blob.vercel-storage.com",
               "frame-src 'self' https://api.razorpay.com",
               "object-src 'none'",
               "base-uri 'self'",
@@ -77,11 +77,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
-      // Add your Vercel Blob domain when configured
-      // {
-      //   protocol: 'https',
-      //   hostname: '*.public.blob.vercel-storage.com',
-      // },
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+      },
       // Add your Cloudflare R2 domain when configured
       // {
       //   protocol: 'https',
