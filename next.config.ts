@@ -46,7 +46,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' data: https: blob:",
               "font-src 'self' data: https://fonts.gstatic.com",
-              "connect-src 'self' https://api.razorpay.com https://*.sentry.io",
+              "connect-src 'self' https://api.razorpay.com https://*.sentry.io https://*.vercel.app",
               "frame-src 'self' https://api.razorpay.com",
               "object-src 'none'",
               "base-uri 'self'",
