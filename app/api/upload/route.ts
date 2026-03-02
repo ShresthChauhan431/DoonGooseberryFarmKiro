@@ -39,6 +39,15 @@ export async function POST(request: NextRequest) {
     const extension = file.name.split('.').pop();
     const filename = `${timestamp}-${randomString}.${extension}`;
 
+    // Check if Blob token is configured
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      console.error('BLOB_READ_WRITE_TOKEN is not configured');
+      return NextResponse.json(
+        { message: 'Image storage not configured. Please contact administrator.' },
+        { status: 500 }
+      );
+    }
+
     // Upload to Vercel Blob
     const blob = await put(filename, file, {
       access: 'public',
@@ -51,7 +60,8 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json({ message: 'Failed to upload image' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Failed to upload image';
+    return NextResponse.json({ message: errorMessage }, { status: 500 });
   }
 }
 
