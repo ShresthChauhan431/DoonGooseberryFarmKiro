@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
+import { Toaster as ShadcnToaster } from '@/components/ui/toaster';
 import { WishlistMerge } from '@/components/wishlist-merge';
 import { getSession } from '@/lib/auth/session';
 
@@ -89,6 +90,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         {children}
         <Toaster position="top-center" richColors />
+        <ShadcnToaster />
         {session?.user && <WishlistMerge />}
       </body>
     </html>
