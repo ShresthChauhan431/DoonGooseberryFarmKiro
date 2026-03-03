@@ -174,3 +174,52 @@ export async function setDefaultAddress(addressId: string): Promise<ActionResult
     return { success: false, message: 'Failed to set default address' };
   }
 }
+
+/**
+ * Check if a pincode is serviceable for delivery (Mock Implementation)
+ */
+export async function checkPincodeServiceability(
+  pincode: string
+): Promise<ActionResult & { data?: { isServiceable: boolean; estimatedDays: string } }> {
+  try {
+    // Validate pincode format (exactly 6 digits)
+    if (!/^\d{6}$/.test(pincode)) {
+      return {
+        success: false,
+        message: 'Invalid pincode format. Must be 6 digits.',
+        data: { isServiceable: false, estimatedDays: '' },
+      };
+    }
+
+    // Simulate network delay for serviceability API call
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    // MOCK LOGIC: We assume all valid 6-digit Indian PIN codes are serviceable for now.
+    // In a real application, this is where you'd query Delhivery / Shiprocket / etc.
+    // We can add some variability just for the demonstration of different response times.
+    const isServiceable = true;
+
+    // Simulate some logic for delivery days based on the first digit
+    let estimatedDays = '3-5 days';
+    if (pincode.startsWith('1') || pincode.startsWith('2')) {
+      estimatedDays = '2-4 days'; // North India might be faster from Doon
+    } else if (pincode.startsWith('7') || pincode.startsWith('8')) {
+      estimatedDays = '5-7 days'; // North East or remote
+    }
+
+    return {
+      success: true,
+      data: {
+        isServiceable,
+        estimatedDays,
+      },
+    };
+  } catch (error) {
+    console.error('Check pincode serviceability error:', error);
+    return {
+      success: false,
+      message: 'Failed to check pincode serviceability',
+      data: { isServiceable: false, estimatedDays: '' },
+    };
+  }
+}
