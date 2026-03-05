@@ -62,9 +62,10 @@ export function OrderReview({ cart }: OrderReviewProps) {
       const result = await validateCoupon(couponCode.trim(), totals.subtotal);
 
       if (result.success && result.data) {
-        setAppliedCoupon(result.data);
+        const couponData = result.data as Coupon;
+        setAppliedCoupon(couponData);
         // Store coupon in sessionStorage for payment step
-        sessionStorage.setItem('appliedCoupon', JSON.stringify(result.data));
+        sessionStorage.setItem('appliedCoupon', JSON.stringify(couponData));
         toast.success(result.message || 'Coupon applied successfully');
       } else {
         toast.error(result.message || 'Invalid coupon code');
