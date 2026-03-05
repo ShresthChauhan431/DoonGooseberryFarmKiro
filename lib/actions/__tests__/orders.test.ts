@@ -37,11 +37,18 @@ vi.mock('@/lib/payment/razorpay', () => ({
 
 vi.mock('@/lib/queries/cart', () => ({
   getCart: vi.fn(),
-  calculateCartTotals: vi.fn(),
+}));
+
+vi.mock('@/lib/utils/cart', () => ({
+  calculateCartTotalsWithShipping: vi.fn(),
 }));
 
 vi.mock('@/lib/email/send', () => ({
   sendEmail: vi.fn(),
+}));
+
+vi.mock('@/lib/utils/shipping', () => ({
+  calculateShipping: vi.fn(),
 }));
 
 import { revalidatePath } from 'next/cache';
@@ -49,7 +56,9 @@ import { getSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { sendEmail } from '@/lib/email/send';
 import { createRazorpayOrder, verifyPaymentSignature } from '@/lib/payment/razorpay';
-import { calculateCartTotals, getCart } from '@/lib/queries/cart';
+import { getCart } from '@/lib/queries/cart';
+import { calculateCartTotalsWithShipping } from '@/lib/utils/cart';
+import { calculateShipping } from '@/lib/utils/shipping';
 
 describe('Orders Actions', () => {
   beforeEach(() => {
@@ -155,7 +164,8 @@ describe('Orders Actions', () => {
       } as any);
 
       // Mock cart totals
-      vi.mocked(calculateCartTotals).mockReturnValue({
+      vi.mocked(calculateShipping).mockResolvedValue(5000);
+      vi.mocked(calculateCartTotalsWithShipping).mockReturnValue({
         subtotal: 20000,
         shipping: 5000,
         discount: 0,
@@ -285,7 +295,8 @@ describe('Orders Actions', () => {
         ]),
       } as any);
 
-      vi.mocked(calculateCartTotals).mockReturnValue({
+      vi.mocked(calculateShipping).mockResolvedValue(5000);
+      vi.mocked(calculateCartTotalsWithShipping).mockReturnValue({
         subtotal: 20000,
         shipping: 5000,
         discount: 2000,
@@ -340,7 +351,8 @@ describe('Orders Actions', () => {
         ],
       } as any);
 
-      vi.mocked(calculateCartTotals).mockReturnValue({
+      vi.mocked(calculateShipping).mockResolvedValue(5000);
+      vi.mocked(calculateCartTotalsWithShipping).mockReturnValue({
         subtotal: 20000,
         shipping: 5000,
         discount: 0,

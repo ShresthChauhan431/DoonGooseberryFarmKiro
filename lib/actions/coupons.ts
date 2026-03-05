@@ -8,7 +8,7 @@ import { coupons } from '@/lib/db/schema';
 export interface ActionResult {
   success: boolean;
   message?: string;
-  data?: any;
+  data?: unknown;
 }
 
 export interface ValidatedCoupon {
@@ -117,5 +117,106 @@ export async function incrementCouponUsage(couponCode: string): Promise<void> {
   } catch (error) {
     console.error('Error incrementing coupon usage:', error);
     // Don't throw error, just log it
+  }
+}
+
+/**
+ * Create a new coupon (Admin only)
+ */
+export async function createCoupon(data: {
+  code: string;
+  discountType: 'PERCENTAGE' | 'FLAT';
+  discountValue: number;
+  minOrderValue: number;
+  maxUses: number;
+  expiresAt: Date;
+}): Promise<ActionResult> {
+  try {
+    const session = await getSession();
+    if (!session || session.user.role !== 'ADMIN') {
+      return { success: false, message: 'Unauthorized' };
+    }
+
+    // Check if coupon code already exists
+    const [existing] = await db
+      .select()
+      .from(coupons)
+      .where(eq(coupons.code, data.code.toUpperCase()))
+      .limit(1);
+
+    if (existing) {
+      return { success: false, message: 'Coupon code already exists' };
+    }
+
+    await db.insert(coupons).values({
+      code: data.code.toUpperCase(),
+      discountType: data.discountType,
+      discountValue: data.discountValue,
+      minOrderValue: data.minOrderValue,
+      maxUses: data.maxUses,
+      currentUses: 0,
+      expiresAt: data.expiresAt,
+    });
+
+    return { success: true, message: 'Coupon created successfully' };
+  } catch (error) {
+    console.error('Error creating coupon:', error);
+    return { success: false, message: 'Failed to create coupon' };
+  }
+}
+
+/**
+ * Update an existing coupon (Admin only)
+ */
+export async function updateCoupon(
+  id: string,
+  data: {
+    discountType: 'PERCENTAGE' | 'FLAT';
+    discountValue: number;
+    minOrderValue: number;
+    maxUses: number;
+    expiresAt: Date;
+  }
+): Promise<ActionResult> {
+  try {
+    const session = await getSession();
+    if (!session || session.user.role !== 'ADMIN') {
+      return { success: false, message: 'Unauthorized' };
+    }
+
+    await db
+      .update(coupons)
+      .set({
+        discountType: data.discountType,
+        discountValue: data.discountValue,
+        minOrderValue: data.minOrderValue,
+        maxUses: data.maxUses,
+        expiresAt: data.expiresAt,
+      })
+      .where(eq(coupons.id, id));
+
+    return { success: true, message: 'Coupon updated successfully' };
+  } catch (error) {
+    console.error('Error updating coupon:', error);
+    return { success: false, message: 'Failed to update coupon' };
+  }
+}
+
+/**
+ * Delete a coupon (Admin only)
+ */
+export async function deleteCoupon(id: string): Promise<ActionResult> {
+  try {
+    const session = await getSession();
+    if (!session || session.user.role !== 'ADMIN') {
+      return { success: false, message: 'Unauthorized' };
+    }
+
+    await db.delete(coupons).where(eq(coupons.id, id));
+
+    return { success: true, message: 'Coupon deleted successfully' };
+  } catch (error) {
+    console.error('Error deleting coupon:', error);
+    return { success: false, message: 'Failed to delete coupon' };
   }
 }

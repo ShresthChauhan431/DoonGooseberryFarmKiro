@@ -1,5 +1,6 @@
 import { GeneralSettingsForm } from '@/components/admin/settings/general-settings-form';
 import { HomepageSettingsForm } from '@/components/admin/settings/homepage-settings-form';
+import { SalesBannerForm } from '@/components/admin/settings/sales-banner-form';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getAllSettings } from '@/lib/queries/settings';
 
@@ -41,6 +42,7 @@ export default async function SettingsPage() {
 
         <TabsContent value="homepage" className="space-y-4">
           <HomepageSettingsForm settings={settingsByCategory.homepage || []} />
+          <SalesBannerForm settings={settingsByCategory.homepage || []} />
         </TabsContent>
 
         <TabsContent value="appearance" className="space-y-4">

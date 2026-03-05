@@ -3,6 +3,7 @@ import { CategoryGrid } from '@/components/category-grid';
 import { HeroCarousel } from '@/components/hero-carousel';
 import { NewsletterForm } from '@/components/newsletter-form';
 import { FeaturedCarousel } from '@/components/product/featured-carousel';
+import { SalesBanner } from '@/components/sales-banner';
 import { Testimonials } from '@/components/testimonials';
 import { TrustBadges } from '@/components/trust-badges';
 import { getHomepageSettings } from '@/lib/queries/settings';
@@ -44,6 +45,16 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
       />
+
+      {/* Sales Banner */}
+      {homepageSettings.salesBannerEnabled && (
+        <SalesBanner
+          text={homepageSettings.salesBannerText}
+          link={homepageSettings.salesBannerLink}
+          bgColor={homepageSettings.salesBannerBgColor}
+          textColor={homepageSettings.salesBannerTextColor}
+        />
+      )}
 
       {/* Hero Section with Carousel */}
       <HeroCarousel

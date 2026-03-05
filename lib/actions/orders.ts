@@ -20,8 +20,10 @@ import {
   getRazorpayKeyId,
   verifyPaymentSignature,
 } from '@/lib/payment/razorpay';
-import { calculateCartTotals, getCart } from '@/lib/queries/cart';
+import { getCart } from '@/lib/queries/cart';
 import { getEstimatedDeliveryDate } from '@/lib/queries/orders';
+import { calculateCartTotalsWithShipping } from '@/lib/utils/cart';
+import { calculateShipping } from '@/lib/utils/shipping';
 
 export interface ActionResult {
   success: boolean;
@@ -129,8 +131,16 @@ export async function verifyPaymentAndCreateOrder(
       }
     }
 
-    // Calculate totals
-    const totals = calculateCartTotals(cart.items, validatedCoupon);
+    // Calculate subtotal
+    const subtotal = cart.items.reduce((sum, item) => {
+      return sum + item.product.price * item.quantity;
+    }, 0);
+
+    // Calculate shipping based on dynamic settings
+    const shippingCost = await calculateShipping(subtotal);
+
+    // Calculate totals with dynamic shipping
+    const totals = calculateCartTotalsWithShipping(cart.items, shippingCost, validatedCoupon);
 
     // Create order in database transaction
     const result = await db.transaction(async (tx) => {

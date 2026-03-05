@@ -50,6 +50,9 @@ export interface CartTotals {
 /**
  * Calculate cart totals including subtotal, shipping, discount, and total
  * All values are in paise (1 rupee = 100 paise)
+ *
+ * Note: This function uses hardcoded shipping logic for client-side calculations.
+ * For server-side calculations with dynamic settings, use calculateShipping from lib/utils/shipping.ts
  */
 export function calculateCartTotals(cartItems: CartItem[], coupon?: Coupon): CartTotals {
   // Calculate subtotal: sum of (price × quantity) for all items
@@ -58,6 +61,7 @@ export function calculateCartTotals(cartItems: CartItem[], coupon?: Coupon): Car
   }, 0);
 
   // Calculate shipping: ₹50 (5000 paise) if subtotal < ₹500 (50000 paise), else ₹0
+  // Note: This is a fallback. Server-side code should use calculateShipping() for dynamic settings
   const shipping = subtotal < 50000 ? 5000 : 0;
 
   // Calculate discount based on coupon type
@@ -76,6 +80,47 @@ export function calculateCartTotals(cartItems: CartItem[], coupon?: Coupon): Car
   let total = subtotal + shipping - discount;
 
   // Ensure total is never negative
+  if (total < 0) {
+    total = 0;
+  }
+
+  return {
+    subtotal,
+    shipping,
+    discount,
+    total,
+  };
+}
+
+/**
+ * Calculate cart totals with custom shipping amount
+ * Use this when you have already calculated shipping separately
+ */
+export function calculateCartTotalsWithShipping(
+  cartItems: CartItem[],
+  shippingCost: number,
+  coupon?: Coupon
+): CartTotals {
+  // Calculate subtotal
+  const subtotal = cartItems.reduce((sum, item) => {
+    return sum + item.product.price * item.quantity;
+  }, 0);
+
+  // Use provided shipping cost
+  const shipping = shippingCost;
+
+  // Calculate discount
+  let discount = 0;
+  if (coupon) {
+    if (coupon.discountType === 'PERCENTAGE') {
+      discount = Math.floor((subtotal * coupon.discountValue) / 100);
+    } else if (coupon.discountType === 'FLAT') {
+      discount = coupon.discountValue;
+    }
+  }
+
+  // Calculate total
+  let total = subtotal + shipping - discount;
   if (total < 0) {
     total = 0;
   }

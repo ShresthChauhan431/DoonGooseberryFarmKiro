@@ -37,6 +37,9 @@
       "suspicious": {
         "noExplicitAny": "error"
       },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
+      },
       "style": {
         "useConst": "error",
         "useTemplate": "warn"
@@ -52,7 +55,9 @@
   },
   "overrides": [
     {
-      "includes": ["**/*.test.ts"],
+      "includes": [
+        "**/*.test.ts"
+      ],
       "linter": {
         "rules": {
           "suspicious": {

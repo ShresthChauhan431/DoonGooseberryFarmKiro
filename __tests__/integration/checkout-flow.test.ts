@@ -41,6 +41,10 @@ vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }));
 
+vi.mock('@/lib/utils/shipping', () => ({
+  calculateShipping: vi.fn().mockResolvedValue(0),
+}));
+
 import { getSession } from '@/lib/auth/session';
 import { sendEmail } from '@/lib/email/send';
 import { createRazorpayOrder, verifyPaymentSignature } from '@/lib/payment/razorpay';
@@ -63,10 +67,20 @@ describe('Integration: Complete Checkout Flow', () => {
         role: 'USER',
       },
     } as any);
-  });
 
-  afterEach(() => {
-    vi.clearAllMocks();
+    // Add missing global mocks for db methods
+    vi.spyOn(db, 'update').mockImplementation((() => {
+      return {
+        set: vi.fn().mockReturnThis(),
+        where: vi.fn().mockResolvedValue(undefined),
+      };
+    }) as any);
+
+    vi.spyOn(db, 'delete').mockImplementation((() => {
+      return {
+        where: vi.fn().mockResolvedValue(undefined),
+      };
+    }) as any);
   });
 
   test('Complete checkout flow: cart → payment → order → confirmation', async () => {
@@ -637,29 +651,12 @@ describe('Integration: Complete Checkout Flow', () => {
       };
 
       // Cart exists but is empty
-      mockChain.limit.mockReturnValueOnce(
-        Object.assign(
-          Promise.resolve([
-            { id: 'cart-empty', userId: testUserId, sessionId: null, createdAt: new Date() },
-          ]),
-          {
-            then: vi
-              .fn()
-              .mockImplementation((res) =>
-                res([
-                  { id: 'cart-empty', userId: testUserId, sessionId: null, createdAt: new Date() },
-                ])
-              ),
-          }
-        )
-      );
+      mockChain.limit.mockResolvedValueOnce([
+        { id: 'cart-empty', userId: testUserId, sessionId: null, createdAt: new Date() },
+      ]);
 
       // No cart items
-      mockChain.where.mockReturnValueOnce(
-        Object.assign(Promise.resolve([]), {
-          then: vi.fn().mockImplementation((res) => res([])),
-        })
-      );
+      mockChain.where.mockResolvedValueOnce([]);
 
       return mockChain;
     }) as any);

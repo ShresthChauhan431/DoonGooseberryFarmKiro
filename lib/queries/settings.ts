@@ -76,6 +76,14 @@ export async function getHomepageSettings() {
       "Discover our range of 100% natural pickles, chutneys, jams, and more from Uttarakhand's pristine valleys",
     heroButtonText: settings.find((s) => s.key === 'hero_button_text')?.value || 'Shop Now',
     heroButtonLink: settings.find((s) => s.key === 'hero_button_link')?.value || '/shop',
+    salesBannerEnabled: settings.find((s) => s.key === 'sales_banner_enabled')?.value === 'true',
+    salesBannerText:
+      settings.find((s) => s.key === 'sales_banner_text')?.value ||
+      '🎉 Summer Sale! Get 20% off on all products. Use code: SUMMER20',
+    salesBannerLink: settings.find((s) => s.key === 'sales_banner_link')?.value || '/shop',
+    salesBannerBgColor: settings.find((s) => s.key === 'sales_banner_bg_color')?.value || '#16a34a',
+    salesBannerTextColor:
+      settings.find((s) => s.key === 'sales_banner_text_color')?.value || '#ffffff',
   };
 }
 
@@ -95,5 +103,29 @@ export async function getGeneralSettings() {
     facebookUrl: settings.find((s) => s.key === 'facebook_url')?.value || '',
     instagramUrl: settings.find((s) => s.key === 'instagram_url')?.value || '',
     twitterUrl: settings.find((s) => s.key === 'twitter_url')?.value || '',
+  };
+}
+
+/**
+ * Get delivery settings
+ */
+export async function getDeliverySettings() {
+  const settings = await getSettingsByCategory('delivery');
+
+  return {
+    standardDeliveryCharge: Number.parseInt(
+      settings.find((s) => s.key === 'standard_delivery_charge')?.value || '5000',
+      10
+    ),
+    freeDeliveryThreshold: Number.parseInt(
+      settings.find((s) => s.key === 'free_delivery_threshold')?.value || '50000',
+      10
+    ),
+    expressDeliveryEnabled:
+      settings.find((s) => s.key === 'express_delivery_enabled')?.value === 'true',
+    expressDeliveryCharge: Number.parseInt(
+      settings.find((s) => s.key === 'express_delivery_charge')?.value || '10000',
+      10
+    ),
   };
 }
