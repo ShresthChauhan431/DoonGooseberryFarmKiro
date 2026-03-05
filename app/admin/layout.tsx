@@ -41,6 +41,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <NavLink href="/admin/delivery" icon={<Truck className="w-5 h-5" />}>
               Delivery
             </NavLink>
+            <NavLink href="/admin/sales" icon={<Tag className="w-5 h-5" />}>
+              Sales
+            </NavLink>
             <NavLink href="/admin/settings" icon={<Settings className="w-5 h-5" />}>
               Settings
             </NavLink>
