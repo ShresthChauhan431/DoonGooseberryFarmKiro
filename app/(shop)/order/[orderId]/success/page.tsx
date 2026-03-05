@@ -10,19 +10,20 @@ import { getEstimatedDeliveryDate, getOrderById } from '@/lib/queries/orders';
 import { formatPrice } from '@/lib/utils/price';
 
 interface OrderSuccessPageProps {
-  params: {
+  params: Promise<{
     orderId: string;
-  };
+  }>;
 }
 
 export default async function OrderSuccessPage({ params }: OrderSuccessPageProps) {
+  const { orderId } = await params;
   const session = await getSession();
 
   if (!session) {
     redirect('/login');
   }
 
-  const order = await getOrderById(params.orderId);
+  const order = await getOrderById(orderId);
 
   if (!order) {
     notFound();
