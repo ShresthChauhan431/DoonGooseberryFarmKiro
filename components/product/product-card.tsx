@@ -71,7 +71,7 @@ export function ProductCard({ product, isInWishlist = false, userId }: ProductCa
           variant: 'destructive',
         });
       }
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',
@@ -176,6 +176,7 @@ function getSessionId(): string {
   // But create one as fallback
   sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   localStorage.setItem('cart_session_id', sessionId);
+  // biome-ignore lint/suspicious/noDocumentCookie: Cookie Store API not universally supported; need synchronous cookie set for session ID
   document.cookie = `cart_session_id=${sessionId}; path=/; max-age=2592000`;
 
   return sessionId;

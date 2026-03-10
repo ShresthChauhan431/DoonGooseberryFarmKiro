@@ -57,7 +57,7 @@ export function ReviewForm({ productId, existingReview, onSuccess }: ReviewFormP
       } else {
         toast.error(result.message);
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to submit review. Please try again.');
     } finally {
       setIsSubmitting(false);

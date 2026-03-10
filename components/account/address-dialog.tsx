@@ -38,7 +38,7 @@ interface AddressDialogProps {
 
 export function AddressDialog({ open, onOpenChange, address }: AddressDialogProps) {
   const form = useForm<AddressInput>({
-    resolver: zodResolver(addressSchema) as any,
+    resolver: zodResolver(addressSchema) as ReturnType<typeof zodResolver>,
     defaultValues: {
       name: '',
       addressLine1: '',
@@ -88,7 +88,7 @@ export function AddressDialog({ open, onOpenChange, address }: AddressDialogProp
       } else {
         toast.error(result.message || 'Failed to save address');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('An unexpected error occurred');
     }
   };

@@ -14,7 +14,7 @@ Sentry.init({
   enabled: process.env.NODE_ENV === 'production',
 
   // Filter out sensitive data
-  beforeSend(event, hint) {
+  beforeSend(event, _hint) {
     // Don't send events if no DSN is configured
     if (!process.env.SENTRY_DSN) {
       return null;

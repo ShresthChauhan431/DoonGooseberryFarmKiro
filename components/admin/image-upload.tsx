@@ -32,8 +32,10 @@ export function ImageUpload({ images, onChange }: ImageUploadProps) {
       const results = await Promise.all(uploadPromises);
 
       const successfulUploads = results
-        .filter((result) => result.success && result.url)
-        .map((result) => result.url!);
+        .filter(
+          (result): result is typeof result & { url: string } => result.success && !!result.url
+        )
+        .map((result) => result.url);
 
       const failedUploads = results.filter((result) => !result.success);
 
@@ -52,7 +54,7 @@ export function ImageUpload({ images, onChange }: ImageUploadProps) {
           variant: 'destructive',
         });
       }
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'Error',
         description: 'Failed to upload images',
@@ -93,7 +95,7 @@ export function ImageUpload({ images, onChange }: ImageUploadProps) {
     onChange(newImages);
   };
 
-  const handleReorder = (fromIndex: number, toIndex: number) => {
+  const _handleReorder = (fromIndex: number, toIndex: number) => {
     const newImages = [...images];
     const [removed] = newImages.splice(fromIndex, 1);
     newImages.splice(toIndex, 0, removed);
@@ -185,7 +187,7 @@ export function ImageUpload({ images, onChange }: ImageUploadProps) {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {images.map((url, index) => (
             <div
-              key={index}
+              key={url}
               className="relative aspect-square rounded-lg overflow-hidden border bg-muted group"
             >
               <Image

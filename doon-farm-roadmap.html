@@ -1394,14 +1394,14 @@ Read src/db/schema.ts before writing any queries.</div>
 </div>
 
 <script>
-  function togglePhase(header) {
+  function _togglePhase(header) {
     const body = header.nextElementSibling;
     const isOpen = header.classList.contains('open');
     header.classList.toggle('open', !isOpen);
     body.classList.toggle('open', !isOpen);
   }
 
-  function toggleCheck(item) {
+  function _toggleCheck(item) {
     item.classList.toggle('checked');
     const box = item.querySelector('.check-box');
     box.textContent = item.classList.contains('checked') ? '✓' : '';

@@ -45,7 +45,7 @@ export function MobileNav({ categories, session }: MobileNavProps) {
 
       router.push('/');
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'Error',
         description: 'Failed to logout. Please try again.',

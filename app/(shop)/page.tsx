@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { CategoryGrid } from '@/components/category-grid';
 import { HeroCarousel } from '@/components/hero-carousel';
 import { NewsletterForm } from '@/components/newsletter-form';

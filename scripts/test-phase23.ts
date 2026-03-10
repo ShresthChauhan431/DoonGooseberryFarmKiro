@@ -181,7 +181,7 @@ async function testPhase23() {
   // Test 6: File Structure Check
   console.log('\n6️⃣ Testing File Structure...');
   try {
-    const fs = require('fs');
+    const fs = require('node:fs');
     const requiredFiles = [
       'app/admin/coupons/page.tsx',
       'app/admin/coupons/new/page.tsx',
@@ -222,7 +222,7 @@ async function testPhase23() {
   }
 
   // Summary
-  console.log('\n' + '='.repeat(60));
+  console.log(`\n${'='.repeat(60)}`);
   console.log('\n📊 Test Summary:');
   console.log(`   ✅ Passed: ${passedTests}`);
   console.log(`   ❌ Failed: ${failedTests}`);
@@ -236,7 +236,7 @@ async function testPhase23() {
     console.log('\n⚠️  Some tests failed. Please review the errors above.');
   }
 
-  console.log('\n' + '='.repeat(60));
+  console.log(`\n${'='.repeat(60)}`);
 }
 
 // Run tests

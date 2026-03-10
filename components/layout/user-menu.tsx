@@ -44,7 +44,7 @@ export function UserMenu({ user }: UserMenuProps) {
 
       router.push('/');
       router.refresh();
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'Error',
         description: 'Failed to logout. Please try again.',

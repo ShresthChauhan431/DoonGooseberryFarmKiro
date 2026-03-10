@@ -2,7 +2,7 @@
 
 import { ShoppingCart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -45,7 +45,12 @@ export function ProductInfo({ product, isInWishlist = false, userId }: ProductIn
       // Get session ID (only used if not logged in)
       const sessionId = userId ? undefined : getSessionId();
 
-      console.log('Adding to cart:', { productId: product.id, quantity, userId, sessionId });
+      console.log('Adding to cart:', {
+        productId: product.id,
+        quantity,
+        userId,
+        sessionId,
+      });
 
       const result = await addToCart(product.id, quantity, userId, sessionId);
 
@@ -168,6 +173,7 @@ function getSessionId(): string {
   if (sessionId) {
     console.log('Found existing session ID in localStorage:', sessionId);
     // Sync to cookie
+    // biome-ignore lint/suspicious/noDocumentCookie: need to sync session ID cookie for server-side middleware access
     document.cookie = `cart_session_id=${sessionId}; path=/; max-age=2592000`; // 30 days
     return sessionId;
   }
@@ -178,6 +184,7 @@ function getSessionId(): string {
 
   // Store in both localStorage and cookie
   localStorage.setItem('cart_session_id', sessionId);
+  // biome-ignore lint/suspicious/noDocumentCookie: need to sync session ID cookie for server-side middleware access
   document.cookie = `cart_session_id=${sessionId}; path=/; max-age=2592000`; // 30 days
 
   return sessionId;

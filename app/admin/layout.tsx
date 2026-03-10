@@ -1,6 +1,5 @@
 import { LayoutDashboard, LogOut, Package, Settings, ShoppingCart, Tag, Truck } from 'lucide-react';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { requireAdmin } from '@/lib/auth/session';
 

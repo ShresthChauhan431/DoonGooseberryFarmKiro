@@ -95,7 +95,7 @@ export function WishlistButton({
           });
         }
       }
-    } catch (error) {
+    } catch (_error) {
       // Revert optimistic update on error
       setIsInWishlist(!newState);
       toast({
@@ -108,6 +108,7 @@ export function WishlistButton({
 
   return (
     <button
+      type="button"
       onClick={handleToggle}
       disabled={isPending}
       className={`focus:outline-none focus:ring-2 focus:ring-primary rounded-full p-2 transition-colors hover:bg-gray-100 ${className}`}

@@ -3,8 +3,8 @@
  * Run with: tsx scripts/test-email.ts your-email@example.com
  */
 
+import { resolve } from 'node:path';
 import { config } from 'dotenv';
-import { resolve } from 'path';
 
 // Load environment variables from .env.local
 config({ path: resolve(process.cwd(), '.env.local') });

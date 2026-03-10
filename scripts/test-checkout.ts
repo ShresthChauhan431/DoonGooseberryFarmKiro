@@ -5,7 +5,7 @@
 
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { cartItems, carts, products, users } from '@/lib/db/schema';
+import { products } from '@/lib/db/schema';
 import { calculateCartTotals } from '@/lib/utils/cart';
 
 async function testCheckoutFlow() {

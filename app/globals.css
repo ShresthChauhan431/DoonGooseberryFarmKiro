@@ -293,7 +293,7 @@ label {
 
 /* Syntax highlighting adjustments */
 .prose pre[data-theme] {
-  background-color: transparent !important;
+  background-color: transparent;
 }
 
 .prose-lg {

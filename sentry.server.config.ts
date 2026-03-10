@@ -14,7 +14,7 @@ Sentry.init({
   enabled: process.env.NODE_ENV === 'production',
 
   // Filter out sensitive data
-  beforeSend(event, hint) {
+  beforeSend(event, _hint) {
     // Don't send events if no DSN is configured
     if (!process.env.SENTRY_DSN) {
       return null;
@@ -47,7 +47,7 @@ Sentry.init({
         } else if (Array.isArray(event.request.query_string)) {
           // Handle [string, string][] format
           for (let i = 0; i < event.request.query_string.length; i++) {
-            const [key, value] = event.request.query_string[i];
+            const [key, _value] = event.request.query_string[i];
             if (typeof key === 'string' && sensitiveParams.includes(key.toLowerCase())) {
               event.request.query_string[i] = [key, '[FILTERED]'];
             }

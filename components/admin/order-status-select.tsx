@@ -71,7 +71,7 @@ export default function OrderStatusSelect({ orderId, currentStatus }: OrderStatu
         // Reset to current status on error
         setSelectedStatus(currentStatus);
       }
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',

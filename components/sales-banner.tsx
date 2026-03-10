@@ -35,7 +35,7 @@ export function SalesBanner({ text, link, bgColor, textColor }: SalesBannerProps
     </div>
   );
 
-  if (link && link.trim()) {
+  if (link?.trim()) {
     return (
       <Link href={link} className="block hover:opacity-90 transition-opacity">
         {content}
