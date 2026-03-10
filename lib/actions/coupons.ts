@@ -4,12 +4,9 @@ import { eq } from 'drizzle-orm';
 import { getSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { coupons } from '@/lib/db/schema';
+import type { ActionResult } from '@/lib/types';
 
-export interface ActionResult {
-  success: boolean;
-  message?: string;
-  data?: unknown;
-}
+export type { ActionResult };
 
 export interface ValidatedCoupon {
   id: string;
@@ -23,7 +20,10 @@ export interface ValidatedCoupon {
  * Validate a coupon code
  * Checks if coupon exists, not expired, not exceeded max uses, and meets minimum order value
  */
-export async function validateCoupon(code: string, orderSubtotal: number): Promise<ActionResult> {
+export async function validateCoupon(
+  code: string,
+  orderSubtotal: number
+): Promise<ActionResult<ValidatedCoupon>> {
   try {
     // Validate user is authenticated
     const session = await getSession();
@@ -60,7 +60,10 @@ export async function validateCoupon(code: string, orderSubtotal: number): Promi
 
     // Check if coupon has exceeded max uses
     if (coupon.currentUses >= coupon.maxUses) {
-      return { success: false, message: 'This coupon has reached its usage limit' };
+      return {
+        success: false,
+        message: 'This coupon has reached its usage limit',
+      };
     }
 
     // Check if order meets minimum value
@@ -130,7 +133,7 @@ export async function createCoupon(data: {
   minOrderValue: number;
   maxUses: number;
   expiresAt: Date;
-}): Promise<ActionResult> {
+}): Promise<ActionResult<void>> {
   try {
     const session = await getSession();
     if (!session || session.user.role !== 'ADMIN') {
@@ -177,7 +180,7 @@ export async function updateCoupon(
     maxUses: number;
     expiresAt: Date;
   }
-): Promise<ActionResult> {
+): Promise<ActionResult<void>> {
   try {
     const session = await getSession();
     if (!session || session.user.role !== 'ADMIN') {
@@ -205,7 +208,7 @@ export async function updateCoupon(
 /**
  * Delete a coupon (Admin only)
  */
-export async function deleteCoupon(id: string): Promise<ActionResult> {
+export async function deleteCoupon(id: string): Promise<ActionResult<void>> {
   try {
     const session = await getSession();
     if (!session || session.user.role !== 'ADMIN') {

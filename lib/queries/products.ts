@@ -9,13 +9,37 @@ export interface ProductFilters {
   priceMax?: number;
   search?: string;
   isActive?: boolean;
+  page?: number;
+  limit?: number;
+}
+
+export interface PaginatedProducts {
+  products: Awaited<ReturnType<typeof getProductsInternal>>;
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 /**
- * Get all products with optional filters
+ * Get all products with optional filters and pagination
  */
-export async function getProducts(filters: ProductFilters = {}) {
-  const { category, sort = 'newest', priceMin, priceMax, search, isActive = true } = filters;
+export async function getProducts(filters: ProductFilters = {}): Promise<PaginatedProducts> {
+  const {
+    category,
+    sort = 'newest',
+    priceMin,
+    priceMax,
+    search,
+    isActive = true,
+    page = 1,
+    limit = 12,
+  } = filters;
+
+  // Clamp page/limit to sane values
+  const safePage = Math.max(1, page);
+  const safeLimit = Math.min(Math.max(1, limit), 100);
+  const offset = (safePage - 1) * safeLimit;
 
   // Build where conditions
   const conditions = [];
@@ -66,6 +90,7 @@ export async function getProducts(filters: ProductFilters = {}) {
       categoryId: products.categoryId,
       stock: products.stock,
       images: products.images,
+      nutritionalInfo: products.nutritionalInfo,
       isActive: products.isActive,
       createdAt: products.createdAt,
       category: {
@@ -93,7 +118,56 @@ export async function getProducts(filters: ProductFilters = {}) {
       break;
   }
 
-  return await query;
+  // Get total count for pagination (same filters, no limit/offset)
+  const [countResult] = await db
+    .select({ count: sql<number>`cast(count(*) as int)` })
+    .from(products)
+    .leftJoin(categories, eq(products.categoryId, categories.id))
+    .where(and(...conditions));
+
+  const total = countResult?.count ?? 0;
+
+  // Apply pagination
+  query.limit(safeLimit).offset(offset);
+
+  const results = await query;
+
+  return {
+    products: results,
+    total,
+    page: safePage,
+    limit: safeLimit,
+    totalPages: Math.ceil(total / safeLimit),
+  };
+}
+
+/**
+ * Internal helper — returns the raw product array type for type inference
+ */
+async function getProductsInternal() {
+  return await db
+    .select({
+      id: products.id,
+      name: products.name,
+      slug: products.slug,
+      description: products.description,
+      price: products.price,
+      categoryId: products.categoryId,
+      stock: products.stock,
+      images: products.images,
+      nutritionalInfo: products.nutritionalInfo,
+      isActive: products.isActive,
+      createdAt: products.createdAt,
+      category: {
+        id: categories.id,
+        name: categories.name,
+        slug: categories.slug,
+        description: categories.description,
+      },
+    })
+    .from(products)
+    .leftJoin(categories, eq(products.categoryId, categories.id))
+    .limit(0);
 }
 
 /**
@@ -110,6 +184,7 @@ export async function getProductBySlug(slug: string) {
       categoryId: products.categoryId,
       stock: products.stock,
       images: products.images,
+      nutritionalInfo: products.nutritionalInfo,
       isActive: products.isActive,
       createdAt: products.createdAt,
       category: {
@@ -141,6 +216,7 @@ export async function getRelatedProducts(productId: string, categoryId: string, 
       categoryId: products.categoryId,
       stock: products.stock,
       images: products.images,
+      nutritionalInfo: products.nutritionalInfo,
       isActive: products.isActive,
       createdAt: products.createdAt,
     })
@@ -152,7 +228,7 @@ export async function getRelatedProducts(productId: string, categoryId: string, 
         sql`${products.id} != ${productId}`
       )
     )
-    .orderBy(sql`RANDOM()`)
+    .orderBy(desc(products.createdAt))
     .limit(limit);
 }
 
@@ -174,6 +250,7 @@ export async function getProductsByIds(productIds: string[]) {
       categoryId: products.categoryId,
       stock: products.stock,
       images: products.images,
+      nutritionalInfo: products.nutritionalInfo,
       isActive: products.isActive,
       createdAt: products.createdAt,
       category: {
@@ -202,6 +279,7 @@ export async function getFeaturedProducts(limit: number = 6) {
       categoryId: products.categoryId,
       stock: products.stock,
       images: products.images,
+      nutritionalInfo: products.nutritionalInfo,
       isActive: products.isActive,
       createdAt: products.createdAt,
     })

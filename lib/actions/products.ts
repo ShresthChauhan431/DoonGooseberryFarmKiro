@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { products } from '@/lib/db/schema';
+import type { ActionResult } from '@/lib/types';
 import { generateSlug } from '@/lib/utils/slug';
 import {
   formatValidationErrors,
@@ -13,16 +14,14 @@ import {
   validateDataSafe,
 } from '@/lib/utils/validation';
 
-export interface ActionResult {
-  success: boolean;
-  message?: string;
-  data?: any;
-}
+export type { ActionResult };
 
 /**
  * Create a new product (admin only)
  */
-export async function createProduct(data: ProductInput): Promise<ActionResult> {
+export async function createProduct(
+  data: ProductInput
+): Promise<ActionResult<{ productId: string }>> {
   try {
     // Require admin authentication
     await requireAdmin();
@@ -69,6 +68,7 @@ export async function createProduct(data: ProductInput): Promise<ActionResult> {
         categoryId: validated.categoryId,
         stock: validated.stock,
         images: validated.images,
+        nutritionalInfo: validated.nutritionalInfo ?? null,
         isActive: validated.isActive,
       })
       .returning();
@@ -94,7 +94,7 @@ export async function createProduct(data: ProductInput): Promise<ActionResult> {
 /**
  * Update an existing product (admin only)
  */
-export async function updateProduct(id: string, data: ProductInput): Promise<ActionResult> {
+export async function updateProduct(id: string, data: ProductInput): Promise<ActionResult<void>> {
   try {
     // Require admin authentication
     await requireAdmin();
@@ -147,6 +147,7 @@ export async function updateProduct(id: string, data: ProductInput): Promise<Act
         categoryId: validated.categoryId,
         stock: validated.stock,
         images: validated.images,
+        nutritionalInfo: validated.nutritionalInfo ?? null,
         isActive: validated.isActive,
       })
       .where(eq(products.id, id));
@@ -173,7 +174,7 @@ export async function updateProduct(id: string, data: ProductInput): Promise<Act
 /**
  * Delete a product (soft delete - set isActive to false)
  */
-export async function deleteProduct(id: string): Promise<ActionResult> {
+export async function deleteProduct(id: string): Promise<ActionResult<void>> {
   try {
     // Require admin authentication
     await requireAdmin();

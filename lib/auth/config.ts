@@ -15,7 +15,25 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false,
+    requireEmailVerification: true,
+  },
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url }) => {
+      // Lazy import to avoid circular dependencies and keep this module lightweight
+      const { sendEmail } = await import('@/lib/email/send');
+      const { VerifyEmail } = await import('@/lib/email/templates/verify-email');
+
+      await sendEmail({
+        to: user.email,
+        subject: 'Verify your email - Doon Gooseberry Farm',
+        react: VerifyEmail({
+          userName: user.name || 'Customer',
+          verificationUrl: url,
+        }),
+      });
+    },
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
   },
   socialProviders: {
     google: {

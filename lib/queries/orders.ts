@@ -72,7 +72,12 @@ export async function getOrderById(orderId: string): Promise<OrderWithItems | nu
     ...order,
     items: items.map((item) => ({
       ...item,
-      product: item.product ?? { id: '', name: 'Deleted Product', slug: '', images: [] },
+      product: item.product ?? {
+        id: '',
+        name: 'Deleted Product',
+        slug: '',
+        images: [],
+      },
     })),
   } as OrderWithItems;
 }
@@ -119,33 +124,63 @@ export function getEstimatedDeliveryDate(orderDate: Date, status: string): strin
 
 /**
  * Get all orders with optional status filter (for admin)
+ * Uses LEFT JOIN to fetch user info in a single query (no N+1)
  */
 export async function getAllOrders(statusFilter?: string) {
-  // Use a simple query without join to users (userId may not exist)
-  const allOrders = await db.select().from(orders).orderBy(desc(orders.createdAt));
-
-  // Filter by status if needed
-  const filtered = statusFilter ? allOrders.filter((o) => o.status === statusFilter) : allOrders;
-
-  // Enrich with user info
-  const enriched = await Promise.all(
-    filtered.map(async (order) => {
-      let user = { name: 'Unknown', email: '' };
-      if (order.userId) {
-        const [u] = await db
-          .select({ name: users.name, email: users.email })
-          .from(users)
-          .where(eq(users.id, order.userId))
-          .limit(1);
-        if (u) {
-          user = { name: u.name || 'Unknown', email: u.email };
-        }
-      }
-      return { ...order, user };
+  const baseQuery = db
+    .select({
+      id: orders.id,
+      userId: orders.userId,
+      orderNumber: orders.orderNumber,
+      status: orders.status,
+      subtotal: orders.subtotal,
+      shipping: orders.shipping,
+      discount: orders.discount,
+      total: orders.total,
+      shippingAddress: orders.shippingAddress,
+      razorpayOrderId: orders.razorpayOrderId,
+      razorpayPaymentId: orders.razorpayPaymentId,
+      couponCode: orders.couponCode,
+      notes: orders.notes,
+      createdAt: orders.createdAt,
+      updatedAt: orders.updatedAt,
+      userName: users.name,
+      userEmail: users.email,
     })
-  );
+    .from(orders)
+    .leftJoin(users, eq(orders.userId, users.id))
+    .orderBy(desc(orders.createdAt));
 
-  return enriched;
+  const rows = statusFilter
+    ? await baseQuery.where(
+        eq(
+          orders.status,
+          statusFilter as 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
+        )
+      )
+    : await baseQuery;
+
+  return rows.map((row) => ({
+    id: row.id,
+    userId: row.userId,
+    orderNumber: row.orderNumber,
+    status: row.status,
+    subtotal: row.subtotal,
+    shipping: row.shipping,
+    discount: row.discount,
+    total: row.total,
+    shippingAddress: row.shippingAddress,
+    razorpayOrderId: row.razorpayOrderId,
+    razorpayPaymentId: row.razorpayPaymentId,
+    couponCode: row.couponCode,
+    notes: row.notes,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    user: {
+      name: row.userName || 'Unknown',
+      email: row.userEmail || '',
+    },
+  }));
 }
 
 /**
@@ -190,26 +225,53 @@ export async function getAdminStats() {
     .where(sql`${products.stock} < 10 AND ${products.isActive} = true`)
     .orderBy(asc(products.stock));
 
-  // Get 10 most recent orders (without join to users for reliability)
-  const recentOrdersRaw = await db.select().from(orders).orderBy(desc(orders.createdAt)).limit(10);
-
-  // Enrich with user info
-  const recentOrders = await Promise.all(
-    recentOrdersRaw.map(async (order) => {
-      let user = { name: 'Unknown', email: '' };
-      if (order.userId) {
-        const [u] = await db
-          .select({ name: users.name, email: users.email })
-          .from(users)
-          .where(eq(users.id, order.userId))
-          .limit(1);
-        if (u) {
-          user = { name: u.name || 'Unknown', email: u.email };
-        }
-      }
-      return { ...order, user };
+  // Get 10 most recent orders with user info via LEFT JOIN (no N+1)
+  const recentOrderRows = await db
+    .select({
+      id: orders.id,
+      userId: orders.userId,
+      orderNumber: orders.orderNumber,
+      status: orders.status,
+      subtotal: orders.subtotal,
+      shipping: orders.shipping,
+      discount: orders.discount,
+      total: orders.total,
+      shippingAddress: orders.shippingAddress,
+      razorpayOrderId: orders.razorpayOrderId,
+      razorpayPaymentId: orders.razorpayPaymentId,
+      couponCode: orders.couponCode,
+      notes: orders.notes,
+      createdAt: orders.createdAt,
+      updatedAt: orders.updatedAt,
+      userName: users.name,
+      userEmail: users.email,
     })
-  );
+    .from(orders)
+    .leftJoin(users, eq(orders.userId, users.id))
+    .orderBy(desc(orders.createdAt))
+    .limit(10);
+
+  const recentOrders = recentOrderRows.map((row) => ({
+    id: row.id,
+    userId: row.userId,
+    orderNumber: row.orderNumber,
+    status: row.status,
+    subtotal: row.subtotal,
+    shipping: row.shipping,
+    discount: row.discount,
+    total: row.total,
+    shippingAddress: row.shippingAddress,
+    razorpayOrderId: row.razorpayOrderId,
+    razorpayPaymentId: row.razorpayPaymentId,
+    couponCode: row.couponCode,
+    notes: row.notes,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    user: {
+      name: row.userName || 'Unknown',
+      email: row.userEmail || '',
+    },
+  }));
 
   return {
     todayOrders: todayStats?.count ?? 0,

@@ -51,7 +51,10 @@ describe('Product Queries', () => {
     }
 
     // Get total product count (active products only)
-    const totalProducts = await getProducts({ isActive: true });
+    const { products: totalProducts } = await getProducts({
+      isActive: true,
+      limit: 100,
+    });
     const totalCount = totalProducts.length;
 
     await fc.assert(
@@ -59,9 +62,10 @@ describe('Product Queries', () => {
         fc.constantFrom(...allCategories.map((cat) => cat.slug)),
         async (categorySlug) => {
           // Get products filtered by category
-          const filteredProducts = await getProducts({
+          const { products: filteredProducts } = await getProducts({
             category: categorySlug,
             isActive: true,
+            limit: 100,
           });
 
           // Get the category ID for this slug
@@ -103,9 +107,10 @@ describe('Product Queries', () => {
 
     // Test with the first category
     const testCategory = allCategories[0];
-    const filteredProducts = await getProducts({
+    const { products: filteredProducts } = await getProducts({
       category: testCategory.slug,
       isActive: true,
+      limit: 100,
     });
 
     // All products should have the same categoryId
@@ -132,14 +137,18 @@ describe('Product Queries', () => {
       return;
     }
 
-    const totalProducts = await getProducts({ isActive: true });
+    const { products: totalProducts } = await getProducts({
+      isActive: true,
+      limit: 100,
+    });
     const totalCount = totalProducts.length;
 
     // Test each category
     for (const category of allCategories) {
-      const filteredProducts = await getProducts({
+      const { products: filteredProducts } = await getProducts({
         category: category.slug,
         isActive: true,
+        limit: 100,
       });
 
       expect(filteredProducts.length).toBeLessThanOrEqual(totalCount);
@@ -150,9 +159,10 @@ describe('Product Queries', () => {
    * Additional unit test: Verify non-existent category returns empty results
    */
   test('Non-existent category slug returns empty results', async () => {
-    const filteredProducts = await getProducts({
+    const { products: filteredProducts } = await getProducts({
       category: 'non-existent-category-slug-12345',
       isActive: true,
+      limit: 100,
     });
 
     expect(filteredProducts).toHaveLength(0);
@@ -168,7 +178,10 @@ describe('Product Queries', () => {
    */
   test('Property 18: Price range filter consistency', async () => {
     // Get total product count (active products only)
-    const totalProducts = await getProducts({ isActive: true });
+    const { products: totalProducts } = await getProducts({
+      isActive: true,
+      limit: 100,
+    });
     const totalCount = totalProducts.length;
 
     // Skip test if no products exist
@@ -193,10 +206,11 @@ describe('Product Queries', () => {
           const priceMax = Math.max(price1, price2);
 
           // Get products filtered by price range
-          const filteredProducts = await getProducts({
+          const { products: filteredProducts } = await getProducts({
             priceMin,
             priceMax,
             isActive: true,
+            limit: 100,
           });
 
           // Property 1: All filtered products must have prices within the range (inclusive)
@@ -218,7 +232,10 @@ describe('Product Queries', () => {
    * Additional unit test: Verify price range filter with only priceMin
    */
   test('Price filter with only priceMin returns products >= priceMin', async () => {
-    const allProducts = await getProducts({ isActive: true });
+    const { products: allProducts } = await getProducts({
+      isActive: true,
+      limit: 100,
+    });
 
     if (allProducts.length === 0) {
       console.warn('No products found in database, skipping test');
@@ -230,9 +247,10 @@ describe('Product Queries', () => {
     const maxPrice = Math.max(...prices);
     const testPriceMin = Math.floor((minPrice + maxPrice) / 2);
 
-    const filteredProducts = await getProducts({
+    const { products: filteredProducts } = await getProducts({
       priceMin: testPriceMin,
       isActive: true,
+      limit: 100,
     });
 
     // All products should have price >= priceMin
@@ -245,7 +263,10 @@ describe('Product Queries', () => {
    * Additional unit test: Verify price range filter with only priceMax
    */
   test('Price filter with only priceMax returns products <= priceMax', async () => {
-    const allProducts = await getProducts({ isActive: true });
+    const { products: allProducts } = await getProducts({
+      isActive: true,
+      limit: 100,
+    });
 
     if (allProducts.length === 0) {
       console.warn('No products found in database, skipping test');
@@ -257,9 +278,10 @@ describe('Product Queries', () => {
     const maxPrice = Math.max(...prices);
     const testPriceMax = Math.floor((minPrice + maxPrice) / 2);
 
-    const filteredProducts = await getProducts({
+    const { products: filteredProducts } = await getProducts({
       priceMax: testPriceMax,
       isActive: true,
+      limit: 100,
     });
 
     // All products should have price <= priceMax
@@ -272,7 +294,10 @@ describe('Product Queries', () => {
    * Additional unit test: Verify price range filter with both priceMin and priceMax
    */
   test('Price filter with both priceMin and priceMax returns products within range', async () => {
-    const allProducts = await getProducts({ isActive: true });
+    const { products: allProducts } = await getProducts({
+      isActive: true,
+      limit: 100,
+    });
 
     if (allProducts.length === 0) {
       console.warn('No products found in database, skipping test');
@@ -286,10 +311,11 @@ describe('Product Queries', () => {
     const testPriceMin = minPrice + Math.floor(range * 0.25);
     const testPriceMax = minPrice + Math.floor(range * 0.75);
 
-    const filteredProducts = await getProducts({
+    const { products: filteredProducts } = await getProducts({
       priceMin: testPriceMin,
       priceMax: testPriceMax,
       isActive: true,
+      limit: 100,
     });
 
     // All products should have price within the range
@@ -303,7 +329,10 @@ describe('Product Queries', () => {
    * Additional unit test: Verify filtered count never exceeds total count
    */
   test('Price filtered product count never exceeds total product count', async () => {
-    const allProducts = await getProducts({ isActive: true });
+    const { products: allProducts } = await getProducts({
+      isActive: true,
+      limit: 100,
+    });
     const totalCount = allProducts.length;
 
     if (totalCount === 0) {
@@ -324,9 +353,10 @@ describe('Product Queries', () => {
     ];
 
     for (const range of testRanges) {
-      const filteredProducts = await getProducts({
+      const { products: filteredProducts } = await getProducts({
         ...range,
         isActive: true,
+        limit: 100,
       });
 
       expect(filteredProducts.length).toBeLessThanOrEqual(totalCount);
@@ -561,9 +591,10 @@ describe('Product Queries', () => {
         fc.constantFrom(...searchTermsArray),
         async (searchQuery) => {
           // Get products using search filter
-          const searchResults = await getProducts({
+          const { products: searchResults } = await getProducts({
             search: searchQuery,
             isActive: true, // This is the default, but we're explicit here
+            limit: 100,
           });
 
           // Property: All search results must have isActive = true
@@ -599,9 +630,10 @@ describe('Product Queries', () => {
     const firstProduct = allActiveProducts[0];
     const searchTerm = firstProduct.name.split(/\s+/)[0].toLowerCase();
 
-    const searchResults = await getProducts({
+    const { products: searchResults } = await getProducts({
       search: searchTerm,
       isActive: true,
+      limit: 100,
     });
 
     // All results should have isActive = true
@@ -634,9 +666,10 @@ describe('Product Queries', () => {
     const searchTerm = firstProduct.name.split(/\s+/)[0].toLowerCase();
 
     // Call getProducts with search but without explicit isActive parameter
-    const searchResults = await getProducts({
+    const { products: searchResults } = await getProducts({
       search: searchTerm,
       // isActive defaults to true
+      limit: 100,
     });
 
     // All results should have isActive = true
@@ -670,9 +703,10 @@ describe('Product Queries', () => {
     const searchTerm = inactiveProduct.name.split(/\s+/)[0].toLowerCase();
 
     // Search with isActive=true (default behavior)
-    const searchResults = await getProducts({
+    const { products: searchResults } = await getProducts({
       search: searchTerm,
       isActive: true,
+      limit: 100,
     });
 
     // The inactive product should NOT be in the results

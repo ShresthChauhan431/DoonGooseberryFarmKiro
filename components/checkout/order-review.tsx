@@ -4,51 +4,50 @@ import { Edit, Loader2, Tag } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import type { CheckoutAddress, CheckoutCoupon } from '@/lib/actions/checkout';
+import { saveCheckoutCoupon } from '@/lib/actions/checkout';
 import { validateCoupon } from '@/lib/actions/coupons';
-import { type CartWithItems, type Coupon, calculateCartTotals } from '@/lib/utils/cart';
+import { type CartWithItems, type Coupon, calculateCartTotalsWithShipping } from '@/lib/utils/cart';
 import { formatPrice } from '@/lib/utils/price';
 
 interface OrderReviewProps {
   cart: CartWithItems;
+  shippingCost: number;
+  freeDeliveryThreshold: number;
+  /** Address loaded server-side from the checkout session */
+  serverAddress: CheckoutAddress;
+  /** Coupon loaded server-side from the checkout session (if any) */
+  serverCoupon?: CheckoutCoupon;
 }
 
-interface Address {
-  name: string;
-  addressLine1: string;
-  addressLine2?: string;
-  city: string;
-  state: string;
-  pincode: string;
-  phone: string;
-}
-
-export function OrderReview({ cart }: OrderReviewProps) {
+export function OrderReview({
+  cart,
+  shippingCost,
+  freeDeliveryThreshold,
+  serverAddress,
+  serverCoupon,
+}: OrderReviewProps) {
   const router = useRouter();
-  const [address, setAddress] = useState<Address | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [couponCode, setCouponCode] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [couponCode, setCouponCode] = useState(serverCoupon?.code ?? '');
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(serverCoupon ?? null);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
-  // Load address from sessionStorage
-  useEffect(() => {
-    const savedAddress = sessionStorage.getItem('checkoutAddress');
-    if (savedAddress) {
-      setAddress(JSON.parse(savedAddress));
-    } else {
-      // If no address, redirect back to step 1
-      router.push('/checkout?step=1');
-    }
-  }, [router]);
+  // Address comes from the server — no need for useEffect / sessionStorage
+  const address = serverAddress;
 
-  // Calculate totals
-  const totals = calculateCartTotals(cart.items, appliedCoupon || undefined);
+  // Calculate totals using server-provided shipping cost
+  const totals = calculateCartTotalsWithShipping(
+    cart.items,
+    shippingCost,
+    appliedCoupon || undefined
+  );
 
   // Handle apply coupon
   async function handleApplyCoupon() {
@@ -62,15 +61,27 @@ export function OrderReview({ cart }: OrderReviewProps) {
       const result = await validateCoupon(couponCode.trim(), totals.subtotal);
 
       if (result.success && result.data) {
-        const couponData = result.data as Coupon;
+        const couponData: Coupon = result.data;
         setAppliedCoupon(couponData);
-        // Store coupon in sessionStorage for payment step
-        sessionStorage.setItem('appliedCoupon', JSON.stringify(couponData));
+
+        // Persist coupon to server-side checkout session
+        const saveResult = await saveCheckoutCoupon({
+          id: couponData.id,
+          code: couponData.code,
+          discountType: couponData.discountType,
+          discountValue: couponData.discountValue,
+          minOrderValue: couponData.minOrderValue,
+        });
+
+        if (!saveResult.success) {
+          console.error('Failed to persist coupon server-side:', saveResult.message);
+        }
+
         toast.success(result.message || 'Coupon applied successfully');
       } else {
         toast.error(result.message || 'Invalid coupon code');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to apply coupon. Please try again.');
     } finally {
       setIsApplyingCoupon(false);
@@ -78,10 +89,16 @@ export function OrderReview({ cart }: OrderReviewProps) {
   }
 
   // Handle remove coupon
-  function handleRemoveCoupon() {
+  async function handleRemoveCoupon() {
     setAppliedCoupon(null);
     setCouponCode('');
-    sessionStorage.removeItem('appliedCoupon');
+
+    // Remove coupon from server-side checkout session
+    const saveResult = await saveCheckoutCoupon(null);
+    if (!saveResult.success) {
+      console.error('Failed to remove coupon server-side:', saveResult.message);
+    }
+
     toast.success('Coupon removed');
   }
 
@@ -94,16 +111,6 @@ export function OrderReview({ cart }: OrderReviewProps) {
   // Handle edit address
   function handleEditAddress() {
     router.push('/checkout?step=1');
-  }
-
-  if (!address) {
-    return (
-      <Card>
-        <CardContent className="py-8">
-          <p className="text-center text-muted-foreground">Loading...</p>
-        </CardContent>
-      </Card>
-    );
   }
 
   return (
@@ -267,9 +274,9 @@ export function OrderReview({ cart }: OrderReviewProps) {
           </div>
 
           {/* Free Shipping Message */}
-          {totals.subtotal < 50000 && (
+          {freeDeliveryThreshold > 0 && totals.subtotal < freeDeliveryThreshold && (
             <p className="text-xs text-muted-foreground mt-4">
-              Add {formatPrice(50000 - totals.subtotal)} more for free shipping
+              Add {formatPrice(freeDeliveryThreshold - totals.subtotal)} more for free shipping
             </p>
           )}
         </CardContent>

@@ -71,7 +71,7 @@ const nextConfig: NextConfig = {
     // Image quality (1-100, default: 75)
     // Lower values = smaller file size, lower quality
     // Higher values = larger file size, higher quality
-    minimumCacheTTL: 60, // Cache images for 60 seconds
+    minimumCacheTTL: 86400, // Cache images for 1 day
     remotePatterns: [
       {
         protocol: 'https',

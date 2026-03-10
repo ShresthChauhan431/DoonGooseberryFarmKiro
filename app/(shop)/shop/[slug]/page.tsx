@@ -7,6 +7,7 @@ import { ProductGallery } from '@/components/product/product-gallery';
 import { ProductInfo } from '@/components/product/product-info';
 import { ProductReviews } from '@/components/product/product-reviews';
 import { RelatedProducts } from '@/components/product/related-products';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { isInWishlist } from '@/lib/actions/wishlist';
 import { getSession } from '@/lib/auth/session';
 import { getProductBySlug, getRelatedProducts } from '@/lib/queries/products';
@@ -151,6 +152,23 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           <ProductGallery images={product.images} productName={product.name} />
           <ProductInfo product={product} isInWishlist={inWishlist} userId={userId} />
         </div>
+
+        {/* Nutritional Information (collapsible) */}
+        {product.nutritionalInfo && (
+          <section className="mt-12">
+            <Collapsible>
+              <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg border p-4 font-semibold text-lg hover:bg-muted/50 transition-colors">
+                Nutritional Information
+                <span className="text-muted-foreground text-sm font-normal">Click to expand</span>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="rounded-b-lg border border-t-0 p-4">
+                <p className="whitespace-pre-wrap text-muted-foreground">
+                  {product.nutritionalInfo}
+                </p>
+              </CollapsibleContent>
+            </Collapsible>
+          </section>
+        )}
 
         <section className="mt-12">
           <ProductReviews

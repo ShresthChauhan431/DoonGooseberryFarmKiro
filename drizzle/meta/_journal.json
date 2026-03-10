@@ -8,6 +8,20 @@
       "when": 1771513110336,
       "tag": "0000_sticky_vision",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773167770434,
+      "tag": "0001_light_hex",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773168971579,
+      "tag": "0002_swift_mystique",
+      "breakpoints": true
     }
   ]
 }

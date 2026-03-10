@@ -190,9 +190,11 @@ z.string()
 ### Address Storage
 
 **During Checkout**:
-- Stored in `sessionStorage` as `checkoutAddress`
-- Persists only during checkout session
-- Cleared after order completion
+- Stored server-side in the `checkout_sessions` table (as `address_data` JSONB column)
+- Persisted via `saveCheckoutAddress` Server Action when user submits the address form
+- Survives page refreshes, new tabs, and device changes
+- Automatically expires after 2 hours (TTL)
+- Cleared after order completion via `clearCheckoutSession` Server Action
 
 **After Order**:
 - Stored in `orders` table as `shippingAddress` JSON field
@@ -324,7 +326,7 @@ Cart → Login → Address → Review → Payment → Success
 **Step 1: Address** (`/checkout?step=1`)
 - User fills shipping address form
 - Validates all fields
-- Stores in sessionStorage
+- Persists address to `checkout_sessions` table via Server Action
 - Proceeds to review
 
 **Step 2: Review** (`/checkout?step=2`)
@@ -402,7 +404,7 @@ Cart → Login → Address → Review → Payment → Success
 - [ ] Pincode accepts only 6 digits
 - [ ] Phone accepts only 10 digits
 - [ ] Form submits with valid data
-- [ ] Address stored in sessionStorage
+- [ ] Address persisted to server-side checkout session
 
 ### Payment Testing
 - [ ] Razorpay modal opens

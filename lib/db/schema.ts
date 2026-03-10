@@ -101,6 +101,7 @@ export const products = pgTable(
       .references(() => categories.id),
     stock: integer('stock').notNull().default(0),
     images: jsonb('images').notNull().$type<string[]>(),
+    nutritionalInfo: text('nutritional_info'),
     isActive: boolean('is_active').notNull().default(true),
     createdAt: timestamp('created_at').notNull().defaultNow(),
   },
@@ -146,12 +147,13 @@ export const orders = pgTable(
   'orders',
   {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-    userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+    userId: uuid('user_id').references(() => users.id, {
+      onDelete: 'set null',
+    }),
     orderNumber: text('order_number'),
     status: orderStatusEnum('status').default('PENDING'),
     subtotal: integer('subtotal'), // in paise
     shipping: integer('shipping').default(0), // in paise
-    shippingCost: integer('shipping_cost').default(0), // legacy column
     discount: integer('discount').default(0), // in paise
     total: integer('total'), // in paise
     shippingAddress: jsonb('shipping_address').$type<{
@@ -178,11 +180,12 @@ export const orders = pgTable(
 // Order items table
 export const orderItems = pgTable('order_items', {
   id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-  orderId: integer('order_id').references(() => orders.id, { onDelete: 'cascade' }),
+  orderId: integer('order_id').references(() => orders.id, {
+    onDelete: 'cascade',
+  }),
   productId: uuid('product_id').references(() => products.id),
   quantity: integer('quantity'),
-  priceAtTime: integer('price_at_time'), // price at time of purchase, in paise
-  price: integer('price'), // alias for price_at_time
+  price: integer('price'), // price at time of purchase, in paise
   name: text('name'),
 });
 
@@ -254,6 +257,40 @@ export const subscribers = pgTable('subscribers', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
+
+// Checkout sessions table (server-side persistence of checkout state)
+export const checkoutSessions = pgTable(
+  'checkout_sessions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    addressData: jsonb('address_data').$type<{
+      name: string;
+      addressLine1: string;
+      addressLine2?: string;
+      city: string;
+      state: string;
+      pincode: string;
+      phone: string;
+    }>(),
+    appliedCoupon: jsonb('applied_coupon').$type<{
+      id: string;
+      code: string;
+      discountType: 'PERCENTAGE' | 'FLAT';
+      discountValue: number;
+      minOrderValue: number;
+    }>(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+    expiresAt: timestamp('expires_at').notNull(),
+  },
+  (table) => ({
+    userIdx: index('checkout_sessions_user_idx').on(table.userId),
+    expiresAtIdx: index('checkout_sessions_expires_at_idx').on(table.expiresAt),
+  })
+);
 
 // Site settings table
 export const siteSettings = pgTable('site_settings', {

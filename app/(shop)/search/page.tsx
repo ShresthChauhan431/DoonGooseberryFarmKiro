@@ -10,9 +10,10 @@ interface SearchPageProps {
 }
 
 async function SearchResults({ query }: { query: string }) {
-  const products = await getProducts({
+  const { products } = await getProducts({
     search: query,
     isActive: true,
+    limit: 100,
   });
 
   if (products.length === 0) {
@@ -40,7 +41,8 @@ function SearchSkeleton() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="animate-pulse">
+        // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton list never reorders
+        <div key={`skeleton-${i}`} className="animate-pulse">
           <div className="bg-muted aspect-square rounded-lg mb-4" />
           <div className="h-4 bg-muted rounded mb-2" />
           <div className="h-4 bg-muted rounded w-2/3" />

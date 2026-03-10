@@ -7,22 +7,19 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import type { CheckoutAddress, CheckoutCoupon } from '@/lib/actions/checkout';
+import { clearCheckoutSession } from '@/lib/actions/checkout';
 import { createRazorpayOrderAction, verifyPaymentAndCreateOrder } from '@/lib/actions/orders';
-import { type CartWithItems, type Coupon, calculateCartTotals } from '@/lib/utils/cart';
+import { type CartWithItems, calculateCartTotalsWithShipping } from '@/lib/utils/cart';
 import { formatPrice } from '@/lib/utils/price';
 
 interface PaymentFormProps {
   cart: CartWithItems;
-}
-
-interface Address {
-  name: string;
-  addressLine1: string;
-  addressLine2?: string;
-  city: string;
-  state: string;
-  pincode: string;
-  phone: string;
+  shippingCost: number;
+  /** Address loaded server-side from the checkout session */
+  serverAddress: CheckoutAddress;
+  /** Coupon loaded server-side from the checkout session (if any) */
+  serverCoupon?: CheckoutCoupon;
 }
 
 // Razorpay types
@@ -32,32 +29,21 @@ declare global {
   }
 }
 
-export function PaymentForm({ cart }: PaymentFormProps) {
+export function PaymentForm({ cart, shippingCost, serverAddress, serverCoupon }: PaymentFormProps) {
   const router = useRouter();
-  const [address, setAddress] = useState<Address | null>(null);
-  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 
-  // Calculate totals
-  const totals = calculateCartTotals(cart.items, appliedCoupon || undefined);
+  // Address and coupon come from server props — no sessionStorage needed
+  const address = serverAddress;
+  const appliedCoupon = serverCoupon ?? null;
 
-  // Load address from sessionStorage
-  useEffect(() => {
-    const savedAddress = sessionStorage.getItem('checkoutAddress');
-    if (savedAddress) {
-      setAddress(JSON.parse(savedAddress));
-    } else {
-      // If no address, redirect back to step 1
-      router.push('/checkout?step=1');
-    }
-
-    // Load applied coupon from sessionStorage
-    const savedCoupon = sessionStorage.getItem('appliedCoupon');
-    if (savedCoupon) {
-      setAppliedCoupon(JSON.parse(savedCoupon));
-    }
-  }, [router]);
+  // Calculate totals using server-provided shipping cost
+  const totals = calculateCartTotalsWithShipping(
+    cart.items,
+    shippingCost,
+    appliedCoupon || undefined
+  );
 
   // Load Razorpay SDK
   useEffect(() => {
@@ -96,12 +82,7 @@ export function PaymentForm({ cart }: PaymentFormProps) {
         return;
       }
 
-      const { orderId, amount, currency, keyId } = result.data as {
-        orderId: string;
-        amount: number;
-        currency: string;
-        keyId: string;
-      };
+      const { orderId, amount, currency, keyId } = result.data;
 
       // Configure Razorpay options
       const options = {
@@ -121,13 +102,12 @@ export function PaymentForm({ cart }: PaymentFormProps) {
             appliedCoupon?.code
           );
 
-          if (verifyResult.success) {
-            // Clear address and coupon from sessionStorage
-            sessionStorage.removeItem('checkoutAddress');
-            sessionStorage.removeItem('appliedCoupon');
+          if (verifyResult.success && verifyResult.data) {
+            // Clear the server-side checkout session
+            await clearCheckoutSession();
 
             // Redirect to success page
-            router.push(`/order/${(verifyResult.data as { orderId: string }).orderId}/success`);
+            router.push(`/order/${verifyResult.data.orderId}/success`);
           } else {
             toast.error(verifyResult.message || 'Payment verification failed');
             setIsLoading(false);
@@ -155,16 +135,6 @@ export function PaymentForm({ cart }: PaymentFormProps) {
       toast.error('Failed to initiate payment. Please try again.');
       setIsLoading(false);
     }
-  }
-
-  if (!address) {
-    return (
-      <Card>
-        <CardContent className="py-8">
-          <p className="text-center text-muted-foreground">Loading...</p>
-        </CardContent>
-      </Card>
-    );
   }
 
   return (

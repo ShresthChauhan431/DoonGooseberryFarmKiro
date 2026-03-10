@@ -221,13 +221,26 @@ describe('Order Queries', () => {
           isActive: true,
         },
       ];
-      const mockRecentOrders = [
+      // Recent orders now come back with user columns flattened via LEFT JOIN
+      const mockRecentOrderRows = [
         {
           id: 1,
           userId: 'user-1',
+          orderNumber: 'DGF-20240101-1',
           status: 'DELIVERED',
+          subtotal: 10000,
+          shipping: 0,
+          discount: 0,
           total: 10000,
+          shippingAddress: null,
+          razorpayOrderId: null,
+          razorpayPaymentId: null,
+          couponCode: null,
+          notes: null,
           createdAt: new Date(),
+          updatedAt: new Date(),
+          userName: 'John Doe',
+          userEmail: 'john@example.com',
         },
       ];
 
@@ -244,18 +257,12 @@ describe('Order Queries', () => {
         orderBy: vi.fn().mockResolvedValue(mockLowStockProducts),
       };
 
-      // Mock recent orders query
+      // Mock recent orders query (now uses leftJoin)
       const mockRecentOrdersSelect = {
         from: vi.fn().mockReturnThis(),
+        leftJoin: vi.fn().mockReturnThis(),
         orderBy: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue(mockRecentOrders),
-      };
-
-      // Mock user query for enrichment
-      const mockUserSelect = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([{ name: 'John Doe', email: 'john@example.com' }]),
+        limit: vi.fn().mockResolvedValue(mockRecentOrderRows),
       };
 
       vi.mocked(db.select)
@@ -269,8 +276,7 @@ describe('Order Queries', () => {
           where: vi.fn().mockResolvedValue([mockMonthStats]),
         } as any) // month
         .mockReturnValueOnce(mockLowStockSelect as any) // low stock
-        .mockReturnValueOnce(mockRecentOrdersSelect as any) // recent orders
-        .mockReturnValue(mockUserSelect as any); // user enrichment
+        .mockReturnValueOnce(mockRecentOrdersSelect as any); // recent orders (LEFT JOIN, no N+1)
 
       const result = await getAdminStats();
 
@@ -283,6 +289,7 @@ describe('Order Queries', () => {
       expect(result.lowStockProducts).toHaveLength(1);
       expect(result.recentOrders).toHaveLength(1);
       expect(result.recentOrders[0].user.name).toBe('John Doe');
+      expect(result.recentOrders[0].user.email).toBe('john@example.com');
     });
 
     test('handles null stats gracefully', async () => {
@@ -299,6 +306,7 @@ describe('Order Queries', () => {
 
       const mockRecentOrdersSelect = {
         from: vi.fn().mockReturnThis(),
+        leftJoin: vi.fn().mockReturnThis(),
         orderBy: vi.fn().mockReturnThis(),
         limit: vi.fn().mockResolvedValue([]),
       };
@@ -332,16 +340,30 @@ describe('Order Queries', () => {
         orderBy: vi.fn().mockResolvedValue([]),
       };
 
+      // Guest order: userName and userEmail are null from LEFT JOIN
       const mockRecentOrdersSelect = {
         from: vi.fn().mockReturnThis(),
+        leftJoin: vi.fn().mockReturnThis(),
         orderBy: vi.fn().mockReturnThis(),
         limit: vi.fn().mockResolvedValue([
           {
             id: 1,
-            userId: null, // Guest order
+            userId: null,
+            orderNumber: null,
             status: 'DELIVERED',
+            subtotal: 10000,
+            shipping: 0,
+            discount: 0,
             total: 10000,
+            shippingAddress: null,
+            razorpayOrderId: null,
+            razorpayPaymentId: null,
+            couponCode: null,
+            notes: null,
             createdAt: new Date(),
+            updatedAt: new Date(),
+            userName: null,
+            userEmail: null,
           },
         ]),
       };

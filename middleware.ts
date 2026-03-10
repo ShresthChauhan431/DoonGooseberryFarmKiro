@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/config';
+import '@/lib/auth/types';
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -37,9 +38,7 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set('redirect', path);
       return NextResponse.redirect(loginUrl);
     }
-    // Type assertion for role field
-    const userRole = (session.user as any).role;
-    if (userRole !== 'ADMIN') {
+    if (session.user.role !== 'ADMIN') {
       return NextResponse.redirect(new URL('/', request.url));
     }
   }

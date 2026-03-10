@@ -3,7 +3,12 @@ import { db } from '@/lib/db';
 import { cartItems, carts, categories, products } from '@/lib/db/schema';
 
 // Re-export types and pure functions from shared module
-export type { CartItem, CartTotals, CartWithItems, Coupon } from '@/lib/utils/cart';
+export type {
+  CartItem,
+  CartTotals,
+  CartWithItems,
+  Coupon,
+} from '@/lib/utils/cart';
 export { calculateCartTotals } from '@/lib/utils/cart';
 
 import type { CartWithItems } from '@/lib/utils/cart';
@@ -13,10 +18,7 @@ import type { CartWithItems } from '@/lib/utils/cart';
  * Returns 0 if no cart exists
  */
 export async function getCartItemCount(userId?: string, sessionId?: string): Promise<number> {
-  console.log('[getCartItemCount] Called with:', { userId, sessionId });
-
   if (!userId && !sessionId) {
-    console.log('[getCartItemCount] No userId or sessionId, returning 0');
     return 0;
   }
 
@@ -27,11 +29,8 @@ export async function getCartItemCount(userId?: string, sessionId?: string): Pro
     .limit(1);
 
   if (!cart.length) {
-    console.log('[getCartItemCount] No cart found, returning 0');
     return 0;
   }
-
-  console.log('[getCartItemCount] Found cart:', cart[0].id);
 
   const result = await db
     .select({ count: sql<number>`cast(sum(${cartItems.quantity}) as int)` })
@@ -39,7 +38,6 @@ export async function getCartItemCount(userId?: string, sessionId?: string): Pro
     .where(eq(cartItems.cartId, cart[0].id));
 
   const count = result[0]?.count || 0;
-  console.log('[getCartItemCount] Returning count:', count);
 
   return count;
 }

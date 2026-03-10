@@ -1,11 +1,13 @@
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+import Link from 'next/link';
 import Script from 'next/script';
 import { Suspense } from 'react';
 import { MobileFilterSheet } from '@/components/product/mobile-filter-sheet';
 import { ProductCard } from '@/components/product/product-card';
 import { ProductFilters } from '@/components/product/product-filters';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getSession } from '@/lib/auth/session';
 import { getCategories } from '@/lib/queries/categories';
@@ -21,6 +23,7 @@ interface ShopPageProps {
     priceMin?: string;
     priceMax?: string;
     search?: string;
+    page?: string;
   }>;
 }
 
@@ -38,12 +41,28 @@ function ProductGridSkeleton() {
   );
 }
 
+function buildPageUrl(params: Record<string, string | undefined>, page: number): string {
+  const searchParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && key !== 'page') {
+      searchParams.set(key, value);
+    }
+  }
+  if (page > 1) {
+    searchParams.set('page', String(page));
+  }
+  const qs = searchParams.toString();
+  return `/shop${qs ? `?${qs}` : ''}`;
+}
+
 async function ProductGrid({ searchParams }: ShopPageProps) {
   const params = await searchParams;
 
   // Get session for userId
   const session = await getSession();
   const userId = session?.user?.id;
+
+  const currentPage = params.page ? Math.max(1, Number.parseInt(params.page, 10) || 1) : 1;
 
   const filters = {
     category: params.category,
@@ -52,9 +71,11 @@ async function ProductGrid({ searchParams }: ShopPageProps) {
     priceMin: params.priceMin ? Number.parseInt(params.priceMin, 10) * 100 : undefined,
     priceMax: params.priceMax ? Number.parseInt(params.priceMax, 10) * 100 : undefined,
     search: params.search,
+    page: currentPage,
+    limit: 12,
   };
 
-  const products = await getProducts(filters);
+  const { products, total, page, totalPages } = await getProducts(filters);
 
   if (products.length === 0) {
     return (
@@ -65,10 +86,67 @@ async function ProductGrid({ searchParams }: ShopPageProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} userId={userId} />
-      ))}
+    <div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} userId={userId} />
+        ))}
+      </div>
+
+      {/* Pagination controls */}
+      {totalPages > 1 && (
+        <nav className="flex items-center justify-center gap-2 mt-10" aria-label="Pagination">
+          {page > 1 && (
+            <Link href={buildPageUrl(params, page - 1)}>
+              <Button variant="outline" size="sm">
+                ← Previous
+              </Button>
+            </Link>
+          )}
+
+          {Array.from({ length: totalPages }, (_, i) => i + 1)
+            .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
+            .reduce<(number | 'ellipsis')[]>((acc, p, idx, arr) => {
+              if (idx > 0 && arr[idx - 1] !== p - 1) {
+                acc.push('ellipsis');
+              }
+              acc.push(p);
+              return acc;
+            }, [])
+            .map((item, idx) =>
+              item === 'ellipsis' ? (
+                <span
+                  key={`ellipsis-before-${item === 'ellipsis' ? idx : item}`}
+                  className="px-2 text-muted-foreground"
+                >
+                  …
+                </span>
+              ) : (
+                <Link key={item} href={buildPageUrl(params, item)}>
+                  <Button
+                    variant={item === page ? 'default' : 'outline'}
+                    size="sm"
+                    className="min-w-[2.25rem]"
+                  >
+                    {item}
+                  </Button>
+                </Link>
+              )
+            )}
+
+          {page < totalPages && (
+            <Link href={buildPageUrl(params, page + 1)}>
+              <Button variant="outline" size="sm">
+                Next →
+              </Button>
+            </Link>
+          )}
+        </nav>
+      )}
+
+      <p className="text-center text-sm text-muted-foreground mt-4">
+        Showing {(page - 1) * 12 + 1}–{Math.min(page * 12, total)} of {total} products
+      </p>
     </div>
   );
 }

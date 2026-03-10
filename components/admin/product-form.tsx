@@ -61,7 +61,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
   const { toast } = useToast();
 
   const form = useForm<ProductInput>({
-    resolver: zodResolver(productSchema) as any,
+    resolver: zodResolver(productSchema) as ReturnType<typeof zodResolver>,
     defaultValues: {
       name: '',
       slug: '',
@@ -102,7 +102,9 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
         slug,
       };
 
-      let result;
+      let result:
+        | Awaited<ReturnType<typeof updateProduct>>
+        | Awaited<ReturnType<typeof createProduct>>;
       if (product) {
         result = await updateProduct(product.id, productData);
       } else {
@@ -123,7 +125,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
           variant: 'destructive',
         });
       }
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',
@@ -266,6 +268,29 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                   <FormControl>
                     <ImageUpload images={field.value} onChange={field.onChange} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Nutritional Info */}
+            <FormField
+              control={form.control}
+              name="nutritionalInfo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nutritional Information</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="e.g., Calories: 120kcal, Protein: 2g, Carbs: 28g, Fat: 0.5g per 100g serving"
+                      rows={4}
+                      {...field}
+                      value={field.value ?? ''}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Optional. Add nutritional details for this food product.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

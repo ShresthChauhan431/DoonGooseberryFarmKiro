@@ -161,13 +161,22 @@ export function rateLimitError(reset: number) {
  */
 
 /**
- * Development mode warning
+ * Startup warning if Redis is not configured
  */
-if (!redis && process.env.NODE_ENV === 'production') {
-  console.warn(
-    '⚠️  Rate limiting is disabled because Upstash Redis is not configured. ' +
-      'Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN environment variables.'
-  );
+if (!redis) {
+  if (process.env.NODE_ENV === 'production') {
+    console.error(
+      '🚨 CRITICAL: Rate limiting is DISABLED in production because Upstash Redis is not configured. ' +
+        'This leaves the application vulnerable to brute-force and abuse attacks. ' +
+        'Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN environment variables immediately.'
+    );
+  } else {
+    console.warn(
+      '⚠️  Rate limiting is disabled (Upstash Redis not configured). ' +
+        'This is acceptable in development but must be configured before deploying to production. ' +
+        'Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN in your .env file.'
+    );
+  }
 }
 
 /**

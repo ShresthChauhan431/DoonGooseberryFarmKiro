@@ -4,13 +4,10 @@ import { and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { cartItems, carts, products } from '@/lib/db/schema';
+import type { ActionResult } from '@/lib/types';
 import { cartItemSchema, formatValidationErrors, validateDataSafe } from '@/lib/utils/validation';
 
-export interface ActionResult {
-  success: boolean;
-  message?: string;
-  data?: any;
-}
+export type { ActionResult };
 
 /**
  * Add product to cart
@@ -23,12 +20,12 @@ export async function addToCart(
   sessionId?: string
 ): Promise<ActionResult> {
   try {
-    console.log('[addToCart] Called with:', { productId, quantity, userId, sessionId });
-
     // Validate input with Zod schema
-    const validation = validateDataSafe(cartItemSchema, { productId, quantity });
+    const validation = validateDataSafe(cartItemSchema, {
+      productId,
+      quantity,
+    });
     if (!validation.success) {
-      console.error('[addToCart] Validation failed:', validation.error);
       return {
         success: false,
         message: formatValidationErrors(validation.error)[0] || 'Invalid cart item data',
@@ -45,14 +42,11 @@ export async function addToCart(
       .limit(1);
 
     if (!product || product.length === 0) {
-      console.error('[addToCart] Product not found:', validated.productId);
       return {
         success: false,
         message: 'Product not found',
       };
     }
-
-    console.log('[addToCart] Product found:', product[0].name, 'Stock:', product[0].stock);
 
     // Validate stock availability
     if (product[0].stock === 0) {
@@ -70,7 +64,7 @@ export async function addToCart(
     }
 
     // Get or create cart
-    let cart;
+    let cart: typeof carts.$inferSelect | undefined;
     if (userId) {
       const existingCart = await db.select().from(carts).where(eq(carts.userId, userId)).limit(1);
 
@@ -89,14 +83,11 @@ export async function addToCart(
 
       if (existingCart.length > 0) {
         cart = existingCart[0];
-        console.log('[addToCart] Using existing cart:', cart.id);
       } else {
         const newCart = await db.insert(carts).values({ sessionId }).returning();
         cart = newCart[0];
-        console.log('[addToCart] Created new cart:', cart.id);
       }
     } else {
-      console.error('[addToCart] No userId or sessionId provided');
       return {
         success: false,
         message: 'User or session identifier required',
@@ -126,8 +117,6 @@ export async function addToCart(
         .update(cartItems)
         .set({ quantity: newQuantity })
         .where(eq(cartItems.id, existingItem[0].id));
-
-      console.log('[addToCart] Updated existing cart item, new quantity:', newQuantity);
     } else {
       // Create new cart item
       await db.insert(cartItems).values({
@@ -135,14 +124,11 @@ export async function addToCart(
         productId: validated.productId,
         quantity: validated.quantity,
       });
-
-      console.log('[addToCart] Created new cart item');
     }
 
     revalidatePath('/cart');
     revalidatePath('/shop');
 
-    console.log('[addToCart] Success!');
     return {
       success: true,
       message: 'Product added to cart',

@@ -18,6 +18,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { checkPincodeServiceability } from '@/lib/actions/addresses';
+import type { CheckoutAddress } from '@/lib/actions/checkout';
+import { saveCheckoutAddress } from '@/lib/actions/checkout';
 import type { Address } from '@/lib/queries/addresses';
 
 // Address validation schema
@@ -43,9 +45,11 @@ type AddressFormValues = z.infer<typeof addressSchema>;
 
 interface AddressFormProps {
   savedAddresses?: Address[];
+  /** Pre-fill the form with address data from an existing checkout session */
+  initialAddress?: CheckoutAddress;
 }
 
-export function AddressForm({ savedAddresses = [] }: AddressFormProps) {
+export function AddressForm({ savedAddresses = [], initialAddress }: AddressFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
@@ -56,16 +60,17 @@ export function AddressForm({ savedAddresses = [] }: AddressFormProps) {
   }>({ status: 'idle', message: '' });
 
   // Initialize form with react-hook-form and zod validation
+  // If we have an initialAddress from a server-side checkout session, pre-fill the form
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
-      name: '',
-      addressLine1: '',
-      addressLine2: '',
-      city: '',
-      state: '',
-      pincode: '',
-      phone: '',
+      name: initialAddress?.name ?? '',
+      addressLine1: initialAddress?.addressLine1 ?? '',
+      addressLine2: initialAddress?.addressLine2 ?? '',
+      city: initialAddress?.city ?? '',
+      state: initialAddress?.state ?? '',
+      pincode: initialAddress?.pincode ?? '',
+      phone: initialAddress?.phone ?? '',
     },
   });
 
@@ -102,7 +107,9 @@ export function AddressForm({ savedAddresses = [] }: AddressFormProps) {
     const pincode = pincodeToCheck || form.getValues('pincode');
 
     if (!pincode || pincode.length !== 6) {
-      form.setError('pincode', { message: 'Please enter a valid 6-digit pincode' });
+      form.setError('pincode', {
+        message: 'Please enter a valid 6-digit pincode',
+      });
       return;
     }
 
@@ -135,7 +142,7 @@ export function AddressForm({ savedAddresses = [] }: AddressFormProps) {
     }
   };
 
-  // Handle form submission
+  // Handle form submission — persist address server-side via Server Action
   async function onSubmit(data: AddressFormValues) {
     // Force a pincode check if none was done successfully
     if (pincodeStatus.status !== 'success') {
@@ -147,8 +154,21 @@ export function AddressForm({ savedAddresses = [] }: AddressFormProps) {
 
     setIsLoading(true);
     try {
-      // Store address in sessionStorage for next step
-      sessionStorage.setItem('checkoutAddress', JSON.stringify(data));
+      // Persist address to the server-side checkout session
+      const result = await saveCheckoutAddress({
+        name: data.name,
+        addressLine1: data.addressLine1,
+        addressLine2: data.addressLine2 || undefined,
+        city: data.city,
+        state: data.state,
+        pincode: data.pincode,
+        phone: data.phone,
+      });
+
+      if (!result.success) {
+        console.error('Failed to save checkout address:', result.message);
+        return;
+      }
 
       // Navigate to step 2 (order review)
       router.push('/checkout?step=2');
@@ -322,7 +342,10 @@ export function AddressForm({ savedAddresses = [] }: AddressFormProps) {
                               field.onChange(value);
                               // Reset pincode status when user edits
                               if (pincodeStatus.status !== 'idle') {
-                                setPincodeStatus({ status: 'idle', message: '' });
+                                setPincodeStatus({
+                                  status: 'idle',
+                                  message: '',
+                                });
                               }
                             }}
                           />

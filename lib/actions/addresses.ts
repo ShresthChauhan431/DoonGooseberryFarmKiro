@@ -7,8 +7,10 @@ import { z } from 'zod';
 import { auth } from '@/lib/auth/config';
 import { db } from '@/lib/db';
 import { addresses } from '@/lib/db/schema';
-
+import type { ActionResult } from '@/lib/types';
 import { formatValidationErrors } from '@/lib/utils/validation';
+
+export type { ActionResult };
 
 const addressSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -22,16 +24,10 @@ const addressSchema = z.object({
 
 type AddressInput = z.infer<typeof addressSchema>;
 
-interface ActionResult {
-  success: boolean;
-  message?: string;
-  data?: unknown;
-}
-
 /**
  * Create a new address
  */
-export async function createAddress(data: AddressInput): Promise<ActionResult> {
+export async function createAddress(data: AddressInput): Promise<ActionResult<void>> {
   try {
     // Validate input
     const validated = addressSchema.parse(data);
@@ -72,7 +68,10 @@ export async function createAddress(data: AddressInput): Promise<ActionResult> {
 /**
  * Update an existing address
  */
-export async function updateAddress(addressId: string, data: AddressInput): Promise<ActionResult> {
+export async function updateAddress(
+  addressId: string,
+  data: AddressInput
+): Promise<ActionResult<void>> {
   try {
     // Validate input
     const validated = addressSchema.parse(data);
@@ -114,7 +113,7 @@ export async function updateAddress(addressId: string, data: AddressInput): Prom
 /**
  * Delete an address
  */
-export async function deleteAddress(addressId: string): Promise<ActionResult> {
+export async function deleteAddress(addressId: string): Promise<ActionResult<void>> {
   try {
     // Get authenticated user
     const session = await auth.api.getSession({
@@ -141,7 +140,7 @@ export async function deleteAddress(addressId: string): Promise<ActionResult> {
 /**
  * Set an address as default
  */
-export async function setDefaultAddress(addressId: string): Promise<ActionResult> {
+export async function setDefaultAddress(addressId: string): Promise<ActionResult<void>> {
   try {
     // Get authenticated user
     const session = await auth.api.getSession({
@@ -180,7 +179,7 @@ export async function setDefaultAddress(addressId: string): Promise<ActionResult
  */
 export async function checkPincodeServiceability(
   pincode: string
-): Promise<ActionResult & { data?: { isServiceable: boolean; estimatedDays: string } }> {
+): Promise<ActionResult<{ isServiceable: boolean; estimatedDays: string }>> {
   try {
     // Validate pincode format (exactly 6 digits)
     if (!/^\d{6}$/.test(pincode)) {

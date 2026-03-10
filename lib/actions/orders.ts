@@ -22,14 +22,11 @@ import {
 } from '@/lib/payment/razorpay';
 import { getCart } from '@/lib/queries/cart';
 import { getEstimatedDeliveryDate } from '@/lib/queries/orders';
+import type { ActionResult } from '@/lib/types';
 import { calculateCartTotalsWithShipping } from '@/lib/utils/cart';
 import { calculateShipping } from '@/lib/utils/shipping';
 
-export interface ActionResult {
-  success: boolean;
-  message?: string;
-  data?: unknown;
-}
+export type { ActionResult };
 
 interface Address {
   name: string;
@@ -45,7 +42,14 @@ interface Address {
  * Create a Razorpay order for payment
  * Returns the Razorpay order ID and public key for client-side payment
  */
-export async function createRazorpayOrderAction(amount: number): Promise<ActionResult> {
+export async function createRazorpayOrderAction(amount: number): Promise<
+  ActionResult<{
+    orderId: string;
+    amount: number;
+    currency: string;
+    keyId: string;
+  }>
+> {
   try {
     // Validate user is authenticated
     const session = await getSession();
@@ -65,7 +69,7 @@ export async function createRazorpayOrderAction(amount: number): Promise<ActionR
       success: true,
       data: {
         orderId: razorpayOrder.id,
-        amount: razorpayOrder.amount,
+        amount: Number(razorpayOrder.amount),
         currency: razorpayOrder.currency,
         keyId: getRazorpayKeyId(),
       },
@@ -89,7 +93,7 @@ export async function verifyPaymentAndCreateOrder(
   razorpaySignature: string,
   shippingAddress: Address,
   couponCode?: string
-): Promise<ActionResult> {
+): Promise<ActionResult<{ orderId: number }>> {
   try {
     // Validate user is authenticated
     const session = await getSession();
@@ -161,6 +165,16 @@ export async function verifyPaymentAndCreateOrder(
         })
         .returning();
 
+      // Generate human-readable order number: DGF-YYYYMMDD-{id}
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+      const orderNumber = `DGF-${dateStr}-${order.id}`;
+
+      // Update the order with the generated order number
+      await tx.update(orders).set({ orderNumber }).where(eq(orders.id, order.id));
+
+      order.orderNumber = orderNumber;
+
       // Create order items from cart items
       const orderItemsData = cart.items.map((item) => ({
         orderId: order.id,
@@ -206,7 +220,7 @@ export async function verifyPaymentAndCreateOrder(
 
     // Send confirmation email (async, don't block order creation)
     sendOrderConfirmationEmail(
-      String(result.id),
+      result.orderNumber ?? String(result.id),
       session.user.email,
       session.user.name,
       cart.items,
@@ -237,18 +251,22 @@ export async function verifyPaymentAndCreateOrder(
  * This is called asynchronously after order creation
  */
 async function sendOrderConfirmationEmail(
-  orderId: string,
+  orderNumber: string,
   customerEmail: string,
   customerName: string,
   cartItems: {
     quantity: number | null;
     product: { name: string; price: number; images: string[] | null };
   }[],
-  totals: { subtotal: number; shipping: number; discount: number; total: number },
+  totals: {
+    subtotal: number;
+    shipping: number;
+    discount: number;
+    total: number;
+  },
   shippingAddress: Address,
   orderDate: Date
 ) {
-  const orderNumber = orderId.slice(0, 8).toUpperCase();
   const estimatedDelivery = getEstimatedDeliveryDate(orderDate, 'PENDING');
 
   const emailItems = cartItems.map((item) => ({
@@ -290,7 +308,10 @@ async function sendOrderConfirmationEmail(
  * Validates status transitions and sends emails for SHIPPED and DELIVERED
  * Restores stock when order is CANCELLED
  */
-export async function updateOrderStatus(orderId: string, newStatus: string): Promise<ActionResult> {
+export async function updateOrderStatus(
+  orderId: string,
+  newStatus: string
+): Promise<ActionResult<void>> {
   try {
     // Require admin authentication
     const session = await getSession();
@@ -299,8 +320,7 @@ export async function updateOrderStatus(orderId: string, newStatus: string): Pro
     }
 
     // Check if user is admin
-    const userRole = (session.user as Record<string, unknown>).role;
-    if (userRole !== 'ADMIN') {
+    if (session.user.role !== 'ADMIN') {
       return { success: false, message: 'Admin access required' };
     }
 
@@ -380,9 +400,11 @@ export async function updateOrderStatus(orderId: string, newStatus: string): Pro
       .limit(1);
 
     // Send email notifications (async, don't block)
+    const displayOrderNumber = order.orderNumber ?? String(order.id);
+
     if (newStatus === 'SHIPPED' && user) {
       sendShippingEmail(
-        orderId,
+        displayOrderNumber,
         user.email,
         user.name,
         order.shippingAddress as Address,
@@ -393,11 +415,14 @@ export async function updateOrderStatus(orderId: string, newStatus: string): Pro
     }
 
     if (newStatus === 'DELIVERED' && user) {
-      sendDeliveryEmail(orderId, user.email, user.name, order.shippingAddress as Address).catch(
-        (error) => {
-          console.error('Failed to send delivery email:', error);
-        }
-      );
+      sendDeliveryEmail(
+        displayOrderNumber,
+        user.email,
+        user.name,
+        order.shippingAddress as Address
+      ).catch((error) => {
+        console.error('Failed to send delivery email:', error);
+      });
     }
 
     // Revalidate admin orders page
@@ -421,7 +446,7 @@ export async function updateOrderStatus(orderId: string, newStatus: string): Pro
  * Send shipping notification email
  */
 async function sendShippingEmail(
-  orderId: string,
+  orderNumber: string,
   customerEmail: string,
   customerName: string,
   shippingAddress: Address,
@@ -430,7 +455,6 @@ async function sendShippingEmail(
   const { OrderShippedEmail } = await import('@/lib/email/templates/order-shipped');
   const { getEstimatedDeliveryDate } = await import('@/lib/queries/orders');
 
-  const orderNumber = orderId.slice(0, 8).toUpperCase();
   const estimatedDelivery = getEstimatedDeliveryDate(orderDate, 'SHIPPED');
 
   await sendEmail({
@@ -449,14 +473,13 @@ async function sendShippingEmail(
  * Send delivery confirmation email
  */
 async function sendDeliveryEmail(
-  orderId: string,
+  orderNumber: string,
   customerEmail: string,
   customerName: string,
   shippingAddress: Address
 ) {
   const { OrderDeliveredEmail } = await import('@/lib/email/templates/order-delivered');
 
-  const orderNumber = orderId.slice(0, 8).toUpperCase();
   const deliveryDate = new Date().toLocaleDateString('en-IN', {
     day: 'numeric',
     month: 'long',

@@ -25,7 +25,13 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
         <p className="text-gray-500 mt-1">Update product information</p>
       </div>
 
-      <ProductForm categories={categories} product={product} />
+      <ProductForm
+        categories={categories}
+        product={{
+          ...product,
+          nutritionalInfo: product.nutritionalInfo ?? undefined,
+        }}
+      />
     </div>
   );
 }

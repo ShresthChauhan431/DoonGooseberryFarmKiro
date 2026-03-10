@@ -14,6 +14,7 @@ import { verifyPaymentAndCreateOrder } from '@/lib/actions/orders';
 import { db } from '@/lib/db';
 import { calculateCartTotals } from '@/lib/queries/cart';
 import type { CartItem, Coupon } from '@/lib/utils/cart';
+import { createDrizzleChainSequence } from '../../vitest.setup';
 
 // Mock dependencies
 vi.mock('@/lib/auth/session', () => ({
@@ -32,6 +33,10 @@ vi.mock('@/lib/email/send', () => ({
 
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
+}));
+
+vi.mock('@/lib/utils/shipping', () => ({
+  calculateShipping: vi.fn().mockResolvedValue(0),
 }));
 
 import { getSession } from '@/lib/auth/session';
@@ -111,31 +116,26 @@ describe('Integration: Cart to Order Conversion', () => {
       },
     ];
 
-    // Mock getCart to return our test cart
-    vi.spyOn(db, 'select')
-      .mockReturnValueOnce({
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi
-          .fn()
-          .mockResolvedValue([
-            { id: 'cart-123', userId: testUserId, sessionId: null, createdAt: new Date() },
-          ]),
-      } as any)
-      .mockReturnValueOnce({
-        from: vi.fn().mockReturnThis(),
-        leftJoin: vi.fn().mockReturnThis(),
-        where: vi.fn().mockResolvedValue(
-          cartItems.map((item) => ({
-            id: item.id,
-            cartId: item.cartId,
-            productId: item.productId,
-            quantity: item.quantity,
-            product: item.product,
-            category: null,
-          }))
-        ),
-      } as any);
+    // Mock getCart to return our test cart (2 selects: cart + items)
+    const getCartSeq = createDrizzleChainSequence([
+      [
+        {
+          id: 'cart-123',
+          userId: testUserId,
+          sessionId: null,
+          createdAt: new Date(),
+        },
+      ],
+      cartItems.map((item) => ({
+        id: item.id,
+        cartId: item.cartId,
+        productId: item.productId,
+        quantity: item.quantity,
+        product: item.product,
+        category: null,
+      })),
+    ]);
+    vi.spyOn(db, 'select').mockImplementation((() => getCartSeq()) as any);
 
     // Calculate expected totals
     const totals = calculateCartTotals(cartItems);
@@ -267,30 +267,25 @@ describe('Integration: Cart to Order Conversion', () => {
       },
     ];
 
-    vi.spyOn(db, 'select')
-      .mockReturnValueOnce({
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi
-          .fn()
-          .mockResolvedValue([
-            { id: 'cart-456', userId: testUserId, sessionId: null, createdAt: new Date() },
-          ]),
-      } as any)
-      .mockReturnValueOnce({
-        from: vi.fn().mockReturnThis(),
-        leftJoin: vi.fn().mockReturnThis(),
-        where: vi.fn().mockResolvedValue(
-          cartItems.map((item) => ({
-            id: item.id,
-            cartId: item.cartId,
-            productId: item.productId,
-            quantity: item.quantity,
-            product: item.product,
-            category: null,
-          }))
-        ),
-      } as any);
+    const getCartSeq = createDrizzleChainSequence([
+      [
+        {
+          id: 'cart-456',
+          userId: testUserId,
+          sessionId: null,
+          createdAt: new Date(),
+        },
+      ],
+      cartItems.map((item) => ({
+        id: item.id,
+        cartId: item.cartId,
+        productId: item.productId,
+        quantity: item.quantity,
+        product: item.product,
+        category: null,
+      })),
+    ]);
+    vi.spyOn(db, 'select').mockImplementation((() => getCartSeq()) as any);
 
     const createdOrderItems: any[] = [];
     vi.spyOn(db, 'transaction').mockImplementation(async (callback) => {
@@ -469,30 +464,25 @@ describe('Integration: Cart to Order Conversion', () => {
       },
     ];
 
-    vi.spyOn(db, 'select')
-      .mockReturnValueOnce({
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi
-          .fn()
-          .mockResolvedValue([
-            { id: 'cart-clear', userId: testUserId, sessionId: null, createdAt: new Date() },
-          ]),
-      } as any)
-      .mockReturnValueOnce({
-        from: vi.fn().mockReturnThis(),
-        leftJoin: vi.fn().mockReturnThis(),
-        where: vi.fn().mockResolvedValue(
-          cartItems.map((item) => ({
-            id: item.id,
-            cartId: item.cartId,
-            productId: item.productId,
-            quantity: item.quantity,
-            product: item.product,
-            category: null,
-          }))
-        ),
-      } as any);
+    const getCartSeq = createDrizzleChainSequence([
+      [
+        {
+          id: 'cart-clear',
+          userId: testUserId,
+          sessionId: null,
+          createdAt: new Date(),
+        },
+      ],
+      cartItems.map((item) => ({
+        id: item.id,
+        cartId: item.cartId,
+        productId: item.productId,
+        quantity: item.quantity,
+        product: item.product,
+        category: null,
+      })),
+    ]);
+    vi.spyOn(db, 'select').mockImplementation((() => getCartSeq()) as any);
 
     let cartDeleted = false;
     vi.spyOn(db, 'transaction').mockImplementation(async (callback) => {
@@ -573,30 +563,25 @@ describe('Integration: Cart to Order Conversion', () => {
       },
     ];
 
-    vi.spyOn(db, 'select')
-      .mockReturnValueOnce({
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi
-          .fn()
-          .mockResolvedValue([
-            { id: 'cart-price', userId: testUserId, sessionId: null, createdAt: new Date() },
-          ]),
-      } as any)
-      .mockReturnValueOnce({
-        from: vi.fn().mockReturnThis(),
-        leftJoin: vi.fn().mockReturnThis(),
-        where: vi.fn().mockResolvedValue(
-          cartItems.map((item) => ({
-            id: item.id,
-            cartId: item.cartId,
-            productId: item.productId,
-            quantity: item.quantity,
-            product: item.product,
-            category: null,
-          }))
-        ),
-      } as any);
+    const getCartSeq = createDrizzleChainSequence([
+      [
+        {
+          id: 'cart-price',
+          userId: testUserId,
+          sessionId: null,
+          createdAt: new Date(),
+        },
+      ],
+      cartItems.map((item) => ({
+        id: item.id,
+        cartId: item.cartId,
+        productId: item.productId,
+        quantity: item.quantity,
+        product: item.product,
+        category: null,
+      })),
+    ]);
+    vi.spyOn(db, 'select').mockImplementation((() => getCartSeq()) as any);
 
     const createdOrderItems: any[] = [];
     vi.spyOn(db, 'transaction').mockImplementation(async (callback) => {

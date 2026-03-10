@@ -11,9 +11,15 @@ export const dynamic = 'force-dynamic';
 // export const revalidate = 0;
 
 export default async function AdminProductsPage() {
-  // Get all products (including inactive)
-  const allProducts = await getProducts({ isActive: true });
-  const inactiveProducts = await getProducts({ isActive: false });
+  // Get all products (including inactive) — use high limit to get all for admin view
+  const { products: allProducts } = await getProducts({
+    isActive: true,
+    limit: 100,
+  });
+  const { products: inactiveProducts } = await getProducts({
+    isActive: false,
+    limit: 100,
+  });
   const products = [...allProducts, ...inactiveProducts].sort(
     (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
   );

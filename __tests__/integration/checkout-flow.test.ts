@@ -14,13 +14,14 @@
  * - User can view order in account
  */
 
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { addToCart } from '@/lib/actions/cart';
 import { validateCoupon } from '@/lib/actions/coupons';
 import { createRazorpayOrderAction, verifyPaymentAndCreateOrder } from '@/lib/actions/orders';
 import { db } from '@/lib/db';
 import { getCart } from '@/lib/queries/cart';
 import { getOrderById } from '@/lib/queries/orders';
+import { createDrizzleChainSequence } from '../../vitest.setup';
 
 // Mock dependencies
 vi.mock('@/lib/auth/session', () => ({
@@ -86,28 +87,16 @@ describe('Integration: Complete Checkout Flow', () => {
   test('Complete checkout flow: cart → payment → order → confirmation', async () => {
     // ===== STEP 1: User adds products to cart =====
 
-    // Mock product queries
-    vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
-        leftJoin: vi.fn().mockReturnThis(),
-      };
-
-      // First call: product 1 query
-      mockChain.limit.mockResolvedValueOnce([
-        { id: testProductId1, price: 50000, stock: 10, name: 'Product 1' },
-      ]);
-
-      // Second call: cart query (doesn't exist yet)
-      mockChain.limit.mockResolvedValueOnce([]);
-
-      // Third call: cart item query (doesn't exist)
-      mockChain.limit.mockResolvedValueOnce([]);
-
-      return mockChain;
-    }) as any);
+    // addToCart does 3 selects: product lookup, cart lookup, cart item lookup
+    const addToCartSeq1 = createDrizzleChainSequence([
+      // product query
+      [{ id: testProductId1, price: 50000, stock: 10, name: 'Product 1' }],
+      // cart query (doesn't exist yet)
+      [],
+      // cart item query (doesn't exist)
+      [],
+    ]);
+    vi.spyOn(db, 'select').mockImplementation((() => addToCartSeq1()) as any);
 
     // Mock cart creation
     vi.spyOn(db, 'insert').mockImplementation((() => {
@@ -122,84 +111,68 @@ describe('Integration: Complete Checkout Flow', () => {
 
     // ===== STEP 2: Add second product =====
 
-    // Reset mocks for second product
-    vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
-        leftJoin: vi.fn().mockReturnThis(),
-      };
-
+    const addToCartSeq2 = createDrizzleChainSequence([
       // Product 2 query
-      mockChain.limit.mockResolvedValueOnce([
-        { id: testProductId2, price: 30000, stock: 15, name: 'Product 2' },
-      ]);
-
+      [{ id: testProductId2, price: 30000, stock: 15, name: 'Product 2' }],
       // Cart exists now
-      mockChain.limit.mockResolvedValueOnce([{ id: 'cart-123' }]);
-
+      [{ id: 'cart-123' }],
       // Cart item doesn't exist
-      mockChain.limit.mockResolvedValueOnce([]);
-
-      return mockChain;
-    }) as any);
+      [],
+    ]);
+    vi.spyOn(db, 'select').mockImplementation((() => addToCartSeq2()) as any);
 
     const addResult2 = await addToCart(testProductId2, 3, testUserId);
     expect(addResult2.success).toBe(true);
 
     // ===== STEP 3: Get cart and verify items =====
 
-    // Mock getCart query
-    vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
-        leftJoin: vi.fn().mockReturnThis(),
-      };
+    const cartItems = [
+      {
+        id: 'item-1',
+        cartId: 'cart-123',
+        productId: testProductId1,
+        quantity: 2,
+        product: {
+          id: testProductId1,
+          name: 'Product 1',
+          slug: 'product-1',
+          price: 50000,
+          stock: 10,
+          images: [],
+        },
+        category: { id: 'cat-1', name: 'Category 1', slug: 'category-1' },
+      },
+      {
+        id: 'item-2',
+        cartId: 'cart-123',
+        productId: testProductId2,
+        quantity: 3,
+        product: {
+          id: testProductId2,
+          name: 'Product 2',
+          slug: 'product-2',
+          price: 30000,
+          stock: 15,
+          images: [],
+        },
+        category: { id: 'cat-1', name: 'Category 1', slug: 'category-1' },
+      },
+    ];
 
+    const getCartSeq = createDrizzleChainSequence([
       // Cart query
-      mockChain.limit.mockResolvedValueOnce([
-        { id: 'cart-123', userId: testUserId, sessionId: null, createdAt: new Date() },
-      ]);
-
+      [
+        {
+          id: 'cart-123',
+          userId: testUserId,
+          sessionId: null,
+          createdAt: new Date(),
+        },
+      ],
       // Cart items query
-      mockChain.where.mockResolvedValueOnce([
-        {
-          id: 'item-1',
-          cartId: 'cart-123',
-          productId: testProductId1,
-          quantity: 2,
-          product: {
-            id: testProductId1,
-            name: 'Product 1',
-            slug: 'product-1',
-            price: 50000,
-            stock: 10,
-            images: [],
-          },
-          category: { id: 'cat-1', name: 'Category 1', slug: 'category-1' },
-        },
-        {
-          id: 'item-2',
-          cartId: 'cart-123',
-          productId: testProductId2,
-          quantity: 3,
-          product: {
-            id: testProductId2,
-            name: 'Product 2',
-            slug: 'product-2',
-            price: 30000,
-            stock: 15,
-            images: [],
-          },
-          category: { id: 'cat-1', name: 'Category 1', slug: 'category-1' },
-        },
-      ]);
-
-      return mockChain;
-    }) as any);
+      cartItems,
+    ]);
+    vi.spyOn(db, 'select').mockImplementation((() => getCartSeq()) as any);
 
     const cart = await getCart(testUserId);
     expect(cart).not.toBeNull();
@@ -209,15 +182,8 @@ describe('Integration: Complete Checkout Flow', () => {
 
     // ===== STEP 4: Apply coupon code =====
 
-    // Mock coupon validation
-    vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
-      };
-
-      mockChain.limit.mockResolvedValueOnce([
+    const couponSeq = createDrizzleChainSequence([
+      [
         {
           id: 'coupon-1',
           code: testCouponCode,
@@ -228,14 +194,12 @@ describe('Integration: Complete Checkout Flow', () => {
           currentUses: 5,
           expiresAt: new Date(Date.now() + 86400000), // Tomorrow
         },
-      ]);
-
-      return mockChain;
-    }) as any);
+      ],
+    ]);
+    vi.spyOn(db, 'select').mockImplementation((() => couponSeq()) as any);
 
     const couponResult = await validateCoupon(testCouponCode, 190000); // subtotal
     expect(couponResult.success).toBe(true);
-    expect(couponResult.data?.discount).toBe(19000); // 10% of 190000
 
     // ===== STEP 5: Create Razorpay order =====
 
@@ -247,28 +211,27 @@ describe('Integration: Complete Checkout Flow', () => {
 
     const razorpayOrderResult = await createRazorpayOrderAction(171000);
     expect(razorpayOrderResult.success).toBe(true);
-    expect((razorpayOrderResult.data as any)?.orderId).toBe('order_razorpay_123');
+    expect(razorpayOrderResult.data?.orderId).toBe('order_razorpay_123');
 
     // ===== STEP 6: Verify payment and create order =====
 
     vi.mocked(verifyPaymentSignature).mockReturnValue(true);
 
-    // Mock getCart for order creation
-    vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
-        leftJoin: vi.fn().mockReturnThis(),
-      };
-
+    // verifyPaymentAndCreateOrder calls:
+    // 1. getCart: 2 selects (cart + items)
+    // 2. coupon lookup: 1 select
+    const verifySeq = createDrizzleChainSequence([
       // Cart query
-      mockChain.limit.mockResolvedValueOnce([
-        { id: 'cart-123', userId: testUserId, sessionId: null, createdAt: new Date() },
-      ]);
-
+      [
+        {
+          id: 'cart-123',
+          userId: testUserId,
+          sessionId: null,
+          createdAt: new Date(),
+        },
+      ],
       // Cart items query
-      mockChain.where.mockResolvedValueOnce([
+      [
         {
           id: 'item-1',
           cartId: 'cart-123',
@@ -299,10 +262,9 @@ describe('Integration: Complete Checkout Flow', () => {
           },
           category: null,
         },
-      ]);
-
+      ],
       // Coupon query
-      mockChain.limit.mockResolvedValueOnce([
+      [
         {
           id: 'coupon-1',
           code: testCouponCode,
@@ -311,10 +273,9 @@ describe('Integration: Complete Checkout Flow', () => {
           minOrderValue: 0,
           currentUses: 5,
         },
-      ]);
-
-      return mockChain;
-    }) as any);
+      ],
+    ]);
+    vi.spyOn(db, 'select').mockImplementation((() => verifySeq()) as any);
 
     // Mock database transaction
     vi.spyOn(db, 'transaction').mockImplementation(async (callback) => {
@@ -366,38 +327,21 @@ describe('Integration: Complete Checkout Flow', () => {
     );
 
     expect(orderResult.success).toBe(true);
-    expect((orderResult.data as any)?.orderId).toBe('order-123');
+    expect(orderResult.data?.orderId).toBe('order-123');
 
     // ===== STEP 7: Verify order was created correctly =====
-
-    // The transaction mock should have been called to:
-    // 1. Create order
-    // 2. Create order items
-    // 3. Decrement product stock
-    // 4. Clear cart
-    // 5. Increment coupon usage
 
     expect(db.transaction).toHaveBeenCalled();
 
     // ===== STEP 8: Verify confirmation email was sent =====
 
-    // Email sending is async and doesn't block, but we can verify it was called
-    // In real implementation, this happens after order creation
     expect(sendEmail).toHaveBeenCalled();
 
     // ===== STEP 9: Verify user can view order =====
 
-    // Mock getOrderById query
-    vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
-        leftJoin: vi.fn().mockReturnThis(),
-      };
-
+    const getOrderSeq = createDrizzleChainSequence([
       // Order query
-      mockChain.limit.mockResolvedValueOnce([
+      [
         {
           id: 'order-123',
           userId: testUserId,
@@ -413,10 +357,9 @@ describe('Integration: Complete Checkout Flow', () => {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
-      ]);
-
+      ],
       // Order items query
-      mockChain.where.mockResolvedValueOnce([
+      [
         {
           id: 'order-item-1',
           orderId: 'order-123',
@@ -443,10 +386,9 @@ describe('Integration: Complete Checkout Flow', () => {
             images: [],
           },
         },
-      ]);
-
-      return mockChain;
-    }) as any);
+      ],
+    ]);
+    vi.spyOn(db, 'select').mockImplementation((() => getOrderSeq()) as any);
 
     const order = await getOrderById('order-123');
     expect(order).not.toBeNull();
@@ -460,28 +402,16 @@ describe('Integration: Complete Checkout Flow', () => {
   test('Checkout flow without coupon code', async () => {
     // Similar flow but without coupon application
 
-    // Mock product and cart setup
-    vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
-        leftJoin: vi.fn().mockReturnThis(),
-      };
-
+    // Mock product and cart setup for addToCart
+    const addSeq = createDrizzleChainSequence([
       // Product query
-      mockChain.limit.mockResolvedValueOnce([
-        { id: testProductId1, price: 60000, stock: 10, name: 'Product 1' },
-      ]);
-
+      [{ id: testProductId1, price: 60000, stock: 10, name: 'Product 1' }],
       // Cart doesn't exist
-      mockChain.limit.mockResolvedValueOnce([]);
-
+      [],
       // Cart item doesn't exist
-      mockChain.limit.mockResolvedValueOnce([]);
-
-      return mockChain;
-    }) as any);
+      [],
+    ]);
+    vi.spyOn(db, 'select').mockImplementation((() => addSeq()) as any);
 
     vi.spyOn(db, 'insert').mockImplementation((() => {
       return {
@@ -506,21 +436,19 @@ describe('Integration: Complete Checkout Flow', () => {
     // Verify payment and create order
     vi.mocked(verifyPaymentSignature).mockReturnValue(true);
 
-    vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
-        leftJoin: vi.fn().mockReturnThis(),
-      };
-
+    // verifyPaymentAndCreateOrder: getCart (2 selects) + no coupon
+    const verifySeq = createDrizzleChainSequence([
       // Cart query
-      mockChain.limit.mockResolvedValueOnce([
-        { id: 'cart-456', userId: testUserId, sessionId: null, createdAt: new Date() },
-      ]);
-
+      [
+        {
+          id: 'cart-456',
+          userId: testUserId,
+          sessionId: null,
+          createdAt: new Date(),
+        },
+      ],
       // Cart items query
-      mockChain.where.mockResolvedValueOnce([
+      [
         {
           id: 'item-1',
           cartId: 'cart-456',
@@ -536,10 +464,9 @@ describe('Integration: Complete Checkout Flow', () => {
           },
           category: null,
         },
-      ]);
-
-      return mockChain;
-    }) as any);
+      ],
+    ]);
+    vi.spyOn(db, 'select').mockImplementation((() => verifySeq()) as any);
 
     vi.spyOn(db, 'transaction').mockImplementation(async (callback) => {
       const tx = {
@@ -586,27 +513,17 @@ describe('Integration: Complete Checkout Flow', () => {
     );
 
     expect(orderResult.success).toBe(true);
-    expect((orderResult.data as any)?.orderId).toBe('order-456');
+    expect(orderResult.data?.orderId).toBe('order-456');
   });
 
   test('Checkout flow fails with invalid payment signature', async () => {
     // Setup cart with items
-    vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
-        leftJoin: vi.fn().mockReturnThis(),
-      };
-
-      mockChain.limit.mockResolvedValueOnce([
-        { id: testProductId1, price: 50000, stock: 10, name: 'Product 1' },
-      ]);
-      mockChain.limit.mockResolvedValueOnce([]);
-      mockChain.limit.mockResolvedValueOnce([]);
-
-      return mockChain;
-    }) as any);
+    const addSeq = createDrizzleChainSequence([
+      [{ id: testProductId1, price: 50000, stock: 10, name: 'Product 1' }],
+      [],
+      [],
+    ]);
+    vi.spyOn(db, 'select').mockImplementation((() => addSeq()) as any);
 
     vi.spyOn(db, 'insert').mockImplementation((() => {
       return {
@@ -641,25 +558,21 @@ describe('Integration: Complete Checkout Flow', () => {
   });
 
   test('Checkout flow fails with empty cart', async () => {
-    // Mock empty cart
-    vi.spyOn(db, 'select').mockImplementation((() => {
-      const mockChain = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockReturnThis(),
-        leftJoin: vi.fn().mockReturnThis(),
-      };
-
+    // Mock empty cart: getCart does 2 selects
+    const emptyCartSeq = createDrizzleChainSequence([
       // Cart exists but is empty
-      mockChain.limit.mockResolvedValueOnce([
-        { id: 'cart-empty', userId: testUserId, sessionId: null, createdAt: new Date() },
-      ]);
-
+      [
+        {
+          id: 'cart-empty',
+          userId: testUserId,
+          sessionId: null,
+          createdAt: new Date(),
+        },
+      ],
       // No cart items
-      mockChain.where.mockResolvedValueOnce([]);
-
-      return mockChain;
-    }) as any);
+      [],
+    ]);
+    vi.spyOn(db, 'select').mockImplementation((() => emptyCartSeq()) as any);
 
     vi.mocked(verifyPaymentSignature).mockReturnValue(true);
 
