@@ -5,43 +5,43 @@ A modern, full-featured e-commerce platform for Doon Gooseberry Farm, specializi
 ## ✨ Features
 
 ### Customer Features
-- 🛍️ Product browsing with advanced filtering and search
-- 🛒 Shopping cart with guest and authenticated user support
-- ❤️ Wishlist management
-- 👤 User authentication and profile management
-- ✉️ Email verification on signup
-- 📍 Multiple delivery addresses
-- 💳 Secure payment processing with Razorpay
-- 📦 Order tracking and history
-- ⭐ Product reviews and ratings
-- 🎟️ Coupon and discount system
-- 📧 Email notifications for orders (confirmation, shipped, delivered)
-- 📱 Fully responsive mobile-first design
-- ♿ WCAG 2.1 AA accessibility compliant
+-  Product browsing with advanced filtering and search
+-  Shopping cart with guest and authenticated user support
+-  Wishlist management
+-  User authentication and profile management
+-  Email verification on signup
+-  Multiple delivery addresses
+-  Secure payment processing with Razorpay
+-  Order tracking and history
+-  Product reviews and ratings
+-  Coupon and discount system
+-  Email notifications for orders (confirmation, shipped, delivered)
+-  Fully responsive mobile-first design
+-  WCAG 2.1 AA accessibility compliant
 
 ### Admin Features
-- 📊 Dashboard with sales analytics
-- 📦 Product management (CRUD operations)
-- 🏷️ Category management
-- 🎫 Coupon management
-- 📋 Order management and status updates
-- 👥 Customer management
-- 📧 Newsletter subscriber management
-- 🖼️ Image upload and management
+-  Dashboard with sales analytics
+-  Product management (CRUD operations)
+-  Category management
+-  Coupon management
+-  Order management and status updates
+-  Customer management
+-  Newsletter subscriber management
+-  Image upload and management
 
 ### Technical Features
-- ⚡ Server-side rendering with Next.js 16 (App Router)
-- 🔐 Secure authentication with Better Auth (email/password + email verification)
-- 🗄️ PostgreSQL database with Drizzle ORM
-- 🎨 Beautiful UI with Tailwind CSS and shadcn/ui
-- 📧 Transactional emails with Resend + React Email templates
-- 💾 Cloud storage with Cloudflare R2 or Vercel Blob
-- 🔒 Security features (CSRF protection, Upstash Redis rate limiting, Zod input validation)
-- 📈 Performance optimized (image caching, code splitting, N+1 query elimination)
-- 🧪 Comprehensive test coverage with Vitest
-- 🛒 Server-side checkout session persistence (no client-side sessionStorage)
+-  Server-side rendering with Next.js 16 (App Router)
+-  Secure authentication with Better Auth (email/password + email verification)
+-  PostgreSQL database with Drizzle ORM
+-  Beautiful UI with Tailwind CSS and shadcn/ui
+-  Transactional emails with Resend + React Email templates
+-  Cloud storage with Cloudflare R2 or Vercel Blob
+-  Security features (CSRF protection, Upstash Redis rate limiting, Zod input validation)
+-  Performance optimized (image caching, code splitting, N+1 query elimination)
+-  Comprehensive test coverage with Vitest
+-  Server-side checkout session persistence (no client-side sessionStorage)
 
-## 📋 Prerequisites
+##  Prerequisites
 
 Before you begin, ensure you have the following installed:
 
@@ -52,7 +52,7 @@ Before you begin, ensure you have the following installed:
 
 **Note:** You can use either Docker (recommended) or a local PostgreSQL installation.
 
-## 🚀 Quick Start (Docker — Recommended)
+##  Quick Start (Docker — Recommended)
 
 The easiest way to get started is using Docker for the database:
 
@@ -70,7 +70,7 @@ pnpm dev
 
 Visit [http://localhost:3000](http://localhost:3000) to see your application.
 
-## 🐳 Docker Setup (Recommended)
+##  Docker Setup (Recommended)
 
 ### Why Docker?
 - No need to install PostgreSQL locally
@@ -143,7 +143,7 @@ pnpm dev
 
 See [Local Development Guide](docs/LOCAL_DEVELOPMENT.md) for detailed instructions.
 
-## 🔑 Environment Variables
+##  Environment Variables
 
 Create a `.env.local` file in the project root. Required variables:
 
@@ -172,7 +172,7 @@ Create a `.env.local` file in the project root. Required variables:
 
 > **Note:** If Upstash Redis credentials are not configured, rate limiting is disabled and a warning is logged at startup.
 
-## 🔐 Default Credentials
+##  Default Credentials
 
 ### Admin Account
 - **Email:** admin@doonfarm.com
@@ -184,7 +184,7 @@ Create a `.env.local` file in the project root. Required variables:
 - **Expiry:** Any future date
 - **OTP:** 123456 (for test mode)
 
-## 📜 Available Scripts
+##  Available Scripts
 
 ```bash
 # Development
@@ -208,7 +208,7 @@ pnpm test:watch        # Run tests in watch mode
 pnpm test:coverage     # Run tests with coverage report
 ```
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 doon-farm-ecommerce/
@@ -246,7 +246,7 @@ doon-farm-ecommerce/
 └── drizzle/                 # Database migrations
 ```
 
-## 🗄️ Database Schema
+##  Database Schema
 
 Key tables managed by Drizzle ORM:
 
@@ -301,7 +301,7 @@ The checkout flow is a three-step process with **server-side state persistence**
 
 > **No `sessionStorage` is used.** All checkout state survives page refreshes, new tabs, and device changes. Checkout sessions expire automatically after 2 hours.
 
-## 🧪 Testing
+##  Testing
 
 ### Quick Test Commands
 ```bash
@@ -339,7 +339,7 @@ The project includes comprehensive tests (Vitest) for:
 
 Current status: **424 tests passing, 1 skipped (425 total)**
 
-## 🔧 Troubleshooting
+##  Troubleshooting
 
 ### Docker Issues
 

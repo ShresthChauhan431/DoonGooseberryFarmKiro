@@ -3,6 +3,7 @@ import { AddressForm } from '@/components/checkout/address-form';
 import { CheckoutSteps } from '@/components/checkout/checkout-steps';
 import { OrderReview } from '@/components/checkout/order-review';
 import { PaymentForm } from '@/components/checkout/payment-form';
+import type { CheckoutAddress } from '@/lib/actions/checkout';
 import { requireAuth } from '@/lib/auth/session';
 import { getUserAddresses } from '@/lib/queries/addresses';
 import { getCart } from '@/lib/queries/cart';
@@ -38,6 +39,10 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
     redirect('/checkout?step=1');
   }
 
+  // After the redirect guard above, addressData is guaranteed to exist for steps 2 & 3.
+  // Extract it into a typed const so TypeScript narrows the type to CheckoutAddress.
+  const addressData = checkoutSession?.addressData as CheckoutAddress | undefined;
+
   // Fetch saved addresses for the user
   const savedAddresses = await getUserAddresses(session.user.id);
 
@@ -69,7 +74,7 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
             cart={cart}
             shippingCost={shippingCost}
             freeDeliveryThreshold={deliverySettings.freeDeliveryThreshold}
-            serverAddress={checkoutSession?.addressData ?? undefined}
+            serverAddress={addressData as CheckoutAddress}
             serverCoupon={checkoutSession?.appliedCoupon ?? undefined}
           />
         )}
@@ -77,7 +82,7 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
           <PaymentForm
             cart={cart}
             shippingCost={shippingCost}
-            serverAddress={checkoutSession?.addressData ?? undefined}
+            serverAddress={addressData as CheckoutAddress}
             serverCoupon={checkoutSession?.appliedCoupon ?? undefined}
           />
         )}

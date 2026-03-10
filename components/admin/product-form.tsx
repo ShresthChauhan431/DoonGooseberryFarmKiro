@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import type { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -29,7 +30,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { createProduct, updateProduct } from '@/lib/actions/products';
 import { generateSlug } from '@/lib/utils/slug';
-import { type ProductInput, productSchema } from '@/lib/utils/validation';
+import { productSchema } from '@/lib/utils/validation';
+
+type ProductFormValues = z.input<typeof productSchema>;
+
 import { ImageUpload } from './image-upload';
 
 interface Category {
@@ -60,8 +64,8 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
   const router = useRouter();
   const { toast } = useToast();
 
-  const form = useForm<ProductInput>({
-    resolver: zodResolver(productSchema) as ReturnType<typeof zodResolver>,
+  const form = useForm<ProductFormValues>({
+    resolver: zodResolver(productSchema),
     defaultValues: {
       name: '',
       slug: '',
@@ -92,7 +96,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
     }
   }, [product, form]);
 
-  const handleSubmit = async (data: ProductInput) => {
+  const handleSubmit = async (data: ProductFormValues) => {
     try {
       // Generate slug if not provided
       const slug = data.slug || generateSlug(data.name);
@@ -100,6 +104,8 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
       const productData = {
         ...data,
         slug,
+        isActive: data.isActive ?? true,
+        nutritionalInfo: data.nutritionalInfo ?? undefined,
       };
 
       let result:

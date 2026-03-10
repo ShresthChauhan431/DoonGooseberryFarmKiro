@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import type { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
@@ -16,7 +17,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { createAddress, updateAddress } from '@/lib/actions/addresses';
-import { type AddressInput, addressSchema } from '@/lib/utils/validation';
+import { addressSchema } from '@/lib/utils/validation';
 
 interface Address {
   id: string;
@@ -37,8 +38,10 @@ interface AddressDialogProps {
 }
 
 export function AddressDialog({ open, onOpenChange, address }: AddressDialogProps) {
-  const form = useForm<AddressInput>({
-    resolver: zodResolver(addressSchema) as ReturnType<typeof zodResolver>,
+  type AddressFormValues = z.input<typeof addressSchema>;
+
+  const form = useForm<AddressFormValues>({
+    resolver: zodResolver(addressSchema),
     defaultValues: {
       name: '',
       addressLine1: '',
@@ -78,7 +81,7 @@ export function AddressDialog({ open, onOpenChange, address }: AddressDialogProp
     }
   }, [address, form]);
 
-  const handleSubmit = async (data: AddressInput) => {
+  const handleSubmit = async (data: AddressFormValues) => {
     try {
       const result = address ? await updateAddress(address.id, data) : await createAddress(data);
 
