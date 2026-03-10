@@ -536,3 +536,7 @@ For issues and questions:
 ---
 
 Made with ❤️ for Doon Gooseberry Farm
+
+
+
+DATABASE_URL="postgresql://neondb_owner:npg_UlKGx8pHLZS0@ep-dark-pine-aib0snew-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require" npx drizzle-kit migrate
