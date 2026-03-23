@@ -1,4 +1,4 @@
-# Doon Gooseberry Farm - E-Commerce Platform
+d# Doon Gooseberry Farm - E-Commerce Platform
 
 A modern, full-featured e-commerce platform for Doon Gooseberry Farm, specializing in authentic Himalayan pickles, chutneys, jams, and spices.
 
