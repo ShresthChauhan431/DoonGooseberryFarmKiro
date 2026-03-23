@@ -7,7 +7,6 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ slu
   try {
     const { slug } = await params;
 
-    // First try by slug
     const blogBySlug = await db.select().from(blogs).where(eq(blogs.slug, slug));
 
     if (blogBySlug.length > 0) {

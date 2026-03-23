@@ -14,7 +14,7 @@ export function DeleteBlogButton({ id }: { id: string }) {
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/blog/${id}`, {
+      const response = await fetch(`/api/blog/id/${id}`, {
         method: 'DELETE',
       });
 

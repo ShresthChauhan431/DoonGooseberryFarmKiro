@@ -60,7 +60,7 @@ export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
     setError('');
 
     try {
-      const url = isEditing ? `/api/blog/${initialData?.id}` : '/api/blog';
+      const url = isEditing ? `/api/blog/id/${initialData?.id}` : '/api/blog';
       const method = isEditing ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
