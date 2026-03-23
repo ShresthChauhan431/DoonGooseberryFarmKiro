@@ -14,6 +14,32 @@ const nextConfig: NextConfig = {
 
   // Security headers
   async headers() {
+    // Derive explicit connect-src origins from environment variables so the
+    // Content Security Policy names the actual deployment domains rather than
+    // relying on the broad *.vercel.app wildcard.
+    //
+    // Priority:
+    //   NEXT_PUBLIC_APP_URL  — the canonical frontend deployment URL
+    //   AUTH_URL             — the API / Better Auth server URL
+    //   NEXT_PUBLIC_AUTH_URL — client-side alias for AUTH_URL
+    //
+    // Falls back to the wildcard when no env var is set (local dev /
+    // uninitialised deployments) so existing setups keep working unchanged.
+    const appOrigin = (process.env.NEXT_PUBLIC_APP_URL ?? '').replace(/\/+$/, '');
+    const authOrigin = (process.env.AUTH_URL ?? process.env.NEXT_PUBLIC_AUTH_URL ?? '').replace(
+      /\/+$/,
+      ''
+    );
+
+    // Deduplicate and drop empty strings.  In a same-origin deployment both
+    // variables point to the same URL, so the Set collapses them to one entry.
+    const explicitOrigins = [...new Set([appOrigin, authOrigin].filter(Boolean))];
+
+    // Use the wildcard only as a last resort — it accepts every *.vercel.app
+    // domain which is wider than necessary in production.
+    const connectSrcVercel =
+      explicitOrigins.length > 0 ? explicitOrigins.join(' ') : 'https://*.vercel.app';
+
     return [
       {
         source: '/:path*',
@@ -46,7 +72,9 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' data: https: blob: https://*.public.blob.vercel-storage.com",
               "font-src 'self' data: https://fonts.gstatic.com",
-              "connect-src 'self' https://api.razorpay.com https://*.sentry.io https://*.vercel.app https://*.public.blob.vercel-storage.com",
+              // connectSrcVercel is either explicit deployment URLs (preferred)
+              // or the *.vercel.app wildcard fallback — see computation above.
+              `connect-src 'self' https://api.razorpay.com https://*.sentry.io ${connectSrcVercel} https://*.public.blob.vercel-storage.com`,
               "frame-src 'self' https://api.razorpay.com",
               "object-src 'none'",
               "base-uri 'self'",
