@@ -14,36 +14,44 @@ export interface CheckoutSession {
 
 /**
  * Get the active (non-expired) checkout session for a given user.
- * Returns null if no session exists or it has expired.
+ * Returns null if no session exists, it has expired, or a DB error occurs.
  *
  * This is a server-only query — call it from server components or server actions.
  */
 export async function getCheckoutSession(userId: string): Promise<CheckoutSession | null> {
-  const now = new Date();
+  try {
+    const now = new Date();
 
-  const [row] = await db
-    .select({
-      id: checkoutSessions.id,
-      addressData: checkoutSessions.addressData,
-      appliedCoupon: checkoutSessions.appliedCoupon,
-      createdAt: checkoutSessions.createdAt,
-      updatedAt: checkoutSessions.updatedAt,
-      expiresAt: checkoutSessions.expiresAt,
-    })
-    .from(checkoutSessions)
-    .where(and(eq(checkoutSessions.userId, userId), gt(checkoutSessions.expiresAt, now)))
-    .limit(1);
+    const [row] = await db
+      .select({
+        id: checkoutSessions.id,
+        addressData: checkoutSessions.addressData,
+        appliedCoupon: checkoutSessions.appliedCoupon,
+        createdAt: checkoutSessions.createdAt,
+        updatedAt: checkoutSessions.updatedAt,
+        expiresAt: checkoutSessions.expiresAt,
+      })
+      .from(checkoutSessions)
+      .where(and(eq(checkoutSessions.userId, userId), gt(checkoutSessions.expiresAt, now)))
+      .limit(1);
 
-  if (!row) {
+    if (!row) {
+      return null;
+    }
+
+    return {
+      id: row.id,
+      addressData: row.addressData ?? null,
+      appliedCoupon: row.appliedCoupon ?? null,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      expiresAt: row.expiresAt,
+    };
+  } catch (error) {
+    // Log the error for observability but do not crash the caller.
+    // The checkout page treats a null session as "no active session" and
+    // redirects the user to step 1, which is the safest fallback.
+    console.error('[getCheckoutSession] Failed to query checkout_sessions:', error);
     return null;
   }
-
-  return {
-    id: row.id,
-    addressData: row.addressData ?? null,
-    appliedCoupon: row.appliedCoupon ?? null,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
-    expiresAt: row.expiresAt,
-  };
 }
