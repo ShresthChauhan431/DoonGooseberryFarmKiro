@@ -1,8 +1,11 @@
+import { desc } from 'drizzle-orm';
 import { Calendar } from 'lucide-react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { db } from '@/lib/db';
+import { blogs } from '@/lib/db/schema';
 import { formatDate, getAllBlogPosts } from '@/lib/mdx';
 import { getBlogImageBlurDataURL } from '@/lib/utils/image';
 
@@ -18,10 +21,46 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BlogPage() {
-  const posts = getAllBlogPosts();
+export default async function BlogPage() {
+  // Try DB first
+  let dbPosts: {
+    slug: string;
+    title: string;
+    excerpt: string;
+    featuredImage: string;
+    createdAt: Date;
+  }[] = [];
+  try {
+    dbPosts = await db
+      .select({
+        slug: blogs.slug,
+        title: blogs.title,
+        excerpt: blogs.excerpt,
+        featuredImage: blogs.featuredImage,
+        createdAt: blogs.createdAt,
+      })
+      .from(blogs)
+      .orderBy(desc(blogs.createdAt));
+  } catch (error) {
+    console.error('Failed to fetch from DB', error);
+  }
 
-  if (posts.length === 0) {
+  // Fallback to MDX
+  const mdxPosts = getAllBlogPosts();
+
+  // Use DB posts if available, otherwise MDX
+  const displayPosts =
+    dbPosts.length > 0
+      ? dbPosts.map((p) => ({
+          slug: p.slug,
+          title: p.title,
+          excerpt: p.excerpt,
+          featuredImage: p.featuredImage,
+          date: p.createdAt.toISOString(),
+        }))
+      : mdxPosts;
+
+  if (displayPosts.length === 0) {
     return (
       <div className="container mx-auto px-4 py-16">
         <h1 className="text-4xl font-bold mb-8">Blog</h1>
@@ -40,7 +79,7 @@ export default function BlogPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {posts.map((post) => (
+        {displayPosts.map((post) => (
           <Link key={post.slug} href={`/blog/${post.slug}`}>
             <Card className="h-full hover:shadow-lg transition-shadow overflow-hidden">
               <div className="relative h-48 w-full">

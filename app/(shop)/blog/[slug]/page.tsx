@@ -1,11 +1,17 @@
+import { eq } from 'drizzle-orm';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { compileMDX } from 'next-mdx-remote/rsc';
+import type React from 'react';
+import rehypePrettyCode from 'rehype-pretty-code';
 import RelatedProducts from '@/components/blog/related-products';
 import { Button } from '@/components/ui/button';
-import { formatDate, getBlogPost } from '@/lib/mdx';
+import { db } from '@/lib/db';
+import { blogs } from '@/lib/db/schema';
+import { type BlogPostWithContent, formatDate, getBlogPost } from '@/lib/mdx';
 import { getBlogImageBlurDataURL } from '@/lib/utils/image';
 
 interface BlogPostPageProps {
@@ -14,16 +20,28 @@ interface BlogPostPageProps {
   }>;
 }
 
-// export async function generateStaticParams() {
-//   const slugs = getAllBlogSlugs();
-//   return slugs.map((slug) => ({
-//     slug,
-//   }));
-// }
-
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getBlogPost(slug);
+
+  // Try DB first
+  let post = null;
+  try {
+    const dbPosts = await db.select().from(blogs).where(eq(blogs.slug, slug));
+    if (dbPosts.length > 0) {
+      const p = dbPosts[0];
+      post = {
+        title: p.title,
+        excerpt: p.excerpt,
+        featuredImage: p.featuredImage,
+        date: p.createdAt.toISOString(),
+      };
+    }
+  } catch (_e) {}
+
+  // Fallback to MDX
+  if (!post) {
+    post = await getBlogPost(slug);
+  }
 
   if (!post) {
     return {
@@ -59,7 +77,61 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
-  const post = await getBlogPost(slug);
+
+  // Try DB first
+  let dbPost = null;
+  let compiledContent = null;
+
+  try {
+    const dbPosts = await db.select().from(blogs).where(eq(blogs.slug, slug));
+    if (dbPosts.length > 0) {
+      dbPost = dbPosts[0];
+
+      const { content } = await compileMDX({
+        source: dbPost.content,
+        options: {
+          parseFrontmatter: false,
+          mdxOptions: {
+            rehypePlugins: [
+              [
+                rehypePrettyCode,
+                {
+                  theme: 'github-dark',
+                  keepBackground: true,
+                },
+              ],
+            ],
+          },
+        },
+      });
+      compiledContent = content;
+    }
+  } catch (_e) {}
+
+  let post: {
+    title: string;
+    date: string;
+    author?: string;
+    category?: string;
+    featuredImage: string;
+    content: React.ReactNode;
+    relatedProducts?: string[];
+  } | null = null;
+
+  if (dbPost && compiledContent) {
+    post = {
+      title: dbPost.title,
+      date: dbPost.createdAt.toISOString(),
+      author: dbPost.author || undefined,
+      category: dbPost.category || undefined,
+      featuredImage: dbPost.featuredImage,
+      content: compiledContent,
+      relatedProducts: [], // Extend this later if needed
+    };
+  } else {
+    // Fallback
+    post = await getBlogPost(slug);
+  }
 
   if (!post) {
     notFound();
@@ -68,7 +140,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   return (
     <div className="container mx-auto px-4 py-16">
       <div className="max-w-4xl mx-auto">
-        {/* Back button */}
         <Link href="/blog">
           <Button variant="ghost" className="mb-8">
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -76,7 +147,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </Button>
         </Link>
 
-        {/* Featured image */}
         <div className="relative h-96 w-full mb-8 rounded-lg overflow-hidden">
           <Image
             src={post.featuredImage}
@@ -90,7 +160,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           />
         </div>
 
-        {/* Post header */}
         <header className="mb-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">{post.title}</h1>
           <div className="flex items-center gap-4 text-muted-foreground">
@@ -113,10 +182,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
         </header>
 
-        {/* Post content */}
         <article className="prose prose-lg max-w-none mb-12">{post.content}</article>
 
-        {/* Related products for recipe posts */}
         {post.relatedProducts && post.relatedProducts.length > 0 && (
           <RelatedProducts productIds={post.relatedProducts} />
         )}

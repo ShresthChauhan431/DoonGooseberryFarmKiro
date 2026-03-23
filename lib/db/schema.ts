@@ -301,3 +301,17 @@ export const siteSettings = pgTable('site_settings', {
   category: varchar('category', { length: 50 }).notNull().default('general'), // general, homepage, appearance, seo
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
+
+// Blogs table
+export const blogs = pgTable('blogs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  title: varchar('title', { length: 255 }).notNull(),
+  slug: varchar('slug', { length: 255 }).notNull().unique(),
+  excerpt: text('excerpt').notNull(),
+  content: text('content').notNull(),
+  featuredImage: text('featured_image').notNull(),
+  author: varchar('author', { length: 255 }),
+  category: varchar('category', { length: 100 }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});

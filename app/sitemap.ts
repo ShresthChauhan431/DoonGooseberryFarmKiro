@@ -1,5 +1,7 @@
 import type { MetadataRoute } from 'next';
-import { type BlogPost, getAllBlogPosts } from '@/lib/mdx';
+import { db } from '@/lib/db';
+import { blogs } from '@/lib/db/schema';
+import { getAllBlogPosts } from '@/lib/mdx';
 import { getCategories } from '@/lib/queries/categories';
 import { getProducts } from '@/lib/queries/products';
 
@@ -61,8 +63,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Blog routes
-  const blogPosts = getAllBlogPosts();
-  const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((post: BlogPost) => ({
+  let dbPosts: { slug: string; createdAt: Date }[] = [];
+  try {
+    dbPosts = await db.select({ slug: blogs.slug, createdAt: blogs.createdAt }).from(blogs);
+  } catch (_e) {
+    console.error('Failed to load blogs for sitemap', _e);
+  }
+
+  const blogPosts =
+    dbPosts.length > 0
+      ? dbPosts.map((p) => ({
+          slug: p.slug,
+          date: p.createdAt.toISOString(),
+        }))
+      : getAllBlogPosts();
+
+  const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
     lastModified: new Date(post.date),
     changeFrequency: 'monthly',

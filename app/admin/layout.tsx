@@ -1,4 +1,13 @@
-import { LayoutDashboard, LogOut, Package, Settings, ShoppingCart, Tag, Truck } from 'lucide-react';
+import {
+  FileText,
+  LayoutDashboard,
+  LogOut,
+  Package,
+  Settings,
+  ShoppingCart,
+  Tag,
+  Truck,
+} from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { requireAdmin } from '@/lib/auth/session';
@@ -39,6 +48,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             </NavLink>
             <NavLink href="/admin/delivery" icon={<Truck className="w-5 h-5" />}>
               Delivery
+            </NavLink>
+            <NavLink href="/admin/blog" icon={<FileText className="w-5 h-5" />}>
+              Blog
             </NavLink>
             <NavLink href="/admin/sales" icon={<Tag className="w-5 h-5" />}>
               Sales

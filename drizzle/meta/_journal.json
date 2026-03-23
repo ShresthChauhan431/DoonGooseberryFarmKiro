@@ -22,6 +22,13 @@
       "when": 1773168971579,
       "tag": "0002_swift_mystique",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1774298204828,
+      "tag": "0003_mysterious_fabian_cortez",
+      "breakpoints": true
     }
   ]
 }
