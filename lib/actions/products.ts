@@ -14,8 +14,6 @@ import {
   validateDataSafe,
 } from '@/lib/utils/validation';
 
-export type { ActionResult };
-
 /**
  * Create a new product (admin only)
  */

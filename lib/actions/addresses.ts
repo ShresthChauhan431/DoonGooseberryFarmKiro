@@ -10,8 +10,6 @@ import { addresses } from '@/lib/db/schema';
 import type { ActionResult } from '@/lib/types';
 import { formatValidationErrors } from '@/lib/utils/validation';
 
-export type { ActionResult };
-
 const addressSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   addressLine1: z.string().min(1, 'Address line 1 is required'),

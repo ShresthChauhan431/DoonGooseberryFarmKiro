@@ -7,8 +7,6 @@ import { cartItems, carts, products } from '@/lib/db/schema';
 import type { ActionResult } from '@/lib/types';
 import { cartItemSchema, formatValidationErrors, validateDataSafe } from '@/lib/utils/validation';
 
-export type { ActionResult };
-
 /**
  * Add product to cart
  * Validates quantity and stock availability

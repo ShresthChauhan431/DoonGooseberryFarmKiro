@@ -6,8 +6,6 @@ import { db } from '@/lib/db';
 import { coupons } from '@/lib/db/schema';
 import type { ActionResult } from '@/lib/types';
 
-export type { ActionResult };
-
 export interface ValidatedCoupon {
   id: string;
   code: string;

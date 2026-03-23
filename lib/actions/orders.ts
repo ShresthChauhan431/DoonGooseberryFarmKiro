@@ -26,8 +26,6 @@ import type { ActionResult } from '@/lib/types';
 import { calculateCartTotalsWithShipping } from '@/lib/utils/cart';
 import { calculateShipping } from '@/lib/utils/shipping';
 
-export type { ActionResult };
-
 interface Address {
   name: string;
   addressLine1: string;
