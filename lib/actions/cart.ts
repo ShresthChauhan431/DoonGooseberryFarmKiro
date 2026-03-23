@@ -16,8 +16,8 @@ export type { ActionResult };
 export async function addToCart(
   productId: string,
   quantity: number,
-  userId?: string,
-  sessionId?: string
+  userId?: string | null,
+  sessionId?: string | null
 ): Promise<ActionResult> {
   try {
     // Validate input with Zod schema

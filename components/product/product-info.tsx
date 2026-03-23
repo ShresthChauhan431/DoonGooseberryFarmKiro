@@ -43,7 +43,7 @@ export function ProductInfo({ product, isInWishlist = false, userId }: ProductIn
 
     try {
       // Get session ID (only used if not logged in)
-      const sessionId = userId ? undefined : getSessionId();
+      const sessionId = userId ? null : getSessionId();
 
       console.log('Adding to cart:', {
         productId: product.id,
@@ -52,7 +52,7 @@ export function ProductInfo({ product, isInWishlist = false, userId }: ProductIn
         sessionId,
       });
 
-      const result = await addToCart(product.id, quantity, userId, sessionId);
+      const result = await addToCart(product.id, quantity, userId ?? null, sessionId);
 
       console.log('Add to cart result:', result);
 

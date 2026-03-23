@@ -49,12 +49,12 @@ export function ProductCard({ product, isInWishlist = false, userId }: ProductCa
 
     try {
       // Get session ID (only used if not logged in)
-      const sessionId = userId ? undefined : getSessionId();
+      const sessionId = userId ? null : getSessionId();
 
       const result = await addToCart(
         product.id,
         1, // Default quantity of 1 from product card
-        userId,
+        userId ?? null,
         sessionId
       );
 
