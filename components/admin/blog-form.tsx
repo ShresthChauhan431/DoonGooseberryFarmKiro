@@ -2,10 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { ImageInput } from '@/components/admin/image-input';
+import { RichTextEditor } from '@/components/admin/rich-text-editor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { sanitizeHtmlContent } from '@/lib/sanitize';
 
 type BlogFormData = {
   id?: string;
@@ -25,6 +28,7 @@ interface BlogFormProps {
 
 export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -38,11 +42,10 @@ export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
     category: initialData?.category || '',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Auto-generate slug from title if not editing
     if (name === 'title' && !isEditing) {
       setFormData((prev) => ({
         ...prev,
@@ -54,25 +57,63 @@ export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
     }
   };
 
+  const handleContentChange = (content: string) => {
+    setFormData((prev) => ({ ...prev, content }));
+  };
+
+  const handleImageChange = (image: string) => {
+    setFormData((prev) => ({ ...prev, featuredImage: image }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
+    if (!formData.title.trim()) {
+      setError('Title is required');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.slug.trim()) {
+      setError('Slug is required');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.featuredImage.trim()) {
+      setError('Featured image is required');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.content.trim() || formData.content === '<p></p>') {
+      setError('Content is required');
+      setLoading(false);
+      return;
+    }
+
     try {
+      const sanitizedContent = sanitizeHtmlContent(formData.content);
       const url = isEditing ? `/api/blog/id/${initialData?.id}` : '/api/blog';
       const method = isEditing ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, content: sanitizedContent }),
       });
 
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.error || 'Failed to save blog');
       }
+
+      toast({
+        title: 'Success',
+        description: isEditing ? 'Blog updated successfully' : 'Blog created successfully',
+      });
 
       router.push('/admin/blog');
       router.refresh();
@@ -89,65 +130,87 @@ export function BlogForm({ initialData, isEditing = false }: BlogFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
-      {error && <div className="text-red-500 bg-red-50 p-3 rounded">{error}</div>}
+      {error && <div className="text-red-500 bg-red-50 dark:bg-red-950 p-3 rounded">{error}</div>}
 
       <div className="space-y-2">
-        <Label htmlFor="title">Title *</Label>
-        <Input id="title" name="title" value={formData.title} onChange={handleChange} required />
+        <Label htmlFor="title">
+          Title <span className="text-destructive">*</span>
+        </Label>
+        <Input
+          id="title"
+          name="title"
+          value={formData.title}
+          onChange={handleChange}
+          placeholder="Enter blog title"
+          required
+        />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="slug">Slug *</Label>
-        <Input id="slug" name="slug" value={formData.slug} onChange={handleChange} required />
+        <Label htmlFor="slug">
+          Slug <span className="text-destructive">*</span>
+        </Label>
+        <Input
+          id="slug"
+          name="slug"
+          value={formData.slug}
+          onChange={handleChange}
+          placeholder="blog-url-slug"
+          required
+        />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="excerpt">Excerpt *</Label>
-        <Textarea
+        <Label htmlFor="excerpt">
+          Excerpt <span className="text-destructive">*</span>
+        </Label>
+        <Input
           id="excerpt"
           name="excerpt"
           value={formData.excerpt}
           onChange={handleChange}
+          placeholder="Brief description of the blog post"
           required
-          rows={3}
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="featuredImage">Featured Image URL *</Label>
-        <Input
-          id="featuredImage"
-          name="featuredImage"
-          value={formData.featuredImage}
-          onChange={handleChange}
-          placeholder="/images/blog/..."
-          required
-        />
-      </div>
+      <ImageInput
+        label="Featured Image"
+        value={formData.featuredImage}
+        onChange={handleImageChange}
+        required
+      />
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="author">Author</Label>
-          <Input id="author" name="author" value={formData.author} onChange={handleChange} />
+          <Input
+            id="author"
+            name="author"
+            value={formData.author}
+            onChange={handleChange}
+            placeholder="Author name"
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="category">Category</Label>
-          <Input id="category" name="category" value={formData.category} onChange={handleChange} />
+          <Input
+            id="category"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            placeholder="Blog category"
+          />
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="content">Content (MDX/HTML) *</Label>
-        <Textarea
-          id="content"
-          name="content"
-          value={formData.content}
-          onChange={handleChange}
-          required
-          rows={15}
-          className="font-mono text-sm"
-        />
-      </div>
+      <RichTextEditor
+        label="Content"
+        value={formData.content}
+        onChange={handleContentChange}
+        placeholder="Write your blog content here..."
+        required
+      />
 
       <div className="flex gap-4">
         <Button type="submit" disabled={loading}>
