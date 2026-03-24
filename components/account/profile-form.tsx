@@ -1,5 +1,6 @@
 'use client';
 
+import { Loader2, Save, User } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -8,14 +9,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { updateProfile } from '@/lib/actions/profile';
 
-interface User {
+interface UserData {
   id: string;
   email: string;
   name: string;
 }
 
 interface ProfileFormProps {
-  user: User;
+  user: UserData;
 }
 
 export function ProfileForm({ user }: ProfileFormProps) {
@@ -39,24 +40,48 @@ export function ProfileForm({ user }: ProfileFormProps) {
   };
 
   return (
-    <Card className="max-w-2xl">
-      <CardHeader>
-        <CardTitle>Personal Information</CardTitle>
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-xl flex items-center gap-2">
+          <User className="w-5 h-5" />
+          Personal Information
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="name">Full Name</Label>
-            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter your name"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Address</Label>
+              <Input id="email" type="email" value={user.email} disabled className="bg-muted" />
+              <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+            </div>
           </div>
-          <div>
-            <Label htmlFor="email">Email Address</Label>
-            <Input id="email" type="email" value={user.email} disabled className="bg-muted" />
-            <p className="text-sm text-muted-foreground mt-1">Email cannot be changed</p>
+
+          <div className="flex justify-end pt-2">
+            <Button type="submit" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Changes
+                </>
+              )}
+            </Button>
           </div>
-          <Button type="submit" disabled={loading}>
-            {loading ? 'Saving...' : 'Save Changes'}
-          </Button>
         </form>
       </CardContent>
     </Card>

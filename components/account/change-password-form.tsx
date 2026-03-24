@@ -1,6 +1,7 @@
 'use client';
 
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Lock, Save } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { authClient } from '@/lib/auth/client';
 
 export function ChangePasswordForm() {
+  const router = useRouter();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -46,7 +48,7 @@ export function ChangePasswordForm() {
       const result = await authClient.changePassword({
         newPassword,
         currentPassword,
-        revokeOtherSessions: true, // optional - log out from other devices
+        revokeOtherSessions: true,
       });
 
       if (result.error) {
@@ -58,6 +60,9 @@ export function ChangePasswordForm() {
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
+        setTimeout(() => {
+          router.refresh();
+        }, 1500);
       }
     } catch (_err) {
       setError('An unexpected error occurred. Please try again.');
@@ -67,18 +72,27 @@ export function ChangePasswordForm() {
   };
 
   return (
-    <Card className="mt-8">
-      <CardHeader>
-        <CardTitle>Change Password</CardTitle>
-        <CardDescription>Update your password associated with your account</CardDescription>
+    <Card className="mt-6">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-xl flex items-center gap-2">
+          <Lock className="w-5 h-5" />
+          Change Password
+        </CardTitle>
+        <CardDescription>Update your password to keep your account secure</CardDescription>
       </CardHeader>
       <CardContent>
-        {error && <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-800">{error}</div>}
+        {error && (
+          <div className="mb-4 rounded-lg bg-destructive/10 text-destructive text-sm p-3">
+            {error}
+          </div>
+        )}
         {success && (
-          <div className="mb-4 rounded-md bg-green-50 p-3 text-sm text-green-800">{success}</div>
+          <div className="mb-4 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 text-sm p-3">
+            {success}
+          </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="currentPassword">Current Password</Label>
             <div className="relative">
@@ -90,6 +104,7 @@ export function ChangePasswordForm() {
                 disabled={isLoading}
                 required
                 className="pr-10"
+                placeholder="Enter current password"
               />
               <button
                 type="button"
@@ -102,56 +117,76 @@ export function ChangePasswordForm() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="newPassword">New Password</Label>
-            <div className="relative">
-              <Input
-                id="newPassword"
-                type={showNewPassword ? 'text' : 'password'}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                disabled={isLoading}
-                required
-                className="pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
-                aria-label={showNewPassword ? 'Hide password' : 'Show password'}
-              >
-                {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">New Password</Label>
+              <div className="relative">
+                <Input
+                  id="newPassword"
+                  type={showNewPassword ? 'text' : 'password'}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  disabled={isLoading}
+                  required
+                  className="pr-10"
+                  placeholder="Enter new password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+                  aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground">Must be at least 8 characters</p>
             </div>
-            <p className="text-xs text-muted-foreground">Must be at least 8 characters</p>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmNewPassword">Confirm Password</Label>
+              <div className="relative">
+                <Input
+                  id="confirmNewPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  disabled={isLoading}
+                  required
+                  className="pr-10"
+                  placeholder="Confirm new password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="confirmNewPassword">Confirm New Password</Label>
-            <div className="relative">
-              <Input
-                id="confirmNewPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={isLoading}
-                required
-                className="pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
-                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
-              >
-                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
+          <div className="flex justify-end pt-2">
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  Update Password
+                </>
+              )}
+            </Button>
           </div>
-
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Updating...' : 'Update Password'}
-          </Button>
         </form>
       </CardContent>
     </Card>

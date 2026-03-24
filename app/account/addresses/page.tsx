@@ -1,11 +1,11 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AddressesClient } from '@/components/account/addresses-client';
+import { AccountMobileNav } from '@/components/account/mobile-nav';
 import { auth } from '@/lib/auth/config';
 import { getUserAddresses } from '@/lib/queries/addresses';
 
 export const dynamic = 'force-dynamic';
-// export const revalidate = 0;
 
 export default async function AddressesPage() {
   const session = await auth.api.getSession({
@@ -18,5 +18,10 @@ export default async function AddressesPage() {
 
   const addresses = await getUserAddresses(session.user.id);
 
-  return <AddressesClient addresses={addresses} />;
+  return (
+    <>
+      <AccountMobileNav />
+      <AddressesClient addresses={addresses} />
+    </>
+  );
 }

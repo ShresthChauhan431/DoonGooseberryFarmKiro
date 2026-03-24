@@ -1,6 +1,6 @@
 'use client';
 
-import { Edit, Plus, Trash2 } from 'lucide-react';
+import { Edit, MapPin, Plus, Star, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import {
@@ -80,66 +80,96 @@ export function AddressesClient({ addresses }: AddressesClientProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">Saved Addresses</h2>
-        <Button onClick={handleAdd}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Address
-        </Button>
-      </div>
+    <div>
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl flex items-center gap-2">
+              <MapPin className="w-5 h-5" />
+              Saved Addresses
+            </CardTitle>
+            <Button onClick={handleAdd} size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Address
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {addresses.length === 0 ? (
+            <div className="text-center py-12">
+              <MapPin className="w-16 h-16 mx-auto mb-4 text-muted-foreground/50" />
+              <h3 className="text-lg font-semibold mb-2">No saved addresses</h3>
+              <p className="text-muted-foreground mb-6">
+                Add your first address for faster checkout.
+              </p>
+              <Button onClick={handleAdd}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Address
+              </Button>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-4">
+              {addresses.map((address) => (
+                <div
+                  key={address.id}
+                  className="group relative border rounded-xl p-4 hover:shadow-md hover:border-primary/50 transition-all duration-200"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold">{address.name}</span>
+                      {address.isDefault && (
+                        <Badge variant="default" className="text-xs gap-1">
+                          <Star className="w-3 h-3" />
+                          Default
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
 
-      {addresses.length === 0 ? (
-        <Card>
-          <CardContent className="p-6 text-center">
-            <p className="text-muted-foreground mb-4">You haven't saved any addresses yet.</p>
-            <Button onClick={handleAdd}>Add Your First Address</Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid md:grid-cols-2 gap-4">
-          {addresses.map((address) => (
-            <Card key={address.id}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-lg">{address.name}</CardTitle>
-                  {address.isDefault && <Badge variant="secondary">Default</Badge>}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm mb-4">
-                  <p>{address.addressLine1}</p>
-                  {address.addressLine2 && <p>{address.addressLine2}</p>}
-                  <p>
-                    {address.city}, {address.state}
-                  </p>
-                  <p>{address.pincode}</p>
-                  <p>Phone: {address.phone}</p>
-                </div>
-                <div className="flex gap-2">
-                  {!address.isDefault && (
+                  <div className="space-y-1 text-sm text-muted-foreground mb-4">
+                    <p>{address.addressLine1}</p>
+                    {address.addressLine2 && <p>{address.addressLine2}</p>}
+                    <p>
+                      {address.city}, {address.state} - {address.pincode}
+                    </p>
+                    <p>Phone: {address.phone}</p>
+                  </div>
+
+                  <div className="flex gap-2 pt-2 border-t">
+                    {!address.isDefault && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSetDefault(address.id)}
+                        className="flex-1"
+                      >
+                        <Star className="h-3 w-3 mr-1" />
+                        Set Default
+                      </Button>
+                    )}
                     <Button
                       variant="outline"
-                      size="sm"
-                      onClick={() => handleSetDefault(address.id)}
+                      size="icon"
+                      onClick={() => handleEdit(address)}
+                      className="hover:bg-primary hover:text-primary-foreground"
                     >
-                      Set as Default
+                      <Edit className="h-4 w-4" />
                     </Button>
-                  )}
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(address)}>
-                    <Edit className="h-4 w-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => confirmDelete(address.id)}>
-                    <Trash2 className="h-4 w-4 mr-1" />
-                    Delete
-                  </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => confirmDelete(address.id)}
+                      className="hover:bg-destructive hover:text-destructive-foreground hover:border-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <AddressDialog open={dialogOpen} onOpenChange={setDialogOpen} address={editingAddress} />
 
@@ -153,7 +183,12 @@ export function AddressesClient({ addresses }: AddressesClientProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
